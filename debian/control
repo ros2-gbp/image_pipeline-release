@@ -1,0 +1,12 @@
+Source: ros-crystal-image-publisher
+Section: misc
+Priority: extra
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-crystal-ament-cmake, ros-crystal-ament-cmake-gtest, ros-crystal-ament-lint-auto, ros-crystal-ament-lint-common, ros-crystal-camera-info-manager, ros-crystal-class-loader, ros-crystal-cv-bridge, ros-crystal-image-transport, ros-crystal-rclcpp, ros-crystal-ros-workspace
+Homepage: http://ros.org/wiki/image_publisher
+Standards-Version: 3.9.2
+
+Package: ros-crystal-image-publisher
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-crystal-camera-info-manager, ros-crystal-class-loader, ros-crystal-cv-bridge, ros-crystal-image-transport, ros-crystal-rclcpp, ros-crystal-ros-workspace
+Description: Contains a node publish an image stream from single image file or avi motion file.
