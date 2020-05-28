@@ -12,6 +12,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(image_geometry REQUIRED)
@@ -32,15 +33,15 @@ find_package(OpenCV REQUIRED)
 include_directories(include ${BOOST_INCLUDE_DIRS} ${rclcpp_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} SHARED
-  src/nodelets/convert_metric.cpp
-  src/nodelets/crop_foremost.cpp
-  src/nodelets/disparity.cpp
-  src/nodelets/point_cloud_xyz.cpp
-  src/nodelets/point_cloud_xyzrgb.cpp
-  src/nodelets/point_cloud_xyzi.cpp
-  src/nodelets/point_cloud_xyz_radial.cpp
-  src/nodelets/point_cloud_xyzi_radial.cpp
-  src/nodelets/register.cpp
+  src/convert_metric.cpp
+  src/crop_foremost.cpp
+  src/disparity.cpp
+  src/point_cloud_xyz.cpp
+  src/point_cloud_xyzrgb.cpp
+  src/point_cloud_xyzi.cpp
+  src/point_cloud_xyz_radial.cpp
+  src/point_cloud_xyzi_radial.cpp
+  src/register.cpp
 )
 ament_target_dependencies(${PROJECT_NAME}
   "image_transport"
@@ -49,6 +50,7 @@ ament_target_dependencies(${PROJECT_NAME}
   "class_loader"
   "message_filters"
   "rclcpp"
+  "rclcpp_components"
   "tf2_ros"
   "tf2"
   "tf2_eigen"
@@ -56,15 +58,15 @@ ament_target_dependencies(${PROJECT_NAME}
   "sensor_msgs"
 )
 
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::ConvertMetricNode")
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::CropForemostNode")
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::DisparityNode")
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyzNode")
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyzRadialNode")
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyziNode")
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyziRadialNode")
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyzrgbNode")
-rclcpp_register_node_plugins(${PROJECT_NAME} "${PROJECT_NAME}::RegisterNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::ConvertMetricNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::CropForemostNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::DisparityNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyzNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyzRadialNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyziNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyziRadialNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::PointCloudXyzrgbNode")
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::RegisterNode")
 
 target_link_libraries(${PROJECT_NAME} ${ament_LIBRARIES} ${OpenCV_LIBRARIES})
 
@@ -75,7 +77,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 install(TARGETS ${PROJECT_NAME}
         DESTINATION lib
 )
-install(DIRECTORY examples/launch
+install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}/
 )
 
