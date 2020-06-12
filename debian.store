@@ -1,1 +1,1 @@
-{"trim": "", "base": "51b8b9b", "trimbase": "", "parent": "debian/foxy/image_rotate", "previous": "0f0c777"}
+{"base": "2cef91b", "parent": "debian/foxy/image_rotate", "previous": "8455e2b", "trim": "", "trimbase": ""}
