@@ -1,0 +1,40 @@
+<package format="2">
+  <name>stereo_image_proc</name>
+  <version>2.1.0</version>
+  <description>Stereo and single image rectification and disparity processing.</description>
+  <author>Patrick Mihelich</author>
+  <author>Kurt Konolige</author>
+  <author>Jeremy Leibs</author>
+  <maintainer email="vincent.rabaud@gmail.com">Vincent Rabaud</maintainer>
+  <maintainer email="stevenmacenski@gmail.com">Steven Macenski</maintainer>
+  <maintainer email="software@autonomoustuff.com">Autonomoustuff team</maintainer>
+  <license>BSD</license>
+  <url>http://www.ros.org/wiki/stereo_image_proc</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>cv_bridge</depend>
+  <depend>image_geometry</depend>
+  <depend>image_proc</depend>
+  <depend>image_transport</depend>
+  <depend>message_filters</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>sensor_msgs</depend>
+  <depend>stereo_msgs</depend>
+
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>launch</test_depend>
+  <test_depend>launch_ros</test_depend>
+  <test_depend>launch_testing</test_depend>
+  <test_depend>launch_testing_ament_cmake</test_depend>
+  <test_depend>python_cmake_module</test_depend>
+  <test_depend>python3-opencv</test_depend>
+  <test_depend>rclpy</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
