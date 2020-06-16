@@ -1,0 +1,13 @@
+Source: ros-rolling-depth-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ament-cmake-gtest, ros-rolling-ament-lint-auto, ros-rolling-ament-lint-common, ros-rolling-class-loader, ros-rolling-cv-bridge, ros-rolling-image-geometry, ros-rolling-image-transport, ros-rolling-message-filters, ros-rolling-sensor-msgs, ros-rolling-stereo-msgs, ros-rolling-tf2, ros-rolling-tf2-eigen, ros-rolling-tf2-ros, ros-rolling-ros-workspace
+Homepage: http://ros.org/wiki/depth_image_proc
+Standards-Version: 3.9.2
+
+Package: ros-rolling-depth-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-cv-bridge, ros-rolling-image-geometry, ros-rolling-image-transport, ros-rolling-tf2, ros-rolling-tf2-eigen, ros-rolling-tf2-ros, ros-rolling-ros-workspace
+Description: Contains components for processing depth images such as those produced by OpenNI camera.
+ Functions include creating disparity images and point clouds, as well as registering (reprojecting) a depth image into another camera frame.
