@@ -1,0 +1,12 @@
+Source: ros-rolling-image-pipeline
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ros-workspace
+Homepage: http://www.ros.org/wiki/image_pipeline
+Standards-Version: 3.9.2
+
+Package: ros-rolling-image-pipeline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-camera-calibration, ros-rolling-depth-image-proc, ros-rolling-image-proc, ros-rolling-image-publisher, ros-rolling-image-rotate, ros-rolling-ros-workspace
+Description: image_pipeline fills the gap between getting raw images from a camera driver and higher-level vision processing.
