@@ -1,0 +1,13 @@
+Source: ros-rolling-image-view
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), libboost-all-dev, libgtk-3-dev, ros-rolling-ament-cmake, ros-rolling-ament-lint-auto, ros-rolling-ament-lint-common, ros-rolling-camera-calibration-parsers, ros-rolling-cv-bridge, ros-rolling-image-transport, ros-rolling-message-filters, ros-rolling-rclcpp, ros-rolling-rclcpp-components, ros-rolling-sensor-msgs, ros-rolling-std-srvs, ros-rolling-stereo-msgs, ros-rolling-ros-workspace
+Homepage: http://www.ros.org/wiki/image_view
+Standards-Version: 3.9.2
+
+Package: ros-rolling-image-view
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libboost-all-dev, libgtk-3-dev, ros-rolling-camera-calibration-parsers, ros-rolling-cv-bridge, ros-rolling-image-transport, ros-rolling-message-filters, ros-rolling-rclcpp, ros-rolling-rclcpp-components, ros-rolling-sensor-msgs, ros-rolling-std-srvs, ros-rolling-stereo-msgs, ros-rolling-ros-workspace
+Description: A simple viewer for ROS image topics.
+ Includes a specialized viewer for stereo + disparity images.
