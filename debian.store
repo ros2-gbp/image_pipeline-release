@@ -1,1 +1,1 @@
-{"base": "6937e9e", "parent": "debian/foxy/image_proc", "previous": "1537b69", "trim": "", "trimbase": ""}
+{"base": "d6a0cb5", "parent": "debian/rolling/image_proc", "previous": "e2d288d", "trim": "", "trimbase": ""}
