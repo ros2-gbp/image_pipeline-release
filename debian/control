@@ -1,0 +1,12 @@
+Source: ros-rolling-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ament-cmake-gtest, ros-rolling-ament-lint-auto, ros-rolling-ament-lint-common, ros-rolling-cv-bridge, ros-rolling-image-geometry, ros-rolling-image-transport, ros-rolling-rclcpp, ros-rolling-rclcpp-components, ros-rolling-rcutils, ros-rolling-sensor-msgs, ros-rolling-ros-workspace
+Homepage: http://www.ros.org/wiki/image_proc
+Standards-Version: 3.9.2
+
+Package: ros-rolling-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-cv-bridge, ros-rolling-image-geometry, ros-rolling-image-transport, ros-rolling-rclcpp, ros-rolling-rclcpp-components, ros-rolling-rcutils, ros-rolling-sensor-msgs, ros-rolling-ros-workspace
+Description: Single image rectification and color processing.
