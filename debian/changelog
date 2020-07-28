@@ -1,0 +1,135 @@
+ros-foxy-image-pipeline (2.2.0-2focal) focal; urgency=high
+
+  * Initial ROS2 commit.
+  * Contributors: Michael Carroll
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 27 Jul 2020 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.23-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 10 May 2018 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.22-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 08 Dec 2017 06:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.21-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 05 Nov 2017 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.20-2focal) focal; urgency=high
+
+  * Update package.xml (#263 <https://github.com/ros-perception/image_pipeline/issues/263>)
+  * Contributors: Kei Okada
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 30 Apr 2017 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.19-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 24 Jul 2016 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.18-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 12 Jul 2016 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.17-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 11 Jul 2016 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.16-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 19 Mar 2016 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.15-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 17 Jan 2016 06:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.14-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 22 Jul 2015 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.13-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 06 Apr 2015 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.12-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 31 Dec 2014 06:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.11-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 26 Oct 2014 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.10-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 28 Sep 2014 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.9-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 21 Sep 2014 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.8-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 19 Aug 2014 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.6-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 27 Jul 2014 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.4-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 28 Apr 2014 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.3-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 12 Apr 2014 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.12.2-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 08 Apr 2014 05:00:00 -0000
+
+ros-foxy-image-pipeline (1.11.7-2focal) focal; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 28 Mar 2014 05:00:00 -0000
+
+
