@@ -30,8 +30,8 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <rclcpp/rclcpp.hpp>
-#include <image_transport/image_transport.h>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/image_transport.hpp>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
@@ -56,7 +56,7 @@ namespace enc = sensor_msgs::image_encodings;
 class PointCloudXyziNode : public rclcpp::Node
 {
 public:
-  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyziNode();
+  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyziNode(const rclcpp::NodeOptions & options);
 
 private:
   using Image = sensor_msgs::msg::Image;
@@ -93,12 +93,11 @@ private:
   rclcpp::Logger logger_ = rclcpp::get_logger("PointCloudXyziNode");
 };
 
-PointCloudXyziNode::PointCloudXyziNode()
-: Node("PointCloudXyziNode")
+PointCloudXyziNode::PointCloudXyziNode(const rclcpp::NodeOptions & options)
+: Node("PointCloudXyziNode", options)
 {
   // Read parameters
-  int queue_size;
-  this->get_parameter_or("queue_size", queue_size, 5);
+  int queue_size = this->declare_parameter<int>("queue_size", 5);
 
   // Synchronize inputs. Topic subscriptions happen on demand in the connection callback.
   sync_ = std::make_shared<Synchronizer>(
@@ -151,7 +150,8 @@ void PointCloudXyziNode::imageCb(
 {
   // Check for bad inputs
   if (depth_msg->header.frame_id != intensity_msg_in->header.frame_id) {
-    RCLCPP_ERROR(logger_, "Depth image frame id [%s] doesn't match image frame id [%s]",
+    RCLCPP_ERROR(
+      logger_, "Depth image frame id [%s] doesn't match image frame id [%s]",
       depth_msg->header.frame_id.c_str(), intensity_msg_in->header.frame_id.c_str());
     return;
   }
@@ -186,7 +186,8 @@ void PointCloudXyziNode::imageCb(
     cv_bridge::CvImage cv_rsz;
     cv_rsz.header = cv_ptr->header;
     cv_rsz.encoding = cv_ptr->encoding;
-    cv::resize(cv_ptr->image.rowRange(0, depth_msg->height / ratio), cv_rsz.image,
+    cv::resize(
+      cv_ptr->image.rowRange(0, depth_msg->height / ratio), cv_rsz.image,
       cv::Size(depth_msg->width, depth_msg->height));
     if ((intensity_msg->encoding == enc::MONO8) || (intensity_msg->encoding == enc::MONO16)) {
       intensity_msg = cv_rsz.toImageMsg();
@@ -206,7 +207,8 @@ void PointCloudXyziNode::imageCb(
     try {
       intensity_msg = cv_bridge::toCvCopy(intensity_msg, enc::MONO8)->toImageMsg();
     } catch (cv_bridge::Exception & e) {
-      RCLCPP_ERROR(logger_, "Unsupported encoding [%s]: %s",
+      RCLCPP_ERROR(
+        logger_, "Unsupported encoding [%s]: %s",
         intensity_msg->encoding.c_str(), e.what());
       return;
     }
@@ -221,7 +223,8 @@ void PointCloudXyziNode::imageCb(
 
   sensor_msgs::PointCloud2Modifier pcd_modifier(*cloud_msg);
   // pcd_modifier.setPointCloud2FieldsByString(2, "xyz", "i");
-  pcd_modifier.setPointCloud2Fields(4,
+  pcd_modifier.setPointCloud2Fields(
+    4,
     "x", 1, sensor_msgs::msg::PointField::FLOAT32,
     "y", 1, sensor_msgs::msg::PointField::FLOAT32,
     "z", 1, sensor_msgs::msg::PointField::FLOAT32,
@@ -298,7 +301,7 @@ void PointCloudXyziNode::convert(
 
 }  // namespace depth_image_proc
 
-#include "class_loader/register_macro.hpp"
+#include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-CLASS_LOADER_REGISTER_CLASS(depth_image_proc::PointCloudXyziNode, rclcpp::Node)
+RCLCPP_COMPONENTS_REGISTER_NODE(depth_image_proc::PointCloudXyziNode)

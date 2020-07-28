@@ -30,7 +30,7 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <rclcpp/rclcpp.hpp>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <depth_image_proc/visibility.h>
@@ -44,7 +44,7 @@ namespace enc = sensor_msgs::image_encodings;
 class CropForemostNode : public rclcpp::Node
 {
 public:
-  DEPTH_IMAGE_PROC_PUBLIC CropForemostNode();
+  DEPTH_IMAGE_PROC_PUBLIC CropForemostNode(const rclcpp::NodeOptions & options);
 
 private:
   // Subscriptions
@@ -63,9 +63,10 @@ private:
   rclcpp::Logger logger_ = rclcpp::get_logger("CropForemostNode");
 };
 
-CropForemostNode::CropForemostNode()
-: Node("CropForemostNode")
+CropForemostNode::CropForemostNode(const rclcpp::NodeOptions & options)
+: Node("CropForemostNode", options)
 {
+  this->declare_parameter("distance");
   this->get_parameter("distance", distance_);
 
   // Monitor whether anyone is subscribed to the output
@@ -90,9 +91,10 @@ void CropForemostNode::connectCb()
     sub_raw_.shutdown();
   } else if (!sub_raw_) {
     image_transport::TransportHints hints(this, "raw");
-    sub_raw_ = image_transport::create_subscription(this, "image_raw",
-        std::bind(&CropForemostNode::depthCb, this, std::placeholders::_1),
-        hints.getTransport());
+    sub_raw_ = image_transport::create_subscription(
+      this, "image_raw",
+      std::bind(&CropForemostNode::depthCb, this, std::placeholders::_1),
+      hints.getTransport());
   }
 }
 
@@ -108,7 +110,8 @@ void CropForemostNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & r
 
   // Check the number of channels
   if (sensor_msgs::image_encodings::numChannels(raw_msg->encoding) != 1) {
-    RCLCPP_ERROR(logger_, "Only grayscale image is acceptable, got [%s]",
+    RCLCPP_ERROR(
+      logger_, "Only grayscale image is acceptable, got [%s]",
       raw_msg->encoding.c_str());
     return;
   }
@@ -141,7 +144,7 @@ void CropForemostNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & r
 
 }  // namespace depth_image_proc
 
-#include "class_loader/register_macro.hpp"
+#include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-CLASS_LOADER_REGISTER_CLASS(depth_image_proc::CropForemostNode, rclcpp::Node)
+RCLCPP_COMPONENTS_REGISTER_NODE(depth_image_proc::CropForemostNode)

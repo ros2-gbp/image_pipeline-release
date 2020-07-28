@@ -36,7 +36,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/transform_broadcaster.h>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -85,6 +85,8 @@ private:
   void connectCb();
   void disconnectCb();
   void onInit();
+
+  rclcpp::Node::OnSetParametersCallbackHandle::SharedPtr on_set_parameters_callback_handle_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_sub_;

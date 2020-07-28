@@ -53,7 +53,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/sync_policies/exact_time.h>
@@ -62,12 +62,6 @@
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <stereo_msgs/msg/disparity_image.hpp>
-
-#ifdef HAVE_GTK
-
-#include <gtk/gtk.h>
-
-#endif
 
 #include <algorithm>
 #include <chrono>
@@ -157,8 +151,9 @@ StereoViewNode::StereoViewNode(const rclcpp::NodeOptions & options)
       std::bind(&StereoViewNode::imageCb, this, _1, _2, _3));
   } else {
     exact_sync_.reset(
-      new ExactSync(ExactPolicy(queue_size_),
-      left_sub_, right_sub_, disparity_sub_));
+      new ExactSync(
+        ExactPolicy(queue_size_),
+        left_sub_, right_sub_, disparity_sub_));
     exact_sync_->registerCallback(
       std::bind(&StereoViewNode::imageCb, this, _1, _2, _3));
   }

@@ -33,7 +33,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 
 #include <thread>
 #include <memory>
@@ -67,8 +67,9 @@ void RectifyNode::subscribeToCamera()
   {
   */
   sub_camera_ = image_transport::create_camera_subscription(
-    this, "image", std::bind(&RectifyNode::imageCb,
-    this, std::placeholders::_1, std::placeholders::_2), "raw");
+    this, "image", std::bind(
+      &RectifyNode::imageCb,
+      this, std::placeholders::_1, std::placeholders::_2), "raw");
   // }
 }
 
