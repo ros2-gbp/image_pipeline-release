@@ -53,7 +53,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <image_transport/image_transport.h>
+#include <image_transport/image_transport.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <std_msgs/msg/header.hpp>
 
@@ -142,7 +142,7 @@ ImageViewNode::ImageViewNode(const rclcpp::NodeOptions & options)
     window_thread_ = std::thread(&ImageViewNode::windowThread, this);
   }
 
-  this->set_on_parameters_set_callback(
+  on_set_parameters_callback_handle_ = this->add_on_set_parameters_callback(
     std::bind(&ImageViewNode::paramCallback, this, std::placeholders::_1));
 }
 
