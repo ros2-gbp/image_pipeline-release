@@ -29,9 +29,8 @@ set( DEPENDENCIES
   cv_bridge
 )
 
-find_package(OpenCV REQUIRED COMPONENTS core)
+find_package(OpenCV REQUIRED COMPONENTS core imgcodecs videoio)
 message(STATUS "opencv version ${OpenCV_VERSION}")
-find_package(OpenCV 4 REQUIRED COMPONENTS ${opencv_4_components})
 
 include_directories(include)
 
@@ -58,9 +57,6 @@ install(TARGETS image_publisher_node
 )
 install(TARGETS image_publisher
         DESTINATION lib/${PROJECT_NAME}
-)
-install(TARGETS image_publisher
-        DESTINATION bin
 )
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}/
