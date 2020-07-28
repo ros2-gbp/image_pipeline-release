@@ -1,0 +1,12 @@
+Source: ros-dashing-image-pipeline
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-dashing-ament-cmake, ros-dashing-ros-workspace
+Homepage: http://www.ros.org/wiki/image_pipeline
+Standards-Version: 3.9.2
+
+Package: ros-dashing-image-pipeline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-dashing-camera-calibration, ros-dashing-depth-image-proc, ros-dashing-image-proc, ros-dashing-image-publisher, ros-dashing-image-rotate, ros-dashing-ros-workspace
+Description: image_pipeline fills the gap between getting raw images from a camera driver and higher-level vision processing.
