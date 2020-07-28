@@ -31,7 +31,7 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <camera_info_manager/camera_info_manager.h>
+#include <camera_info_manager/camera_info_manager.hpp>
 
 #include <chrono>
 #include <memory>
@@ -93,7 +93,7 @@ ImagePublisher::ImagePublisher(const rclcpp::NodeOptions & options)
       ImagePublisher::reconfigureCallback();
       return result;
     };
-  this->set_on_parameters_set_callback(param_change_callback);
+  on_set_parameters_callback_handle_ = this->add_on_set_parameters_callback(param_change_callback);
 }
 
 void ImagePublisher::reconfigureCallback()
