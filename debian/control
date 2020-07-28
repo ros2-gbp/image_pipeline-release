@@ -1,0 +1,12 @@
+Source: ros-dashing-stereo-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-opencv, ros-dashing-ament-cmake, ros-dashing-ament-cmake-pytest, ros-dashing-ament-lint-auto, ros-dashing-ament-lint-common, ros-dashing-cv-bridge, ros-dashing-image-geometry, ros-dashing-image-proc, ros-dashing-image-transport, ros-dashing-launch, ros-dashing-launch-ros, ros-dashing-launch-testing, ros-dashing-launch-testing-ament-cmake, ros-dashing-message-filters, ros-dashing-python-cmake-module, ros-dashing-rclcpp, ros-dashing-rclcpp-components, ros-dashing-rclpy, ros-dashing-sensor-msgs, ros-dashing-stereo-msgs, ros-dashing-ros-workspace
+Homepage: http://www.ros.org/wiki/stereo_image_proc
+Standards-Version: 3.9.2
+
+Package: ros-dashing-stereo-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-dashing-cv-bridge, ros-dashing-image-geometry, ros-dashing-image-proc, ros-dashing-image-transport, ros-dashing-message-filters, ros-dashing-rclcpp, ros-dashing-rclcpp-components, ros-dashing-sensor-msgs, ros-dashing-stereo-msgs, ros-dashing-ros-workspace
+Description: Stereo and single image rectification and disparity processing.
