@@ -30,8 +30,8 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <rclcpp/rclcpp.hpp>
-#include <image_transport/image_transport.hpp>
-#include <image_transport/subscriber_filter.hpp>
+#include <image_transport/image_transport.h>
+#include <image_transport/subscriber_filter.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/exact_time.h>
@@ -58,7 +58,7 @@ namespace enc = sensor_msgs::image_encodings;
 class PointCloudXyzrgbNode : public rclcpp::Node
 {
 public:
-  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyzrgbNode(const rclcpp::NodeOptions & options);
+  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyzrgbNode();
 
 private:
   using PointCloud2 = sensor_msgs::msg::PointCloud2;
@@ -100,12 +100,14 @@ private:
   rclcpp::Logger logger_ = rclcpp::get_logger("PointCloudXyzrgbNode");
 };
 
-PointCloudXyzrgbNode::PointCloudXyzrgbNode(const rclcpp::NodeOptions & options)
-: Node("PointCloudXyzrgbNode", options)
+PointCloudXyzrgbNode::PointCloudXyzrgbNode()
+: Node("PointCloudXyzrgbNode")
 {
   // Read parameters
-  int queue_size = this->declare_parameter<int>("queue_size", 5);
-  bool use_exact_sync = this->declare_parameter<bool>("exact_sync", false);
+  int queue_size;
+  this->get_parameter_or("queue_size", queue_size, 5);
+  bool use_exact_sync;
+  this->get_parameter_or("exact_sync", use_exact_sync, false);
 
   // Synchronize inputs. Topic subscriptions happen on demand in the connection callback.
   if (use_exact_sync) {
@@ -166,8 +168,7 @@ void PointCloudXyzrgbNode::imageCb(
 {
   // Check for bad inputs
   if (depth_msg->header.frame_id != rgb_msg_in->header.frame_id) {
-    RCLCPP_ERROR(
-      logger_, "Depth image frame id [%s] doesn't match RGB image frame id [%s]",
+    RCLCPP_ERROR(logger_, "Depth image frame id [%s] doesn't match RGB image frame id [%s]",
       depth_msg->header.frame_id.c_str(), rgb_msg_in->header.frame_id.c_str());
     return;
   }
@@ -202,8 +203,7 @@ void PointCloudXyzrgbNode::imageCb(
     cv_bridge::CvImage cv_rsz;
     cv_rsz.header = cv_ptr->header;
     cv_rsz.encoding = cv_ptr->encoding;
-    cv::resize(
-      cv_ptr->image.rowRange(0, depth_msg->height / ratio), cv_rsz.image,
+    cv::resize(cv_ptr->image.rowRange(0, depth_msg->height / ratio), cv_rsz.image,
       cv::Size(depth_msg->width, depth_msg->height));
     if ((rgb_msg->encoding == enc::RGB8) || (rgb_msg->encoding == enc::BGR8) ||
       (rgb_msg->encoding == enc::MONO8))
@@ -213,8 +213,7 @@ void PointCloudXyzrgbNode::imageCb(
       rgb_msg = cv_bridge::toCvCopy(cv_rsz.toImageMsg(), enc::RGB8)->toImageMsg();
     }
 
-    RCLCPP_ERROR(
-      logger_, "Depth resolution (%ux%u) does not match RGB resolution (%ux%u)",
+    RCLCPP_ERROR(logger_, "Depth resolution (%ux%u) does not match RGB resolution (%ux%u)",
       depth_msg->width, depth_msg->height, rgb_msg->width, rgb_msg->height);
     return;
   } else {
@@ -262,12 +261,10 @@ void PointCloudXyzrgbNode::imageCb(
   pcd_modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
 
   if (depth_msg->encoding == enc::TYPE_16UC1) {
-    convert<uint16_t>(
-      depth_msg, rgb_msg, cloud_msg, red_offset, green_offset, blue_offset,
+    convert<uint16_t>(depth_msg, rgb_msg, cloud_msg, red_offset, green_offset, blue_offset,
       color_step);
   } else if (depth_msg->encoding == enc::TYPE_32FC1) {
-    convert<float>(
-      depth_msg, rgb_msg, cloud_msg, red_offset, green_offset, blue_offset,
+    convert<float>(depth_msg, rgb_msg, cloud_msg, red_offset, green_offset, blue_offset,
       color_step);
   } else {
     RCLCPP_ERROR(logger_, "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
@@ -336,7 +333,7 @@ void PointCloudXyzrgbNode::convert(
 
 }  // namespace depth_image_proc
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include "class_loader/register_macro.hpp"
 
 // Register the component with class_loader.
-RCLCPP_COMPONENTS_REGISTER_NODE(depth_image_proc::PointCloudXyzrgbNode)
+CLASS_LOADER_REGISTER_CLASS(depth_image_proc::PointCloudXyzrgbNode, rclcpp::Node)

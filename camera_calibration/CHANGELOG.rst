@@ -1,9 +1,9 @@
-2.2.0 (2020-07-27)
+2.1.0 (2020-07-27)
 ------------------
-* Removed basestring (no longer exists in new python 3 version). (`#554 <https://github.com/ros-perception/image_pipeline/issues/554>`_)
-  Fixes `#551 <https://github.com/ros-perception/image_pipeline/issues/551>`_
+* ROS2 Dashing Image calibration (`#447 <https://github.com/ros-perception/image_pipeline/issues/447>`_)
+  Co-authored-by: Luca Della Vedova <luca@openrobotics.org>
 * Initial ROS2 commit.
-* Contributors: Michael Carroll, PfeifferMicha
+* Contributors: Andreas Klintberg, Joshua Whitley, Kei Okada, Michael Carroll, Philipp, Yoshito Okada, stevemacenski
 
 1.12.23 (2018-05-10)
 --------------------

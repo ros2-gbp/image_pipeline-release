@@ -58,6 +58,9 @@ install(TARGETS image_publisher_node
 install(TARGETS image_publisher
         DESTINATION lib/${PROJECT_NAME}
 )
+install(TARGETS image_publisher
+        DESTINATION bin
+)
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}/
 )

@@ -32,10 +32,10 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <image_transport/image_transport.hpp>
+#include <image_transport/image_transport.h>
 #include <rclcpp/qos.hpp>
-#include <sensor_msgs/msg/camera_info.hpp>
-#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/camera_info.h>
+#include <sensor_msgs/msg/image.h>
 
 #include <memory>
 #include <mutex>
@@ -52,10 +52,8 @@ ResizeNode::ResizeNode(const rclcpp::NodeOptions & options)
   // Create image pub
   pub_image_ = image_transport::create_camera_publisher(this, "resize");
   // Create image sub
-  sub_image_ = image_transport::create_camera_subscription(
-    this, "image",
-    std::bind(
-      &ResizeNode::imageCb, this,
+  sub_image_ = image_transport::create_camera_subscription(this, "image",
+      std::bind(&ResizeNode::imageCb, this,
       std::placeholders::_1,
       std::placeholders::_2), "raw");
 

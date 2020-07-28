@@ -54,7 +54,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <camera_calibration_parsers/parse.h>
 #include <cv_bridge/cv_bridge.h>
-#include <image_transport/image_transport.hpp>
+#include <image_transport/image_transport.h>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <std_srvs/srv/empty.hpp>
 #include <std_srvs/srv/trigger.hpp>

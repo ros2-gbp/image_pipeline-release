@@ -58,6 +58,12 @@
 #include <algorithm>
 #include <string>
 
+#ifdef HAVE_GTK
+
+#include <gtk/gtk.h>
+
+#endif
+
 namespace image_view
 {
 

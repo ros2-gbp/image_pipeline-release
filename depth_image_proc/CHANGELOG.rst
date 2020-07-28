@@ -1,6 +1,19 @@
+2.1.0 (2020-07-27)
+------------------
+* cleanup any last reference to nodelets & register image publisher as a component (`#473 <https://github.com/ros-perception/image_pipeline/issues/473>`_)
+* Merge pull request `#470 <https://github.com/ros-perception/image_pipeline/issues/470>`_ from ros-perception/crop_ros2
+* fix linter and adding components dependencies to packages requiring them
+* patch API changes for depth image pipeline
+* Merge pull request `#425 <https://github.com/ros-perception/image_pipeline/issues/425>`_ from klintan/ros2
+  Dashing: Adapted for Dashing
+* Fixed CMakeLists.txt for Dashing
+* Contributors: Andreas Klintberg, Chris Ye, Joshua Whitley, Michael Carroll, Steven Macenski, Yoshito Okada, stevemacenski
+
 2.0.0 (2018-12-09)
 ------------------
 * enable rclcpp_register_node_plugins (`#368 <https://github.com/ros-perception/image_pipeline/issues/368>`_)
+  this may be remarked while code debugging, should be enabled to build node plugin file
+  and added points remap in point_cloud_xyzrgb.launch.py
 * Port depth image proc on ROS2 (`#362 <https://github.com/ros-perception/image_pipeline/issues/362>`_)
   * Port depth_image_proc on ROS2
   * Port depth_image_proc of image_pipeline on ROS2
@@ -26,26 +39,6 @@
   Signed-off-by: Chris Ye <chris.ye@intel.com>
 * Initial ROS2 commit.
 * Contributors: Chris Ye, Michael Carroll
-
-2.2.0 (2020-07-27)
-------------------
-* Replacing deprecated header includes with new HPP versions. (`#566 <https://github.com/ros-perception/image_pipeline/issues/566>`_)
-  * Replacing deprecated header includes with new HPP versions.
-  * CI: Switching to official Foxy Docker container.
-  * Fixing headers which don't work correctly.
-* Contributors: Joshua Whitley
-
-* make parameters work in depth_image_proc (`#544 <https://github.com/ros-perception/image_pipeline/issues/544>`_)
-* update depth_image_proc components (`#543 <https://github.com/ros-perception/image_pipeline/issues/543>`_)
-  * update depth_image_proc components
-  This makes them loadable with the rclcpp_components
-  interface. I've fully tested PointCloudXYZRGB and
-  ConvertMetric, my use case doesn't use the others.
-  I also lack a setup to test the launch files fully,
-  but ran them with the realsense commented out and
-  they appear to be OK.
-  * fix linting
-* Contributors: Michael Ferguson
 
 1.12.23 (2018-05-10)
 --------------------

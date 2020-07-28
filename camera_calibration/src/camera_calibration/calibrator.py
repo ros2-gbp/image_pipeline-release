@@ -32,6 +32,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from io import BytesIO
 import cv2
 import cv_bridge
@@ -1118,7 +1122,7 @@ class StereoCalibrator(Calibrator):
 
         def taradd(name, buf):
             if isinstance(buf, str):
-                s = BytesIO(buf.encode('utf-8'))
+                s = StringIO(buf)
             else:
                 s = BytesIO(buf)
             ti = tarfile.TarInfo(name)
