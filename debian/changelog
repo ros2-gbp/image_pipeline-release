@@ -1,0 +1,226 @@
+ros-dashing-image-proc (2.1.1-1bionic) bionic; urgency=high
+
+  * Disable "Publish Color!" debug_info (#578 <https://github.com/ros-perception/image_pipeline/issues/578>)
+  * [Dashing] Use ament_auto Macros (#573 <https://github.com/ros-perception/image_pipeline/issues/573>) (#575 <https://github.com/ros-perception/image_pipeline/issues/575>)
+  * Contributors: Dereck Wonnacott, Joshua Whitley
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 27 Aug 2020 05:00:00 -0000
+
+ros-dashing-image-proc (2.1.0-1bionic) bionic; urgency=high
+
+  * Fixing flake8 error in image_proc.
+  * Opencv 3 compatibility (#564 <https://github.com/ros-perception/image_pipeline/issues/564>) (#565 <https://github.com/ros-perception/image_pipeline/issues/565>)
+    * Remove GTK from image_view.
+    * Reinstate OpenCV 3 compatibility.
+    Co-authored-by: Chris Lalancette <mailto:clalancette@gmail.com>
+  * Removed namespaces as parameters and added launch file example in image_proc (#519 <https://github.com/ros-perception/image_pipeline/issues/519>)
+  * Commented out getNumSubscribers on resize.cpp (#523 <https://github.com/ros-perception/image_pipeline/issues/523>)
+  * Switched default interpolation in recitfy.cpp to mode 1 (#522 <https://github.com/ros-perception/image_pipeline/issues/522>)
+  * Build image_proc as shared library and export (#513 <https://github.com/ros-perception/image_pipeline/issues/513>)
+  * Add image_proc launch file (#492 <https://github.com/ros-perception/image_pipeline/issues/492>)
+    * Add image_proc launch file
+    * Install launch file
+  * [image_proc] Install include directory and export (#485 <https://github.com/ros-perception/image_pipeline/issues/485>)
+  * Port image processor library to ROS 2 (#484 <https://github.com/ros-perception/image_pipeline/issues/484>)
+  * Merge pull request #459 <https://github.com/ros-perception/image_pipeline/issues/459> from klintan/image-proc-resize-crop
+    ROS2: Image proc non zero crop
+  * fixed linting issues
+  * ROS2: Lint/Uncrustify image_proc (#474 <https://github.com/ros-perception/image_pipeline/issues/474>)
+  * cleanup any last reference to nodelets & register image publisher as a component (#473 <https://github.com/ros-perception/image_pipeline/issues/473>)
+  * Merge pull request #471 <https://github.com/ros-perception/image_pipeline/issues/471> from ros-perception/crop_d
+    ROS2 port of crop decimate in image proc
+  * Merge pull request #470 <https://github.com/ros-perception/image_pipeline/issues/470> from ros-perception/crop_ros2
+  * fix linter and adding components dependencies to packages requiring them
+  * ROS2: Added resize component (#465 <https://github.com/ros-perception/image_pipeline/issues/465>)
+  * Merge pull request #450 <https://github.com/ros-perception/image_pipeline/issues/450> from ros-perception/revert-443-dashing-launch-file
+  * Revert "ROS2 Image proc refactoring using components and added launch file"
+  * Merge pull request #443 <https://github.com/ros-perception/image_pipeline/issues/443> from klintan/dashing-launch-file
+    ROS2 Image proc refactoring using components and added launch file
+  * Merge pull request #426 <https://github.com/ros-perception/image_pipeline/issues/426> from klintan/image-proc-dashing
+    Dashing: Image_proc with old PR comments fixed
+  * Initial ROS2 commit.
+  * Contributors: Andreas Klintberg, Jacob Perron, Joshua Whitley, Michael Carroll, Steven Macenski, Yoshito Okada, caelinsutch, stevemacenski
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 27 Jul 2020 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.23-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 10 May 2018 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.22-1bionic) bionic; urgency=high
+
+  * Merge pull request #311 <https://github.com/ros-perception/image_pipeline/issues/311> from knorth55/revert-299
+    Revert "Fix image_resize nodelet (#299 <https://github.com/ros-perception/image_pipeline/issues/299>)"
+    This reverts commit 32e19697ebce47101b063c6a02b95dfa2c5dbc52.
+  * Contributors: Shingo Kitagawa, Tully Foote
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 08 Dec 2017 06:00:00 -0000
+
+ros-dashing-image-proc (1.12.21-1bionic) bionic; urgency=high
+
+  * Fix image_resize nodelet (#299 <https://github.com/ros-perception/image_pipeline/issues/299>)
+    Update interpolation types
+    Add arguments to enable disable each nodelet
+    Add default arguments for image_resize and image_rect
+    Use toCVShare instead of toCVCopy
+    Include image_resize in image_proc
+  * Updated fix for traits change. (#303 <https://github.com/ros-perception/image_pipeline/issues/303>)
+  * Fix C++11 compilation
+    This fixes #292 <https://github.com/ros-perception/image_pipeline/issues/292> and #291 <https://github.com/ros-perception/image_pipeline/issues/291>
+  * [image_proc][crop_decimate] support changing target image frame_id (#276 <https://github.com/ros-perception/image_pipeline/issues/276>)
+  * Contributors: Furushchev, Mike Purvis, Vincent Rabaud, bikramak
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 05 Nov 2017 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.20-1bionic) bionic; urgency=high
+
+  * Add nodelet to resize image and camera_info (#273 <https://github.com/ros-perception/image_pipeline/issues/273>)
+    * Add nodelet to resize image and camera_info
+    * Depends on nodelet_topic_tools
+    * Use recursive_mutex for mutex guard for dynamic reconfiguring
+  * Fix nodelet name: crop_nonZero ->  crop_non_zero (#269 <https://github.com/ros-perception/image_pipeline/issues/269>)
+    Fix https://github.com/ros-perception/image_pipeline/issues/217
+  * Fix permission of executable files unexpectedly (#260 <https://github.com/ros-perception/image_pipeline/issues/260>)
+  * address gcc6 build error
+    With gcc6, compiling fails with stdlib.h: No such file or directory,
+    as including '-isystem /usr/include' breaks with gcc6, cf.,
+    https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70129.
+    This commit addresses this issue for this package in the same way
+    it was addressed in various other ROS packages. A list of related
+    commits and pull requests is at:
+    https://github.com/ros/rosdistro/issues/12783
+    Signed-off-by: Lukas Bulwahn <mailto:lukas.bulwahn@oss.bmw-carit.de>
+  * Contributors: Kentaro Wada, Lukas Bulwahn
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 30 Apr 2017 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.19-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 24 Jul 2016 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.18-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 12 Jul 2016 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.17-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 11 Jul 2016 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.16-1bionic) bionic; urgency=high
+
+  * clean OpenCV dependency in package.xml
+  * issue #180 <https://github.com/ros-perception/image_pipeline/issues/180> Check if all distortion coefficients are zero.
+    Test with:
+    rostest --reuse-master --text image_proc test_rectify.xml
+    Can also test interactively with vimjay image_rect.launch, which brings up an rqt gui and camera info distortion coefficients can be dynamically reconfigured.
+  * Add a feature to crop the largest valid (non zero) area
+    Remove unnecessary headers
+    change a filename to fit for the ROS convention
+  * Contributors: Kenta Yonekura, Lucas Walter, Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 19 Mar 2016 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.15-1bionic) bionic; urgency=high
+
+  * simplify OpenCV3 conversion
+  * Contributors: Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 17 Jan 2016 06:00:00 -0000
+
+ros-dashing-image-proc (1.12.14-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 22 Jul 2015 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.13-1bionic) bionic; urgency=high
+
+  * fix dependencies
+  * Contributors: Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 06 Apr 2015 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.12-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 31 Dec 2014 06:00:00 -0000
+
+ros-dashing-image-proc (1.12.11-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 26 Oct 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.10-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 28 Sep 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.9-1bionic) bionic; urgency=high
+
+  * get code to compile with OpenCV3
+    fixes #96 <https://github.com/ros-perception/image_pipeline/issues/96>
+  * Contributors: Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 21 Sep 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.8-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 19 Aug 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.6-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 27 Jul 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.4-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 28 Apr 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.3-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 12 Apr 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.2-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 08 Apr 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.12.1-1bionic) bionic; urgency=high
+
+  * get proper opencv dependency
+  * Contributors: Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 06 Apr 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.11.7-1bionic) bionic; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 28 Mar 2014 05:00:00 -0000
+
+ros-dashing-image-proc (1.11.6-1bionic) bionic; urgency=high
+
+  * fix bad OpenCV linkage (#53)
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 29 Jan 2014 00:38:55 -0600
+
+
