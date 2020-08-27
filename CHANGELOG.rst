@@ -1,5 +1,19 @@
-Forthcoming
------------
+2.2.1 (2020-08-27)
+------------------
+* remove email blasts from steve macenski (`#596 <https://github.com/ros-perception/image_pipeline/issues/596>`_)
+* [Foxy] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_)
+* Contributors: Joshua Whitley, Steve Macenski
+
+2.2.0 (2020-07-27)
+------------------
+* Replacing deprecated header includes with new HPP versions. (`#566 <https://github.com/ros-perception/image_pipeline/issues/566>`_)
+* Opencv 3 compatibility (`#564 <https://github.com/ros-perception/image_pipeline/issues/564>`_)
+  * Remove GTK from image_view.
+  * Reinstate OpenCV 3 compatibility.
+* Use newer 'add_on_set_parameters_callback' API (`#562 <https://github.com/ros-perception/image_pipeline/issues/562>`_)
+  The old API was deprecated in Foxy and since removed in https://github.com/ros2/rclcpp/pull/1199.
+* Contributors: Chris Lalancette, Jacob Perron, Joshua Whitley
+
 * Patch boost failure in image_view (`#541 <https://github.com/ros-perception/image_pipeline/issues/541>`_)
   * Patch boost failure in image_view
   * remove ros2_deps from circle with new releases
