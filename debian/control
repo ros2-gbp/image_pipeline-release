@@ -1,0 +1,13 @@
+Source: ros-dashing-image-view
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), libboost-dev, ros-dashing-ament-cmake-auto, ros-dashing-ament-lint-auto, ros-dashing-ament-lint-common, ros-dashing-camera-calibration-parsers, ros-dashing-cv-bridge, ros-dashing-image-transport, ros-dashing-message-filters, ros-dashing-rclcpp, ros-dashing-rclcpp-components, ros-dashing-sensor-msgs, ros-dashing-std-srvs, ros-dashing-stereo-msgs, ros-dashing-ros-workspace
+Homepage: https://index.ros.org/p/image_view/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-dashing-image-view
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libboost-dev, ros-dashing-camera-calibration-parsers, ros-dashing-cv-bridge, ros-dashing-image-transport, ros-dashing-message-filters, ros-dashing-rclcpp, ros-dashing-rclcpp-components, ros-dashing-sensor-msgs, ros-dashing-std-srvs, ros-dashing-stereo-msgs, ros-dashing-ros-workspace
+Description: A simple viewer for ROS image topics.
+ Includes a specialized viewer for stereo + disparity images.
