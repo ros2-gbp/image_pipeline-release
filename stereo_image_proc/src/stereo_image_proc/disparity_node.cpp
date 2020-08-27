@@ -33,8 +33,8 @@
 
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/stereo_camera_model.h>
-#include <image_transport/image_transport.h>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/image_transport.hpp>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
@@ -88,6 +88,9 @@ private:
   std::shared_ptr<ApproximateSync> approximate_sync_;
   // Publications
   std::shared_ptr<rclcpp::Publisher<stereo_msgs::msg::DisparityImage>> pub_disparity_;
+
+  // Handle to parameters callback
+  rclcpp::Node::OnSetParametersCallbackHandle::SharedPtr on_set_parameters_callback_handle_;
 
   // Processing state (note: only safe because we're single-threaded!)
   image_geometry::StereoCameraModel model_;
@@ -175,7 +178,8 @@ DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
   }
 
   // Register a callback for when parameters are set
-  this->set_on_parameters_set_callback(std::bind(&DisparityNode::parameterSetCb, this, _1));
+  on_set_parameters_callback_handle_ = this->add_on_set_parameters_callback(
+    std::bind(&DisparityNode::parameterSetCb, this, _1));
 
   // Describe int parameters
   std::map<std::string, std::pair<int, rcl_interfaces::msg::ParameterDescriptor>> int_params;
