@@ -30,7 +30,7 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <rclcpp/rclcpp.hpp>
-#include <image_transport/image_transport.hpp>
+#include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.hpp>
 #include <depth_image_proc/visibility.h>
 #include <cmath>
@@ -45,7 +45,7 @@ namespace enc = sensor_msgs::image_encodings;
 class ConvertMetricNode : public rclcpp::Node
 {
 public:
-  DEPTH_IMAGE_PROC_PUBLIC ConvertMetricNode(const rclcpp::NodeOptions & options);
+  DEPTH_IMAGE_PROC_PUBLIC ConvertMetricNode();
 
 private:
   // Subscriptions
@@ -62,8 +62,8 @@ private:
   rclcpp::Logger logger_ = rclcpp::get_logger("ConvertMetricNode");
 };
 
-ConvertMetricNode::ConvertMetricNode(const rclcpp::NodeOptions & options)
-: Node("ConvertMetricNode", options)
+ConvertMetricNode::ConvertMetricNode()
+: Node("ConvertMetricNode")
 {
   // Monitor whether anyone is subscribed to the output
   // TODO(ros2) Implement when SubscriberStatusCallback is available
@@ -88,10 +88,9 @@ void ConvertMetricNode::connectCb()
     sub_raw_.shutdown();
   } else if (!sub_raw_) {
     image_transport::TransportHints hints(this, "raw");
-    sub_raw_ = image_transport::create_subscription(
-      this, "image_raw",
-      std::bind(&ConvertMetricNode::depthCb, this, std::placeholders::_1),
-      hints.getTransport());
+    sub_raw_ = image_transport::create_subscription(this, "image_raw",
+        std::bind(&ConvertMetricNode::depthCb, this, std::placeholders::_1),
+        hints.getTransport());
   }
 }
 
@@ -137,7 +136,7 @@ void ConvertMetricNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & 
 
 }  // namespace depth_image_proc
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include "class_loader/register_macro.hpp"
 
 // Register the component with class_loader.
-RCLCPP_COMPONENTS_REGISTER_NODE(depth_image_proc::ConvertMetricNode)
+CLASS_LOADER_REGISTER_CLASS(depth_image_proc::ConvertMetricNode, rclcpp::Node)

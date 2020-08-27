@@ -2,17 +2,21 @@
 Changelog for package image_pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.2.1 (2020-08-27)
+2.1.1 (2020-08-27)
 ------------------
-* remove email blasts from steve macenski (`#596 <https://github.com/ros-perception/image_pipeline/issues/596>`_)
-* [Foxy] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_)
-* Contributors: Joshua Whitley, Steve Macenski
+* [Dashing] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_) (`#575 <https://github.com/ros-perception/image_pipeline/issues/575>`_)
+* Contributors: Joshua Whitley
 
-2.2.0 (2020-07-27)
+2.1.0 (2020-07-27)
 ------------------
-
+* ROS2 Dashing Image calibration (`#447 <https://github.com/ros-perception/image_pipeline/issues/447>`_)
+  Co-authored-by: Luca Della Vedova <luca@openrobotics.org>
+* Merge pull request `#470 <https://github.com/ros-perception/image_pipeline/issues/470>`_ from ros-perception/crop_ros2
+* add default compiler flags for image pipeline metapackage
+* reactivate ros2 image pipeline metapackage
+* Changelogs.
 * Initial ROS2 commit.
-* Contributors: Michael Carroll
+* Contributors: Andreas Klintberg, Joshua Whitley, Michael Carroll, Steven Macenski, Yoshito Okada, stevemacenski
 
 1.12.23 (2018-05-10)
 --------------------

@@ -1,23 +1,43 @@
-2.2.1 (2020-08-27)
+2.1.1 (2020-08-27)
 ------------------
-* make crop_decimate work (`#593 <https://github.com/ros-perception/image_pipeline/issues/593>`_)
-* remove email blasts from steve macenski (`#596 <https://github.com/ros-perception/image_pipeline/issues/596>`_)
-* Disable "Publish Color!" debug_info (`#577 <https://github.com/ros-perception/image_pipeline/issues/577>`_)
-* [Foxy] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_)
-* Contributors: Dereck Wonnacott, Joshua Whitley, Michael Ferguson, Steve Macenski
+* Disable "Publish Color!" debug_info (`#578 <https://github.com/ros-perception/image_pipeline/issues/578>`_)
+* [Dashing] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_) (`#575 <https://github.com/ros-perception/image_pipeline/issues/575>`_)
+* Contributors: Dereck Wonnacott, Joshua Whitley
 
-2.2.0 (2020-07-27)
+2.1.0 (2020-07-27)
 ------------------
-* Replacing deprecated header includes with new HPP versions. (`#566 <https://github.com/ros-perception/image_pipeline/issues/566>`_)
-* Opencv 3 compatibility (`#564 <https://github.com/ros-perception/image_pipeline/issues/564>`_)
+* Fixing flake8 error in image_proc.
+* Opencv 3 compatibility (`#564 <https://github.com/ros-perception/image_pipeline/issues/564>`_) (`#565 <https://github.com/ros-perception/image_pipeline/issues/565>`_)
   * Remove GTK from image_view.
   * Reinstate OpenCV 3 compatibility.
-* Fix bad quotes in image_proc launch file (`#563 <https://github.com/ros-perception/image_pipeline/issues/563>`_)
-  This fixes a flake8 error.
-* Contributors: Chris Lalancette, Jacob Perron, Joshua Whitley
-
+  Co-authored-by: Chris Lalancette <clalancette@gmail.com>
+* Removed namespaces as parameters and added launch file example in image_proc (`#519 <https://github.com/ros-perception/image_pipeline/issues/519>`_)
+* Commented out getNumSubscribers on resize.cpp (`#523 <https://github.com/ros-perception/image_pipeline/issues/523>`_)
+* Switched default interpolation in recitfy.cpp to mode 1 (`#522 <https://github.com/ros-perception/image_pipeline/issues/522>`_)
+* Build image_proc as shared library and export (`#513 <https://github.com/ros-perception/image_pipeline/issues/513>`_)
+* Add image_proc launch file (`#492 <https://github.com/ros-perception/image_pipeline/issues/492>`_)
+  * Add image_proc launch file
+  * Install launch file
+* [image_proc] Install include directory and export (`#485 <https://github.com/ros-perception/image_pipeline/issues/485>`_)
+* Port image processor library to ROS 2 (`#484 <https://github.com/ros-perception/image_pipeline/issues/484>`_)
+* Merge pull request `#459 <https://github.com/ros-perception/image_pipeline/issues/459>`_ from klintan/image-proc-resize-crop
+  ROS2: Image proc non zero crop
+* fixed linting issues
+* ROS2: Lint/Uncrustify image_proc (`#474 <https://github.com/ros-perception/image_pipeline/issues/474>`_)
+* cleanup any last reference to nodelets & register image publisher as a component (`#473 <https://github.com/ros-perception/image_pipeline/issues/473>`_)
+* Merge pull request `#471 <https://github.com/ros-perception/image_pipeline/issues/471>`_ from ros-perception/crop_d
+  ROS2 port of crop decimate in image proc
+* Merge pull request `#470 <https://github.com/ros-perception/image_pipeline/issues/470>`_ from ros-perception/crop_ros2
+* fix linter and adding components dependencies to packages requiring them
+* ROS2: Added resize component (`#465 <https://github.com/ros-perception/image_pipeline/issues/465>`_)
+* Merge pull request `#450 <https://github.com/ros-perception/image_pipeline/issues/450>`_ from ros-perception/revert-443-dashing-launch-file
+* Revert "ROS2 Image proc refactoring using components and added launch file"
+* Merge pull request `#443 <https://github.com/ros-perception/image_pipeline/issues/443>`_ from klintan/dashing-launch-file
+  ROS2 Image proc refactoring using components and added launch file
+* Merge pull request `#426 <https://github.com/ros-perception/image_pipeline/issues/426>`_ from klintan/image-proc-dashing
+  Dashing: Image_proc with old PR comments fixed
 * Initial ROS2 commit.
-* Contributors: Michael Carroll
+* Contributors: Andreas Klintberg, Jacob Perron, Joshua Whitley, Michael Carroll, Steven Macenski, Yoshito Okada, caelinsutch, stevemacenski
 
 1.12.23 (2018-05-10)
 --------------------

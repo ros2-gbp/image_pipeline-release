@@ -46,10 +46,8 @@ CropNonZeroNode::CropNonZeroNode(const rclcpp::NodeOptions & options)
 {
   pub_ = image_transport::create_publisher(this, "image");
   RCLCPP_INFO(this->get_logger(), "subscribe: %s", "image_raw");
-  sub_raw_ = image_transport::create_subscription(
-    this, "image_raw",
-    std::bind(
-      &CropNonZeroNode::imageCb,
+  sub_raw_ = image_transport::create_subscription(this, "image_raw",
+      std::bind(&CropNonZeroNode::imageCb,
       this, std::placeholders::_1), "raw");
 }
 
@@ -65,8 +63,7 @@ void CropNonZeroNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & ra
 
   // Check the number of channels
   if (sensor_msgs::image_encodings::numChannels(raw_msg->encoding) != 1) {
-    RCLCPP_ERROR(
-      this->get_logger(), "Only grayscale image is acceptable, got [%s]",
+    RCLCPP_ERROR(this->get_logger(), "Only grayscale image is acceptable, got [%s]",
       raw_msg->encoding.c_str());
     return;
   }
@@ -87,11 +84,10 @@ void CropNonZeroNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & ra
 
   // search the largest area
   std::vector<std::vector<cv::Point>>::iterator it =
-    std::max_element(
-    cnt.begin(), cnt.end(), [](std::vector<cv::Point> a,
-    std::vector<cv::Point> b) {
-      return a.size() < b.size();
-    });
+    std::max_element(cnt.begin(), cnt.end(), [](std::vector<cv::Point> a,
+      std::vector<cv::Point> b) {
+        return a.size() < b.size();
+      });
 
   cv::Rect r = cv::boundingRect(cnt[std::distance(cnt.begin(), it)]);
 

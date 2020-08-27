@@ -1,19 +1,14 @@
-2.2.1 (2020-08-27)
+2.1.1 (2020-08-27)
 ------------------
-* remove email blasts from steve macenski (`#596 <https://github.com/ros-perception/image_pipeline/issues/596>`_)
-* Add pytest.ini to fix warning (`#584 <https://github.com/ros-perception/image_pipeline/issues/584>`_)
-  Fixes the following warning:
-  Warning: The 'junit_family' default value will change to 'xunit2' in pytest 6.0.
-  Add 'junit_family=xunit1' to your pytest.ini file to keep the current format in future versions of pytest and silence this warning.
-* [Foxy] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_)
-* Contributors: Jacob Perron, Joshua Whitley, Steve Macenski
+* [Dashing] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_) (`#575 <https://github.com/ros-perception/image_pipeline/issues/575>`_)
+* Contributors: Joshua Whitley
 
-2.2.0 (2020-07-27)
+2.1.0 (2020-07-27)
 ------------------
-* Removed basestring (no longer exists in new python 3 version). (`#554 <https://github.com/ros-perception/image_pipeline/issues/554>`_)
-  Fixes `#551 <https://github.com/ros-perception/image_pipeline/issues/551>`_
+* ROS2 Dashing Image calibration (`#447 <https://github.com/ros-perception/image_pipeline/issues/447>`_)
+  Co-authored-by: Luca Della Vedova <luca@openrobotics.org>
 * Initial ROS2 commit.
-* Contributors: Michael Carroll, PfeifferMicha
+* Contributors: Andreas Klintberg, Joshua Whitley, Kei Okada, Michael Carroll, Philipp, Yoshito Okada, stevemacenski
 
 1.12.23 (2018-05-10)
 --------------------

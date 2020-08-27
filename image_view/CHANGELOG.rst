@@ -1,27 +1,26 @@
-2.2.1 (2020-08-27)
+2.1.1 (2020-08-27)
 ------------------
-* remove email blasts from steve macenski (`#596 <https://github.com/ros-perception/image_pipeline/issues/596>`_)
-* [Foxy] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_)
-* Contributors: Joshua Whitley, Steve Macenski
+* [Dashing] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_) (`#575 <https://github.com/ros-perception/image_pipeline/issues/575>`_)
+* Contributors: Joshua Whitley
 
-2.2.0 (2020-07-27)
+2.1.0 (2020-07-27)
 ------------------
-* Replacing deprecated header includes with new HPP versions. (`#566 <https://github.com/ros-perception/image_pipeline/issues/566>`_)
-* Opencv 3 compatibility (`#564 <https://github.com/ros-perception/image_pipeline/issues/564>`_)
+* Opencv 3 compatibility (`#564 <https://github.com/ros-perception/image_pipeline/issues/564>`_) (`#565 <https://github.com/ros-perception/image_pipeline/issues/565>`_)
   * Remove GTK from image_view.
   * Reinstate OpenCV 3 compatibility.
-* Use newer 'add_on_set_parameters_callback' API (`#562 <https://github.com/ros-perception/image_pipeline/issues/562>`_)
-  The old API was deprecated in Foxy and since removed in https://github.com/ros2/rclcpp/pull/1199.
-* Contributors: Chris Lalancette, Jacob Perron, Joshua Whitley
-
-* Patch boost failure in image_view (`#541 <https://github.com/ros-perception/image_pipeline/issues/541>`_)
-  * Patch boost failure in image_view
-  * remove ros2_deps from circle with new releases
-  * readd deps
-* Contributors: Steve Macenski
-
+  Co-authored-by: Chris Lalancette <clalancette@gmail.com>
+* image_view: add missing depends to package.xml (`#511 <https://github.com/ros-perception/image_pipeline/issues/511>`_)
+  * image_view: depend on rclcpp_components
+  * image_view: don't find rosidl_default_generators
+* ROS2 image_view: lint/uncrustify. (`#482 <https://github.com/ros-perception/image_pipeline/issues/482>`_)
+  * image_view: lint/uncrustify.
+  * image_view: fixing typos.
+* Merge pull request `#480 <https://github.com/ros-perception/image_pipeline/issues/480>`_ from ros-perception/image-view/maint/remove-useless-callback
+  image_view: Removing useless callback in image_view node.
+* ROS2: Port image_view (`#475 <https://github.com/ros-perception/image_pipeline/issues/475>`_)
+* Changelogs.
 * Initial ROS2 commit.
-* Contributors: Michael Carroll
+* Contributors: Joshua Whitley, Maarten de Vries, Michael Carroll, Steven Macenski, Steven Peters, Timo Röhling, Yoshito Okada, angeltop, stevemacenski
 
 1.12.23 (2018-05-10)
 --------------------

@@ -30,7 +30,7 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <rclcpp/rclcpp.hpp>
-#include <image_transport/image_transport.hpp>
+#include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.hpp>
 #include <image_geometry/pinhole_camera_model.h>
 #include <depth_image_proc/depth_traits.hpp>
@@ -49,7 +49,7 @@ namespace enc = sensor_msgs::image_encodings;
 class PointCloudXyzRadialNode : public rclcpp::Node
 {
 public:
-  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyzRadialNode(const rclcpp::NodeOptions & options);
+  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyzRadialNode();
 
 private:
   // Subscriptions
@@ -113,8 +113,7 @@ cv::Mat initMatrix(cv::Mat cameraMatrix, cv::Mat distCoeffs, int width, int heig
 
   if (radial) {
     for (i = 0; i < totalsize; i++) {
-      normalize(
-        pixelVectors.at<cv::Vec3f>(i),
+      normalize(pixelVectors.at<cv::Vec3f>(i),
         dst.at<cv::Vec3f>(i));
     }
     pixelVectors = dst;
@@ -123,11 +122,11 @@ cv::Mat initMatrix(cv::Mat cameraMatrix, cv::Mat distCoeffs, int width, int heig
 }
 
 
-PointCloudXyzRadialNode::PointCloudXyzRadialNode(const rclcpp::NodeOptions & options)
-: Node("PointCloudXyzRadialNode", options)
+PointCloudXyzRadialNode::PointCloudXyzRadialNode()
+: Node("PointCloudXyzRadialNode")
 {
   // Read parameters
-  queue_size_ = this->declare_parameter<int>("queue_size", 5);
+  this->get_parameter_or("queue_size", queue_size_, 5);
 
   // Monitor whether anyone is subscribed to the output
   // TODO(ros2) Implement when SubscriberStatusCallback is available
@@ -157,9 +156,8 @@ void PointCloudXyzRadialNode::connectCb()
     sub_depth_ = image_transport::create_camera_subscription(
       this,
       "image_raw",
-      std::bind(
-        &PointCloudXyzRadialNode::depthCb, this, std::placeholders::_1,
-        std::placeholders::_2),
+      std::bind(&PointCloudXyzRadialNode::depthCb, this, std::placeholders::_1,
+      std::placeholders::_2),
       "raw",
       custom_qos);
   }
@@ -234,7 +232,7 @@ void PointCloudXyzRadialNode::convert(
 
 }  // namespace depth_image_proc
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include "class_loader/register_macro.hpp"
 
 // Register the component with class_loader.
-RCLCPP_COMPONENTS_REGISTER_NODE(depth_image_proc::PointCloudXyzRadialNode)
+CLASS_LOADER_REGISTER_CLASS(depth_image_proc::PointCloudXyzRadialNode, rclcpp::Node)

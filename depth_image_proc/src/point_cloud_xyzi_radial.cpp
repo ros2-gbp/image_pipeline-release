@@ -30,9 +30,9 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <rclcpp/rclcpp.hpp>
-#include <image_transport/image_transport.hpp>
+#include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.hpp>
-#include <image_transport/subscriber_filter.hpp>
+#include <image_transport/subscriber_filter.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/exact_time.h>
@@ -59,7 +59,7 @@ using SyncPolicy =
 class PointCloudXyziRadialNode : public rclcpp::Node
 {
 public:
-  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyziRadialNode(const rclcpp::NodeOptions & options);
+  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyziRadialNode();
 
 private:
   using PointCloud = sensor_msgs::msg::PointCloud2;
@@ -141,8 +141,7 @@ cv::Mat PointCloudXyziRadialNode::initMatrix(
 
   if (radial) {
     for (i = 0; i < totalsize; i++) {
-      normalize(
-        pixelVectors.at<cv::Vec3f>(i),
+      normalize(pixelVectors.at<cv::Vec3f>(i),
         dst.at<cv::Vec3f>(i));
     }
     pixelVectors = dst;
@@ -151,11 +150,11 @@ cv::Mat PointCloudXyziRadialNode::initMatrix(
 }
 
 
-PointCloudXyziRadialNode::PointCloudXyziRadialNode(const rclcpp::NodeOptions & options)
-: Node("PointCloudXyziRadialNode", options)
+PointCloudXyziRadialNode::PointCloudXyziRadialNode()
+: Node("PointCloudXyziRadialNode")
 {
   // Read parameters
-  queue_size_ = this->declare_parameter<int>("queue_size", 5);
+  this->get_parameter_or("queue_size", queue_size_, 5);
 
   // Synchronize inputs. Topic subscriptions happen on demand in the connection callback.
   sync_ = std::make_shared<Synchronizer>(
@@ -218,8 +217,7 @@ void PointCloudXyziRadialNode::imageCb(
   cloud_msg->is_bigendian = false;
 
   sensor_msgs::PointCloud2Modifier pcd_modifier(*cloud_msg);
-  pcd_modifier.setPointCloud2Fields(
-    4,
+  pcd_modifier.setPointCloud2Fields(4,
     "x", 1, sensor_msgs::msg::PointField::FLOAT32,
     "y", 1, sensor_msgs::msg::PointField::FLOAT32,
     "z", 1, sensor_msgs::msg::PointField::FLOAT32,
@@ -251,8 +249,7 @@ void PointCloudXyziRadialNode::imageCb(
   } else if (intensity_msg->encoding == enc::MONO8) {
     convert_intensity<uint8_t>(intensity_msg, cloud_msg);
   } else {
-    RCLCPP_ERROR(
-      logger_, "Intensity image has unsupported encoding [%s]",
+    RCLCPP_ERROR(logger_, "Intensity image has unsupported encoding [%s]",
       intensity_msg->encoding.c_str());
     return;
   }
@@ -310,7 +307,7 @@ void PointCloudXyziRadialNode::convert_intensity(
 
 }  // namespace depth_image_proc
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include "class_loader/register_macro.hpp"
 
 // Register the component with class_loader.
-RCLCPP_COMPONENTS_REGISTER_NODE(depth_image_proc::PointCloudXyziRadialNode)
+CLASS_LOADER_REGISTER_CLASS(depth_image_proc::PointCloudXyziRadialNode, rclcpp::Node)

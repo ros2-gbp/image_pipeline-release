@@ -30,8 +30,8 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include <rclcpp/rclcpp.hpp>
-#include <image_transport/image_transport.hpp>
-#include <image_transport/subscriber_filter.hpp>
+#include <image_transport/image_transport.h>
+#include <image_transport/subscriber_filter.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
@@ -101,7 +101,8 @@ RegisterNode::RegisterNode()
   tf_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
   // Read parameters
-  int queue_size = this->declare_parameter<int>("queue_size", 5);
+  int queue_size;
+  this->get_parameter_or("queue_size", queue_size, 5);
 
   // Synchronize inputs. Topic subscriptions happen on demand in the connection callback.
   sync_ = std::make_shared<Synchronizer>(
@@ -156,9 +157,8 @@ void RegisterNode::imageCb(
   Eigen::Affine3d depth_to_rgb;
   try {
     tf2::TimePoint tf2_time(std::chrono::nanoseconds(depth_info_msg->header.stamp.nanosec) +
-      std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::seconds(
-          depth_info_msg->header.stamp.sec)));
+      std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(
+        depth_info_msg->header.stamp.sec)));
     geometry_msgs::msg::TransformStamped transform = tf_buffer_->lookupTransform(
       rgb_info_msg->header.frame_id, depth_info_msg->header.frame_id,
       tf2_time);
@@ -186,8 +186,7 @@ void RegisterNode::imageCb(
   } else if (depth_image_msg->encoding == enc::TYPE_32FC1) {
     convert<float>(depth_image_msg, registered_msg, depth_to_rgb);
   } else {
-    RCLCPP_ERROR(
-      logger_, "Depth image has unsupported encoding [%s]",
+    RCLCPP_ERROR(logger_, "Depth image has unsupported encoding [%s]",
       depth_image_msg->encoding.c_str());
     return;
   }
