@@ -1,5 +1,20 @@
-Forthcoming
------------
+2.2.1 (2020-08-27)
+------------------
+* make crop_decimate work (`#593 <https://github.com/ros-perception/image_pipeline/issues/593>`_)
+* remove email blasts from steve macenski (`#596 <https://github.com/ros-perception/image_pipeline/issues/596>`_)
+* Disable "Publish Color!" debug_info (`#577 <https://github.com/ros-perception/image_pipeline/issues/577>`_)
+* [Foxy] Use ament_auto Macros (`#573 <https://github.com/ros-perception/image_pipeline/issues/573>`_)
+* Contributors: Dereck Wonnacott, Joshua Whitley, Michael Ferguson, Steve Macenski
+
+2.2.0 (2020-07-27)
+------------------
+* Replacing deprecated header includes with new HPP versions. (`#566 <https://github.com/ros-perception/image_pipeline/issues/566>`_)
+* Opencv 3 compatibility (`#564 <https://github.com/ros-perception/image_pipeline/issues/564>`_)
+  * Remove GTK from image_view.
+  * Reinstate OpenCV 3 compatibility.
+* Fix bad quotes in image_proc launch file (`#563 <https://github.com/ros-perception/image_pipeline/issues/563>`_)
+  This fixes a flake8 error.
+* Contributors: Chris Lalancette, Jacob Perron, Joshua Whitley
 
 * Initial ROS2 commit.
 * Contributors: Michael Carroll
