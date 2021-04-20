@@ -1,1 +1,1 @@
-{"base": "08fe3eb", "parent": "debian/rolling/depth_image_proc", "previous": "227fe75", "trim": "", "trimbase": ""}
+{"base": "c2cca99", "parent": "debian/galactic/depth_image_proc", "previous": "36e847e", "trim": "", "trimbase": ""}
