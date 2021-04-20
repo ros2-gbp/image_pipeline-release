@@ -1,0 +1,13 @@
+Source: ros-galactic-image-view
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), libboost-dev, ros-galactic-ament-cmake-auto, ros-galactic-ament-lint-auto, ros-galactic-ament-lint-common, ros-galactic-camera-calibration-parsers, ros-galactic-cv-bridge, ros-galactic-image-transport, ros-galactic-message-filters, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-sensor-msgs, ros-galactic-std-srvs, ros-galactic-stereo-msgs, ros-galactic-ros-workspace
+Homepage: https://index.ros.org/p/image_view/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-galactic-image-view
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libboost-dev, ros-galactic-camera-calibration-parsers, ros-galactic-cv-bridge, ros-galactic-image-transport, ros-galactic-message-filters, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-sensor-msgs, ros-galactic-std-srvs, ros-galactic-stereo-msgs, ros-galactic-ros-workspace
+Description: A simple viewer for ROS image topics.
+ Includes a specialized viewer for stereo + disparity images.
