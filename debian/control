@@ -1,0 +1,12 @@
+Source: ros-galactic-image-publisher
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-galactic-ament-cmake-auto, ros-galactic-ament-lint-auto, ros-galactic-ament-lint-common, ros-galactic-camera-info-manager, ros-galactic-class-loader, ros-galactic-cv-bridge, ros-galactic-image-geometry, ros-galactic-image-transport, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-ros-workspace
+Homepage: https://index.ros.org/p/image_publisher/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-galactic-image-publisher
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-galactic-camera-info-manager, ros-galactic-class-loader, ros-galactic-cv-bridge, ros-galactic-image-geometry, ros-galactic-image-transport, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-ros-workspace
+Description: Contains a node publish an image stream from single image file or avi motion file.
