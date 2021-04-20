@@ -1,0 +1,12 @@
+Source: ros-galactic-image-pipeline
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-galactic-ament-cmake, ros-galactic-ament-cmake-lint-cmake, ros-galactic-ament-cmake-xmllint, ros-galactic-ament-lint-auto, ros-galactic-ros-workspace
+Homepage: https://index.ros.org/p/image_pipeline/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-galactic-image-pipeline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-galactic-camera-calibration, ros-galactic-depth-image-proc, ros-galactic-image-proc, ros-galactic-image-publisher, ros-galactic-image-rotate, ros-galactic-image-view, ros-galactic-stereo-image-proc, ros-galactic-ros-workspace
+Description: image_pipeline fills the gap between getting raw images from a camera driver and higher-level vision processing.
