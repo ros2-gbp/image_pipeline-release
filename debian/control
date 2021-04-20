@@ -1,0 +1,12 @@
+Source: ros-galactic-stereo-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-opencv, ros-galactic-ament-cmake-auto, ros-galactic-ament-cmake-pytest, ros-galactic-ament-lint-auto, ros-galactic-ament-lint-common, ros-galactic-cv-bridge, ros-galactic-image-geometry, ros-galactic-image-proc, ros-galactic-image-transport, ros-galactic-launch, ros-galactic-launch-ros, ros-galactic-launch-testing, ros-galactic-launch-testing-ament-cmake, ros-galactic-message-filters, ros-galactic-python-cmake-module, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-rclpy, ros-galactic-sensor-msgs, ros-galactic-stereo-msgs, ros-galactic-ros-workspace
+Homepage: https://index.ros.org/p/stereo_image_proc/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-galactic-stereo-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-galactic-cv-bridge, ros-galactic-image-geometry, ros-galactic-image-proc, ros-galactic-image-transport, ros-galactic-message-filters, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-sensor-msgs, ros-galactic-stereo-msgs, ros-galactic-ros-workspace
+Description: Stereo and single image rectification and disparity processing.
