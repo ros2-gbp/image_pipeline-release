@@ -1,0 +1,13 @@
+Source: ros-galactic-depth-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-galactic-ament-cmake-auto, ros-galactic-ament-lint-auto, ros-galactic-ament-lint-common, ros-galactic-class-loader, ros-galactic-cv-bridge, ros-galactic-image-geometry, ros-galactic-image-transport, ros-galactic-message-filters, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-sensor-msgs, ros-galactic-stereo-msgs, ros-galactic-tf2, ros-galactic-tf2-eigen, ros-galactic-tf2-ros, ros-galactic-ros-workspace
+Homepage: https://index.ros.org/p/depth_image_proc/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-galactic-depth-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-galactic-cv-bridge, ros-galactic-image-geometry, ros-galactic-image-transport, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-sensor-msgs, ros-galactic-stereo-msgs, ros-galactic-tf2, ros-galactic-tf2-eigen, ros-galactic-tf2-ros, ros-galactic-ros-workspace
+Description: Contains components for processing depth images such as those produced by OpenNI camera.
+ Functions include creating disparity images and point clouds, as well as registering (reprojecting) a depth image into another camera frame.
