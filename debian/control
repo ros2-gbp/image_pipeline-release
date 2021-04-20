@@ -1,0 +1,13 @@
+Source: ros-galactic-image-rotate
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-galactic-ament-cmake-auto, ros-galactic-ament-lint-auto, ros-galactic-ament-lint-common, ros-galactic-class-loader, ros-galactic-cv-bridge, ros-galactic-image-transport, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-tf2, ros-galactic-tf2-geometry-msgs, ros-galactic-tf2-ros, ros-galactic-ros-workspace
+Homepage: https://index.ros.org/p/image_rotate/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-galactic-image-rotate
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-galactic-cv-bridge, ros-galactic-image-transport, ros-galactic-rclcpp, ros-galactic-rclcpp-components, ros-galactic-tf2, ros-galactic-tf2-geometry-msgs, ros-galactic-tf2-ros, ros-galactic-ros-workspace
+Description: Contains a node that rotates an image stream in a way that minimizes the angle between a vector in some arbitrary frame and a vector in the camera frame.
+ The frame of the outgoing image is published by the node. This node is intended to allow camera images to be visualized in an orientation that is more intuitive than the hardware-constrained orientation of the physical camera. This is particularly helpful, for example, to show images from the PR2's forearm cameras with a consistent up direction, despite the fact that the forearms need to rotate in arbitrary ways during manipulation. It is not recommended to use the output from this node for further computation, as it interpolates the source image, introduces black borders, and does not output a camera_info.
