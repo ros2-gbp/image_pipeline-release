@@ -1,0 +1,143 @@
+ros-humble-image-pipeline (2.2.1-5bullseye) bullseye; urgency=high
+
+  * remove email blasts from steve macenski (#596 <https://github.com/ros-perception/image_pipeline/issues/596>)
+  * [Foxy] Use ament_auto Macros (#573 <https://github.com/ros-perception/image_pipeline/issues/573>)
+  * Contributors: Joshua Whitley, Steve Macenski
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 27 Aug 2020 07:00:00 -0000
+
+ros-humble-image-pipeline (2.2.0-5bullseye) bullseye; urgency=high
+
+  * Initial ROS2 commit.
+  * Contributors: Michael Carroll
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 27 Jul 2020 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.23-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 10 May 2018 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.22-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 08 Dec 2017 08:00:00 -0000
+
+ros-humble-image-pipeline (1.12.21-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 05 Nov 2017 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.20-5bullseye) bullseye; urgency=high
+
+  * Update package.xml (#263 <https://github.com/ros-perception/image_pipeline/issues/263>)
+  * Contributors: Kei Okada
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 30 Apr 2017 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.19-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 24 Jul 2016 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.18-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 12 Jul 2016 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.17-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 11 Jul 2016 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.16-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 19 Mar 2016 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.15-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 17 Jan 2016 08:00:00 -0000
+
+ros-humble-image-pipeline (1.12.14-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 22 Jul 2015 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.13-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 06 Apr 2015 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.12-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 31 Dec 2014 08:00:00 -0000
+
+ros-humble-image-pipeline (1.12.11-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 26 Oct 2014 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.10-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 28 Sep 2014 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.9-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 21 Sep 2014 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.8-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 19 Aug 2014 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.6-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 27 Jul 2014 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.4-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 28 Apr 2014 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.3-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 12 Apr 2014 07:00:00 -0000
+
+ros-humble-image-pipeline (1.12.2-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 08 Apr 2014 07:00:00 -0000
+
+ros-humble-image-pipeline (1.11.7-5bullseye) bullseye; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 28 Mar 2014 07:00:00 -0000
+
+
