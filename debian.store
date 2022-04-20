@@ -1,1 +1,1 @@
-{"base": "60e1487", "parent": "debian/rolling/stereo_image_proc", "previous": "5280b9d", "trim": "", "trimbase": ""}
+{"base": "a6d3c67", "parent": "debian/humble/stereo_image_proc", "previous": "9ea174a", "trim": "", "trimbase": ""}
