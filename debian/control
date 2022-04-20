@@ -1,0 +1,12 @@
+Source: ros-humble-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ament-cmake-auto, ros-humble-ament-lint-auto <!nocheck>, ros-humble-ament-lint-common <!nocheck>, ros-humble-cv-bridge, ros-humble-image-geometry, ros-humble-image-transport, ros-humble-rclcpp, ros-humble-rclcpp-components, ros-humble-rcutils, ros-humble-sensor-msgs, ros-humble-ros-workspace
+Homepage: https://index.ros.org/p/image_proc/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-humble-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-cv-bridge, ros-humble-image-geometry, ros-humble-image-transport, ros-humble-rclcpp, ros-humble-rclcpp-components, ros-humble-rcutils, ros-humble-sensor-msgs, ros-humble-ros-workspace
+Description: Single image rectification and color processing.

@@ -1,0 +1,205 @@
+ros-humble-image-proc (2.2.1-5jammy) jammy; urgency=high
+
+  * make crop_decimate work (#593 <https://github.com/ros-perception/image_pipeline/issues/593>)
+  * remove email blasts from steve macenski (#596 <https://github.com/ros-perception/image_pipeline/issues/596>)
+  * Disable "Publish Color!" debug_info (#577 <https://github.com/ros-perception/image_pipeline/issues/577>)
+  * [Foxy] Use ament_auto Macros (#573 <https://github.com/ros-perception/image_pipeline/issues/573>)
+  * Contributors: Dereck Wonnacott, Joshua Whitley, Michael Ferguson, Steve Macenski
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 27 Aug 2020 07:00:00 -0000
+
+ros-humble-image-proc (2.2.0-5jammy) jammy; urgency=high
+
+  * Replacing deprecated header includes with new HPP versions. (#566 <https://github.com/ros-perception/image_pipeline/issues/566>)
+  * Opencv 3 compatibility (#564 <https://github.com/ros-perception/image_pipeline/issues/564>)
+    * Remove GTK from image_view.
+    * Reinstate OpenCV 3 compatibility.
+  * Fix bad quotes in image_proc launch file (#563 <https://github.com/ros-perception/image_pipeline/issues/563>)
+    This fixes a flake8 error.
+  * Contributors: Chris Lalancette, Jacob Perron, Joshua Whitley
+  * Initial ROS2 commit.
+  * Contributors: Michael Carroll
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 27 Jul 2020 07:00:00 -0000
+
+ros-humble-image-proc (1.12.23-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 10 May 2018 07:00:00 -0000
+
+ros-humble-image-proc (1.12.22-5jammy) jammy; urgency=high
+
+  * Merge pull request #311 <https://github.com/ros-perception/image_pipeline/issues/311> from knorth55/revert-299
+    Revert "Fix image_resize nodelet (#299 <https://github.com/ros-perception/image_pipeline/issues/299>)"
+    This reverts commit 32e19697ebce47101b063c6a02b95dfa2c5dbc52.
+  * Contributors: Shingo Kitagawa, Tully Foote
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 08 Dec 2017 08:00:00 -0000
+
+ros-humble-image-proc (1.12.21-5jammy) jammy; urgency=high
+
+  * Fix image_resize nodelet (#299 <https://github.com/ros-perception/image_pipeline/issues/299>)
+    Update interpolation types
+    Add arguments to enable disable each nodelet
+    Add default arguments for image_resize and image_rect
+    Use toCVShare instead of toCVCopy
+    Include image_resize in image_proc
+  * Updated fix for traits change. (#303 <https://github.com/ros-perception/image_pipeline/issues/303>)
+  * Fix C++11 compilation
+    This fixes #292 <https://github.com/ros-perception/image_pipeline/issues/292> and #291 <https://github.com/ros-perception/image_pipeline/issues/291>
+  * [image_proc][crop_decimate] support changing target image frame_id (#276 <https://github.com/ros-perception/image_pipeline/issues/276>)
+  * Contributors: Furushchev, Mike Purvis, Vincent Rabaud, bikramak
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 05 Nov 2017 07:00:00 -0000
+
+ros-humble-image-proc (1.12.20-5jammy) jammy; urgency=high
+
+  * Add nodelet to resize image and camera_info (#273 <https://github.com/ros-perception/image_pipeline/issues/273>)
+    * Add nodelet to resize image and camera_info
+    * Depends on nodelet_topic_tools
+    * Use recursive_mutex for mutex guard for dynamic reconfiguring
+  * Fix nodelet name: crop_nonZero ->  crop_non_zero (#269 <https://github.com/ros-perception/image_pipeline/issues/269>)
+    Fix https://github.com/ros-perception/image_pipeline/issues/217
+  * Fix permission of executable files unexpectedly (#260 <https://github.com/ros-perception/image_pipeline/issues/260>)
+  * address gcc6 build error
+    With gcc6, compiling fails with stdlib.h: No such file or directory,
+    as including '-isystem /usr/include' breaks with gcc6, cf.,
+    https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70129.
+    This commit addresses this issue for this package in the same way
+    it was addressed in various other ROS packages. A list of related
+    commits and pull requests is at:
+    https://github.com/ros/rosdistro/issues/12783
+    Signed-off-by: Lukas Bulwahn <mailto:lukas.bulwahn@oss.bmw-carit.de>
+  * Contributors: Kentaro Wada, Lukas Bulwahn
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 30 Apr 2017 07:00:00 -0000
+
+ros-humble-image-proc (1.12.19-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 24 Jul 2016 07:00:00 -0000
+
+ros-humble-image-proc (1.12.18-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 12 Jul 2016 07:00:00 -0000
+
+ros-humble-image-proc (1.12.17-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 11 Jul 2016 07:00:00 -0000
+
+ros-humble-image-proc (1.12.16-5jammy) jammy; urgency=high
+
+  * clean OpenCV dependency in package.xml
+  * issue #180 <https://github.com/ros-perception/image_pipeline/issues/180> Check if all distortion coefficients are zero.
+    Test with:
+    rostest --reuse-master --text image_proc test_rectify.xml
+    Can also test interactively with vimjay image_rect.launch, which brings up an rqt gui and camera info distortion coefficients can be dynamically reconfigured.
+  * Add a feature to crop the largest valid (non zero) area
+    Remove unnecessary headers
+    change a filename to fit for the ROS convention
+  * Contributors: Kenta Yonekura, Lucas Walter, Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 19 Mar 2016 07:00:00 -0000
+
+ros-humble-image-proc (1.12.15-5jammy) jammy; urgency=high
+
+  * simplify OpenCV3 conversion
+  * Contributors: Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 17 Jan 2016 08:00:00 -0000
+
+ros-humble-image-proc (1.12.14-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 22 Jul 2015 07:00:00 -0000
+
+ros-humble-image-proc (1.12.13-5jammy) jammy; urgency=high
+
+  * fix dependencies
+  * Contributors: Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 06 Apr 2015 07:00:00 -0000
+
+ros-humble-image-proc (1.12.12-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 31 Dec 2014 08:00:00 -0000
+
+ros-humble-image-proc (1.12.11-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 26 Oct 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.12.10-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 28 Sep 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.12.9-5jammy) jammy; urgency=high
+
+  * get code to compile with OpenCV3
+    fixes #96 <https://github.com/ros-perception/image_pipeline/issues/96>
+  * Contributors: Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 21 Sep 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.12.8-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 19 Aug 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.12.6-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 27 Jul 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.12.4-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 28 Apr 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.12.3-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 12 Apr 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.12.2-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 08 Apr 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.12.1-5jammy) jammy; urgency=high
+
+  * get proper opencv dependency
+  * Contributors: Vincent Rabaud
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 06 Apr 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.11.7-5jammy) jammy; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 28 Mar 2014 07:00:00 -0000
+
+ros-humble-image-proc (1.11.6-5jammy) jammy; urgency=high
+
+  * fix bad OpenCV linkage (#53)
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 29 Jan 2014 00:38:55 -0800
+
+
