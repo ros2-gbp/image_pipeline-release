@@ -1,0 +1,12 @@
+Source: ros-humble-image-publisher
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ament-cmake-auto, ros-humble-ament-lint-auto <!nocheck>, ros-humble-ament-lint-common <!nocheck>, ros-humble-camera-info-manager, ros-humble-class-loader, ros-humble-cv-bridge, ros-humble-image-geometry, ros-humble-image-transport, ros-humble-rclcpp, ros-humble-rclcpp-components, ros-humble-ros-workspace
+Homepage: https://index.ros.org/p/image_publisher/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-humble-image-publisher
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-camera-info-manager, ros-humble-class-loader, ros-humble-cv-bridge, ros-humble-image-geometry, ros-humble-image-transport, ros-humble-rclcpp, ros-humble-rclcpp-components, ros-humble-ros-workspace
+Description: Contains a node publish an image stream from single image file or avi motion file.
