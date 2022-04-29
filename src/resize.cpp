@@ -30,18 +30,18 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <rclcpp/rclcpp.hpp>
-#include <cv_bridge/cv_bridge.h>
+#include <functional>
+#include <memory>
+
+#include "cv_bridge/cv_bridge.h"
+#include "tracetools_image_pipeline/tracetools.h"
+
+#include <image_proc/resize.hpp>
 #include <image_transport/image_transport.hpp>
 #include <rclcpp/qos.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
-
-#include <memory>
-#include <mutex>
-#include <vector>
-
-#include "image_proc/resize.hpp"
 
 namespace image_proc
 {
@@ -77,11 +77,22 @@ void ResizeNode::imageCb(
   //  return;
   //}
 
+  TRACEPOINT(
+    image_proc_resize_init,
+    static_cast<const void *>(this),
+    static_cast<const void *>(&(*image_msg)),
+    static_cast<const void *>(&(*info_msg)));
+
   cv_bridge::CvImagePtr cv_ptr;
 
   try {
     cv_ptr = cv_bridge::toCvCopy(image_msg);
   } catch (cv_bridge::Exception & e) {
+    TRACEPOINT(
+      image_proc_resize_fini,
+      static_cast<const void *>(this),
+      static_cast<const void *>(&(*image_msg)),
+      static_cast<const void *>(&(*info_msg)));
     RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
     return;
   }
@@ -125,7 +136,18 @@ void ResizeNode::imageCb(
   dst_info_msg->p[5] = dst_info_msg->p[5] * scale_y;  // fy
   dst_info_msg->p[6] = dst_info_msg->p[6] * scale_y;  // cy
 
+  dst_info_msg->roi.x_offset = static_cast<int>(dst_info_msg->roi.x_offset * scale_x);
+  dst_info_msg->roi.y_offset = static_cast<int>(dst_info_msg->roi.y_offset * scale_y);
+  dst_info_msg->roi.width = static_cast<int>(dst_info_msg->roi.width * scale_x);
+  dst_info_msg->roi.height = static_cast<int>(dst_info_msg->roi.height * scale_y);
+
   pub_image_.publish(*cv_ptr->toImageMsg(), *dst_info_msg);
+
+  TRACEPOINT(
+    image_proc_resize_fini,
+    static_cast<const void *>(this),
+    static_cast<const void *>(&(*image_msg)),
+    static_cast<const void *>(&(*info_msg)));
 }
 
 }  // namespace image_proc
