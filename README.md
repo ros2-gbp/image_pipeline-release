@@ -1,3 +1,35 @@
+## image_pipeline (rolling) - 3.0.0-1
+
+The packages in the `image_pipeline` repository were released into the `rolling` distro by running `/usr/bin/bloom-release --track rolling --rosdistro rolling image_pipeline` on `Fri, 29 Apr 2022 15:00:50 -0000`
+
+These packages were released:
+- `camera_calibration`
+- `depth_image_proc`
+- `image_pipeline`
+- `image_proc`
+- `image_publisher`
+- `image_rotate`
+- `image_view`
+- `stereo_image_proc`
+- `tracetools_image_pipeline`
+
+Version of package(s) in repository `image_pipeline`:
+
+- upstream repository: https://github.com/ros-perception/image_pipeline.git
+- release repository: https://github.com/ros2-gbp/image_pipeline-release.git
+- rosdistro version: `2.2.1-4`
+- old version: `2.2.1-4`
+- new version: `3.0.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.11.1`
+- catkin_pkg version: `0.4.24`
+- rosdep version: `0.21.0`
+- rosdistro version: `0.8.3`
+- vcstools version: `0.1.42`
+
+
 ## image_pipeline (rolling) - 2.2.1-4
 
 The packages in the `image_pipeline` repository were released into the `rolling` distro by running `/usr/bin/bloom-release -r rolling image_pipeline` on `Thu, 17 Feb 2022 20:22:33 -0000`
