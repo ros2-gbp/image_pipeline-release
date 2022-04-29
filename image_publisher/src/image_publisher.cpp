@@ -31,14 +31,18 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <camera_info_manager/camera_info_manager.hpp>
-
 #include <chrono>
-#include <memory>
-#include <vector>
 #include <string>
+#include <thread>
+#include <vector>
 
-#include "image_publisher/image_publisher.hpp"
+#include "cv_bridge/cv_bridge.h"
+
+#include <camera_info_manager/camera_info_manager.hpp>
+#include <image_publisher/image_publisher.hpp>
+#include <image_transport/image_transport.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <rcl_interfaces/msg/set_parameters_result.hpp>
 
 namespace image_publisher
 {
@@ -46,7 +50,7 @@ namespace image_publisher
 using namespace std::chrono_literals;
 
 ImagePublisher::ImagePublisher(const rclcpp::NodeOptions & options)
-: Node("ImagePublisher", options)
+: rclcpp::Node("ImagePublisher", options)
 {
   pub_ = image_transport::create_camera_publisher(this, "image_raw");
 
@@ -55,6 +59,8 @@ ImagePublisher::ImagePublisher(const rclcpp::NodeOptions & options)
   frame_id_ = this->declare_parameter("frame_id", std::string("camera"));
   publish_rate_ = this->declare_parameter("publish_rate", static_cast<double>(10));
   camera_info_url_ = this->declare_parameter("camera_info_url", std::string(""));
+  retry_ = this->declare_parameter("retry", false);
+  timeout_ = this->declare_parameter("timeout", 2000);
 
   auto param_change_callback =
     [this](std::vector<rclcpp::Parameter> parameters) -> rcl_interfaces::msg::SetParametersResult
@@ -121,6 +127,10 @@ void ImagePublisher::reconfigureCallback()
 
 void ImagePublisher::doWork()
 {
+  // If the image is empty retry loading the image from the filename
+  if (image_.empty() && retry_) {
+    ImagePublisher::onInit();
+  }
   // Transform the image.
   try {
     if (cap_.isOpened()) {
@@ -135,7 +145,7 @@ void ImagePublisher::doWork()
     sensor_msgs::msg::Image::SharedPtr out_img =
       cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_).toImageMsg();
     out_img->header.frame_id = frame_id_;
-    out_img->header.stamp = rclcpp::Clock().now();
+    out_img->header.stamp = this->now();
     camera_info_.header.frame_id = out_img->header.frame_id;
     camera_info_.header.stamp = out_img->header.stamp;
 
@@ -168,6 +178,11 @@ void ImagePublisher::onInit()
     RCLCPP_ERROR(
       this->get_logger(), "Failed to load image (%s): %s %s %s %i",
       filename_.c_str(), e.err.c_str(), e.func.c_str(), e.file.c_str(), e.line);
+    if (retry_) {
+      RCLCPP_INFO(get_logger(), "Retrying in %i millisecs", timeout_);
+      std::this_thread::sleep_for(std::chrono::milliseconds(timeout_));
+      ImagePublisher::onInit();
+    }
     return;
   }
 
