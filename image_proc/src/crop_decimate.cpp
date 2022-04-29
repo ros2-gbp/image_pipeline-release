@@ -30,12 +30,17 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "image_proc/crop_decimate.hpp"
-
 #include <algorithm>
+#include <functional>
 #include <memory>
 #include <string>
-#include <thread>
+
+#include <image_proc/crop_decimate.hpp>
+#include <opencv2/imgproc.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/image_encodings.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
+#include <sensor_msgs/msg/image.hpp>
 
 namespace image_proc
 {
@@ -46,10 +51,9 @@ void debayer2x2toBGR(
   int R, int G1, int G2, int B)
 {
   typedef cv::Vec<T, 3> DstPixel;  // 8- or 16-bit BGR
-#if CV_VERSION_MAJOR >= 4
+#if CV_VERSION_MAJOR >= 4 || (CV_MAJOR_VERSION == 3 && CV_MINOR_VERSION > 2)
   dst.create(src.rows / 2, src.cols / 2, cv::traits::Type<DstPixel>::value);
 #else
-  // Assume OpenCV 3 API
   dst.create(src.rows / 2, src.cols / 2, cv::DataType<DstPixel>::type);
 #endif
 
