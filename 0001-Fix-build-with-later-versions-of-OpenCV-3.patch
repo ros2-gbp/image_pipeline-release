@@ -1,4 +1,4 @@
-From 16e294fc562aa6112ab1119ddfb35899dbe1710a Mon Sep 17 00:00:00 2001
+From 6477a54f69a1e0c1bd4af2fa4c9c84349619733d Mon Sep 17 00:00:00 2001
 From: Scott K Logan <logans@cottsay.net>
 Date: Thu, 25 Mar 2021 13:12:33 -0700
 Subject: [PATCH] Fix build with later versions of OpenCV 3
@@ -30,5 +30,5 @@ index d33326e..726caf2 100644
  #endif
  
 -- 
-2.35.1
+2.34.1
 
