@@ -46,6 +46,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <functional>
+#include <string>
+
 #include "image_view/disparity_view_node.hpp"
 
 #include <opencv2/highgui/highgui.hpp>
@@ -54,9 +58,6 @@
 #include <rclcpp_components/register_node_macro.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <stereo_msgs/msg/disparity_image.hpp>
-
-#include <algorithm>
-#include <string>
 
 namespace image_view
 {
@@ -70,7 +71,7 @@ DisparityViewNode::DisparityViewNode(const rclcpp::NodeOptions & options)
   if (topic == "image") {
     RCLCPP_WARN(
       this->get_logger(), "Topic 'image' has not been remapped! Typical command-line usage:\n"
-      "\t$ rosrun image_view disparity_view image:=<disparity image topic>");
+      "\t$ ros2 run image_view disparity_view --ros-args -r image:=<disparity image topic>");
   }
 
   initialized = false;
