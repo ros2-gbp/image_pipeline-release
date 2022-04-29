@@ -29,12 +29,16 @@
 // LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#include <functional>
+#include <mutex>
+
+#include "cv_bridge/cv_bridge.h"
+#include "depth_image_proc/visibility.h"
+
 #include <rclcpp/rclcpp.hpp>
 #include <image_transport/image_transport.hpp>
-#include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <depth_image_proc/visibility.h>
-#include <memory>
 
 namespace depth_image_proc
 {
@@ -66,8 +70,7 @@ private:
 CropForemostNode::CropForemostNode(const rclcpp::NodeOptions & options)
 : Node("CropForemostNode", options)
 {
-  this->declare_parameter("distance");
-  this->get_parameter("distance", distance_);
+  distance_ = this->declare_parameter("distance", 0.0);
 
   // Monitor whether anyone is subscribed to the output
   // TODO(ros2) Implement when SubscriberStatusCallback is available
