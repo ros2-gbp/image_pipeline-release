@@ -1,5 +1,3 @@
-#!/usr/bin/python
-#
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2009, Willow Garage, Inc.
@@ -42,11 +40,27 @@ import sensor_msgs.msg
 import sensor_msgs.srv
 import threading
 import time
-from camera_calibration.calibrator import MonoCalibrator, StereoCalibrator, ChessboardInfo, Patterns
-from collections import deque
-from message_filters import ApproximateTimeSynchronizer
-from std_msgs.msg import String
-from std_srvs.srv import Empty
+from camera_calibration.calibrator import MonoCalibrator, StereoCalibrator, Patterns
+try:
+    from queue import Queue
+except ImportError:
+    from Queue import Queue
+from camera_calibration.calibrator import CAMERA_MODEL
+
+class BufferQueue(Queue):
+    """Slight modification of the standard Queue that discards the oldest item
+    when adding an item and the queue is full.
+    """
+    def put(self, item, *args, **kwargs):
+        # The base implementation, for reference:
+        # https://github.com/python/cpython/blob/2.7/Lib/Queue.py#L107
+        # https://github.com/python/cpython/blob/3.8/Lib/queue.py#L121
+        with self.mutex:
+            if self.maxsize > 0 and self._qsize() == self.maxsize:
+                self._get()
+            self._put(item)
+            self.unfinished_tasks += 1
+            self.not_empty.notify()
 
 class SpinThread(threading.Thread):
     """
@@ -59,7 +73,7 @@ class SpinThread(threading.Thread):
 
     def run(self):
         rclpy.spin(self.node)
-        
+
 
 class ConsumerThread(threading.Thread):
     def __init__(self, queue, function):
@@ -69,15 +83,14 @@ class ConsumerThread(threading.Thread):
 
     def run(self):
         while True:
-            # wait for an image (could happen at the very beginning when the queue is still empty)
-            while len(self.queue) == 0:
-                time.sleep(0.1)
-            self.function(self.queue[0])
+            m = self.queue.get()
+            self.function(m)
 
 
 class CalibrationNode(Node):
     def __init__(self, name, boards, service_check = True, synchronizer = message_filters.TimeSynchronizer, flags = 0,
-                 pattern=Patterns.Chessboard, camera_name='', checkerboard_flags = 0):
+                 fisheye_flags = 0, pattern=Patterns.Chessboard, camera_name='', checkerboard_flags = 0,
+                 max_chessboard_speed = -1, queue_size = 1):
         super().__init__(name)
 
         self.set_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo,
@@ -104,9 +117,11 @@ class CalibrationNode(Node):
 
         self._boards = boards
         self._calib_flags = flags
+        self._fisheye_calib_flags = fisheye_flags
         self._checkerboard_flags = checkerboard_flags
         self._pattern = pattern
         self._camera_name = camera_name
+        self._max_chessboard_speed = max_chessboard_speed
         lsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'left')
         rsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'right')
         ts = synchronizer([lsub, rsub], 4)
@@ -115,10 +130,12 @@ class CalibrationNode(Node):
         msub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'image')
         msub.registerCallback(self.queue_monocular)
 
-        self.q_mono = deque([], 1)
-        self.q_stereo = deque([], 1)
+        self.q_mono = BufferQueue(queue_size)
+        self.q_stereo = BufferQueue(queue_size)
 
         self.c = None
+
+        self._last_display = None
 
         mth = ConsumerThread(self.q_mono, self.handle_monocular)
         mth.setDaemon(True)
@@ -134,19 +151,21 @@ class CalibrationNode(Node):
         pass
 
     def queue_monocular(self, msg):
-        self.q_mono.append(msg)
+        self.q_mono.put(msg)
 
     def queue_stereo(self, lmsg, rmsg):
-        self.q_stereo.append((lmsg, rmsg))
+        self.q_stereo.put((lmsg, rmsg))
 
     def handle_monocular(self, msg):
         if self.c == None:
             if self._camera_name:
-                self.c = MonoCalibrator(self._boards, self._calib_flags, self._pattern, name=self._camera_name,
-                                        checkerboard_flags=self._checkerboard_flags)
+                self.c = MonoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern, name=self._camera_name,
+                                        checkerboard_flags=self._checkerboard_flags,
+                                        max_chessboard_speed = self._max_chessboard_speed)
             else:
-                self.c = MonoCalibrator(self._boards, self._calib_flags, self._pattern,
-                                        checkerboard_flags=self.checkerboard_flags)
+                self.c = MonoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern,
+                                        checkerboard_flags=self.checkerboard_flags,
+                                        max_chessboard_speed = self._max_chessboard_speed)
 
         # This should just call the MonoCalibrator
         drawable = self.c.handle_msg(msg)
@@ -156,11 +175,13 @@ class CalibrationNode(Node):
     def handle_stereo(self, msg):
         if self.c == None:
             if self._camera_name:
-                self.c = StereoCalibrator(self._boards, self._calib_flags, self._pattern, name=self._camera_name,
-                                          checkerboard_flags=self._checkerboard_flags)
+                self.c = StereoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern, name=self._camera_name,
+                                          checkerboard_flags=self._checkerboard_flags,
+                                          max_chessboard_speed = self._max_chessboard_speed)
             else:
-                self.c = StereoCalibrator(self._boards, self._calib_flags, self._pattern,
-                                          checkerboard_flags=self._checkerboard_flags)
+                self.c = StereoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern,
+                                          checkerboard_flags=self._checkerboard_flags,
+                                          max_chessboard_speed = self._max_chessboard_speed)
 
         drawable = self.c.handle_msg(msg)
         self.displaywidth = drawable.lscrib.shape[1] + drawable.rscrib.shape[1]
@@ -215,7 +236,7 @@ class OpenCVCalibrationNode(CalibrationNode):
 
         CalibrationNode.__init__(self, *args, **kwargs)
 
-        self.queue_display = deque([], 1)
+        self.queue_display = BufferQueue(maxsize=1)
         self.initWindow()
 
     def spin(self):
@@ -224,20 +245,21 @@ class OpenCVCalibrationNode(CalibrationNode):
         sth.start()
 
         while True:
-            # wait for an image (could happen at the very beginning when the queue is still empty)
-            while len(self.queue_display) == 0:
+            if self.queue_display.qsize() > 0:
+                self.image = self.queue_display.get()
+                cv2.imshow("display", self.image)
+            else:
                 time.sleep(0.1)
-            im = self.queue_display[0]
-            cv2.imshow("display", im)
             k = cv2.waitKey(6) & 0xFF
             if k in [27, ord('q')]:
                 rclpy.shutdown()
-            elif k == ord('s'):
-                self.screendump(im)
+            elif k == ord('s') and self.image is not None:
+                self.screendump(self.image)
 
     def initWindow(self):
         cv2.namedWindow("display", cv2.WINDOW_NORMAL)
         cv2.setMouseCallback("display", self.on_mouse)
+        cv2.createTrackbar("Camera type: \n 0 : pinhole \n 1 : fisheye", "display", 0,1, self.on_model_change)
         cv2.createTrackbar("scale", "display", 0, 100, self.on_scale)
 
     @classmethod
@@ -252,7 +274,10 @@ class OpenCVCalibrationNode(CalibrationNode):
         if event == cv2.EVENT_LBUTTONDOWN and self.displaywidth < x:
             if self.c.goodenough:
                 if 180 <= y < 280:
+                    print("**** Calibrating ****")
                     self.c.do_calibration()
+                    self.buttons(self._last_display)
+                    self.queue_display.put(self._last_display)
             if self.c.calibrated:
                 if 280 <= y < 380:
                     self.c.do_save()
@@ -260,6 +285,15 @@ class OpenCVCalibrationNode(CalibrationNode):
                     # Only shut down if we set camera info correctly, #3993
                     if self.do_upload():
                         rclpy.shutdown()
+    def on_model_change(self, model_select_val):
+        if self.c == None:
+            print("Cannot change camera model until the first image has been received")
+            return
+
+        self.c.set_cammodel( CAMERA_MODEL.PINHOLE if model_select_val < 0.5 else CAMERA_MODEL.FISHEYE)
+
+    def on_model_change(self, model_select_val):
+        self.c.set_cammodel( CAMERA_MODEL.PINHOLE if model_select_val < 0.5 else CAMERA_MODEL.FISHEYE)
 
     def on_scale(self, scalevalue):
         if self.c.calibrated:
@@ -291,6 +325,7 @@ class OpenCVCalibrationNode(CalibrationNode):
         while os.access("/tmp/dump%d.png" % i, os.R_OK):
             i += 1
         cv2.imwrite("/tmp/dump%d.png" % i, im)
+        print("Saved screen dump to /tmp/dump%d.png" % i)
 
     def redraw_monocular(self, drawable):
         height = drawable.scrib.shape[0]
@@ -299,7 +334,6 @@ class OpenCVCalibrationNode(CalibrationNode):
         display = numpy.zeros((max(480, height), width + 100, 3), dtype=numpy.uint8)
         display[0:height, 0:width,:] = drawable.scrib
         display[0:height, width:width+100,:].fill(255)
-
 
         self.buttons(display)
         if not self.c.calibrated:
@@ -325,7 +359,8 @@ class OpenCVCalibrationNode(CalibrationNode):
                 #print "linear", linerror
             self.putText(display, msg, (width, self.y(1)))
 
-        self.queue_display.append(display)
+        self._last_display = display
+        self.queue_display.put(display)
 
     def redraw_stereo(self, drawable):
         height = drawable.lscrib.shape[0]
@@ -363,4 +398,5 @@ class OpenCVCalibrationNode(CalibrationNode):
                 self.putText(display, "dim", (2 * width, self.y(2)))
                 self.putText(display, "%.3f" % drawable.dim, (2 * width, self.y(3)))
 
-        self.queue_display.append(display)
+        self._last_display = display
+        self.queue_display.put(display)
