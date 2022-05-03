@@ -29,24 +29,26 @@
 // LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <image_geometry/stereo_camera_model.h>
-#include <image_transport/image_transport.hpp>
-#include <image_transport/subscriber_filter.hpp>
-#include <message_filters/subscriber.h>
-#include <message_filters/synchronizer.h>
-#include <message_filters/sync_policies/approximate_time.h>
-#include <message_filters/sync_policies/exact_time.h>
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp_components/register_node_macro.hpp>
-#include <rcutils/logging_macros.h>
-#include <sensor_msgs/image_encodings.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <sensor_msgs/point_cloud2_iterator.hpp>
-#include <stereo_msgs/msg/disparity_image.hpp>
 
 #include <limits>
 #include <memory>
 #include <string>
+
+#include "image_geometry/stereo_camera_model.h"
+#include "message_filters/subscriber.h"
+#include "message_filters/synchronizer.h"
+#include "message_filters/sync_policies/approximate_time.h"
+#include "message_filters/sync_policies/exact_time.h"
+#include "rcutils/logging_macros.h"
+
+#include <image_transport/image_transport.hpp>
+#include <image_transport/subscriber_filter.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
+#include <sensor_msgs/image_encodings.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <stereo_msgs/msg/disparity_image.hpp>
 
 namespace stereo_image_proc
 {
@@ -109,6 +111,7 @@ PointCloudNode::PointCloudNode(const rclcpp::NodeOptions & options)
     "This reduces bandwidth requirements, as the point cloud size is halved."
     "Using point clouds without alignment padding might degrade performance for some algorithms.";
   this->declare_parameter("avoid_point_cloud_padding", false, descriptor);
+  this->declare_parameter("use_color", true);
 
   // Synchronize callbacks
   if (approx) {
@@ -129,7 +132,10 @@ PointCloudNode::PointCloudNode(const rclcpp::NodeOptions & options)
       std::bind(&PointCloudNode::imageCb, this, _1, _2, _3, _4));
   }
 
-  pub_points2_ = create_publisher<sensor_msgs::msg::PointCloud2>("points2", 1);
+  // Update the publisher options to allow reconfigurable qos settings.
+  rclcpp::PublisherOptions pub_opts;
+  pub_opts.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  pub_points2_ = create_publisher<sensor_msgs::msg::PointCloud2>("points2", 1, pub_opts);
 
   // TODO(jacobperron): Replace this with a graph event.
   //                    Only subscribe if there's a subscription listening to our publisher.
@@ -147,10 +153,13 @@ void PointCloudNode::connectCb()
     image_sub_qos = rclcpp::SystemDefaultsQoS();
   }
   const auto image_sub_rmw_qos = image_sub_qos.get_rmw_qos_profile();
-  sub_l_image_.subscribe(this, "left/image_rect_color", hints.getTransport(), image_sub_rmw_qos);
-  sub_l_info_.subscribe(this, "left/camera_info", image_sub_rmw_qos);
-  sub_r_info_.subscribe(this, "right/camera_info", image_sub_rmw_qos);
-  sub_disparity_.subscribe(this, "disparity", image_sub_rmw_qos);
+  auto sub_opts = rclcpp::SubscriptionOptions();
+  sub_opts.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  sub_l_image_.subscribe(
+    this, "left/image_rect_color", hints.getTransport(), image_sub_rmw_qos, sub_opts);
+  sub_l_info_.subscribe(this, "left/camera_info", image_sub_rmw_qos, sub_opts);
+  sub_r_info_.subscribe(this, "right/camera_info", image_sub_rmw_qos, sub_opts);
+  sub_disparity_.subscribe(this, "disparity", image_sub_rmw_qos, sub_opts);
 }
 
 inline bool isValidPoint(const cv::Vec3f & pt)
@@ -196,28 +205,43 @@ void PointCloudNode::imageCb(
   sensor_msgs::PointCloud2Modifier pcd_modifier(*points_msg);
 
   if (!this->get_parameter("avoid_point_cloud_padding").as_bool()) {
-    // Data will be packed as (DC=don't care, each item is a float):
-    //   x, y, z, DC, rgb, DC, DC, DC
-    // Resulting step size: 32 bytes
-    pcd_modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
+    if (this->get_parameter("use_color").as_bool()) {
+      // Data will be packed as (DC=don't care, each item is a float):
+      //   x, y, z, DC, rgb, DC, DC, DC
+      // Resulting step size: 32 bytes
+      pcd_modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
+    } else {
+      // Data will be packed as:
+      //   x, y, z, DC
+      // Resulting step size: 16 bytes
+      pcd_modifier.setPointCloud2FieldsByString(1, "xyz");
+    }
   } else {
-    // Data will be packed as:
-    //   x, y, z, rgb
-    // Resulting step size: 16 bytes
-    pcd_modifier.setPointCloud2Fields(
-      4,
-      "x", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "y", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "z", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "rgb", 1, sensor_msgs::msg::PointField::FLOAT32);
+    if (this->get_parameter("use_color").as_bool()) {
+      // Data will be packed as:
+      //   x, y, z, rgb
+      // Resulting step size: 16 bytes
+      pcd_modifier.setPointCloud2Fields(
+        4,
+        "x", 1, sensor_msgs::msg::PointField::FLOAT32,
+        "y", 1, sensor_msgs::msg::PointField::FLOAT32,
+        "z", 1, sensor_msgs::msg::PointField::FLOAT32,
+        "rgb", 1, sensor_msgs::msg::PointField::FLOAT32);
+    } else {
+      // Data will be packed as:
+      //   x, y, z
+      // Resulting step size: 12 bytes
+      pcd_modifier.setPointCloud2Fields(
+        3,
+        "x", 1, sensor_msgs::msg::PointField::FLOAT32,
+        "y", 1, sensor_msgs::msg::PointField::FLOAT32,
+        "z", 1, sensor_msgs::msg::PointField::FLOAT32);
+    }
   }
 
   sensor_msgs::PointCloud2Iterator<float> iter_x(*points_msg, "x");
   sensor_msgs::PointCloud2Iterator<float> iter_y(*points_msg, "y");
   sensor_msgs::PointCloud2Iterator<float> iter_z(*points_msg, "z");
-  sensor_msgs::PointCloud2Iterator<uint8_t> iter_r(*points_msg, "r");
-  sensor_msgs::PointCloud2Iterator<uint8_t> iter_g(*points_msg, "g");
-  sensor_msgs::PointCloud2Iterator<uint8_t> iter_b(*points_msg, "b");
 
   float bad_point = std::numeric_limits<float>::quiet_NaN();
   for (int v = 0; v < mat.rows; ++v) {
@@ -233,52 +257,58 @@ void PointCloudNode::imageCb(
     }
   }
 
-  // Fill in color
-  namespace enc = sensor_msgs::image_encodings;
-  const std::string & encoding = l_image_msg->encoding;
-  if (encoding == enc::MONO8) {
-    const cv::Mat_<uint8_t> color(
-      l_image_msg->height, l_image_msg->width,
-      const_cast<uint8_t *>(&l_image_msg->data[0]),
-      l_image_msg->step);
-    for (int v = 0; v < mat.rows; ++v) {
-      for (int u = 0; u < mat.cols; ++u, ++iter_r, ++iter_g, ++iter_b) {
-        uint8_t g = color(v, u);
-        *iter_r = *iter_g = *iter_b = g;
+  if (this->get_parameter("use_color").as_bool()) {
+    sensor_msgs::PointCloud2Iterator<uint8_t> iter_r(*points_msg, "r");
+    sensor_msgs::PointCloud2Iterator<uint8_t> iter_g(*points_msg, "g");
+    sensor_msgs::PointCloud2Iterator<uint8_t> iter_b(*points_msg, "b");
+
+    // Fill in color
+    namespace enc = sensor_msgs::image_encodings;
+    const std::string & encoding = l_image_msg->encoding;
+    if (encoding == enc::MONO8) {
+      const cv::Mat_<uint8_t> color(
+        l_image_msg->height, l_image_msg->width,
+        const_cast<uint8_t *>(&l_image_msg->data[0]),
+        l_image_msg->step);
+      for (int v = 0; v < mat.rows; ++v) {
+        for (int u = 0; u < mat.cols; ++u, ++iter_r, ++iter_g, ++iter_b) {
+          uint8_t g = color(v, u);
+          *iter_r = *iter_g = *iter_b = g;
+        }
       }
-    }
-  } else if (encoding == enc::RGB8) {
-    const cv::Mat_<cv::Vec3b> color(
-      l_image_msg->height, l_image_msg->width,
-      (cv::Vec3b *)(&l_image_msg->data[0]),
-      l_image_msg->step);
-    for (int v = 0; v < mat.rows; ++v) {
-      for (int u = 0; u < mat.cols; ++u, ++iter_r, ++iter_g, ++iter_b) {
-        const cv::Vec3b & rgb = color(v, u);
-        *iter_r = rgb[0];
-        *iter_g = rgb[1];
-        *iter_b = rgb[2];
+    } else if (encoding == enc::RGB8) {
+      const cv::Mat_<cv::Vec3b> color(
+        l_image_msg->height, l_image_msg->width,
+        (cv::Vec3b *)(&l_image_msg->data[0]),
+        l_image_msg->step);
+      for (int v = 0; v < mat.rows; ++v) {
+        for (int u = 0; u < mat.cols; ++u, ++iter_r, ++iter_g, ++iter_b) {
+          const cv::Vec3b & rgb = color(v, u);
+          *iter_r = rgb[0];
+          *iter_g = rgb[1];
+          *iter_b = rgb[2];
+        }
       }
-    }
-  } else if (encoding == enc::BGR8) {
-    const cv::Mat_<cv::Vec3b> color(
-      l_image_msg->height, l_image_msg->width,
-      (cv::Vec3b *)(&l_image_msg->data[0]),
-      l_image_msg->step);
-    for (int v = 0; v < mat.rows; ++v) {
-      for (int u = 0; u < mat.cols; ++u, ++iter_r, ++iter_g, ++iter_b) {
-        const cv::Vec3b & bgr = color(v, u);
-        *iter_r = bgr[2];
-        *iter_g = bgr[1];
-        *iter_b = bgr[0];
+    } else if (encoding == enc::BGR8) {
+      const cv::Mat_<cv::Vec3b> color(
+        l_image_msg->height, l_image_msg->width,
+        (cv::Vec3b *)(&l_image_msg->data[0]),
+        l_image_msg->step);
+      for (int v = 0; v < mat.rows; ++v) {
+        for (int u = 0; u < mat.cols; ++u, ++iter_r, ++iter_g, ++iter_b) {
+          const cv::Vec3b & bgr = color(v, u);
+          *iter_r = bgr[2];
+          *iter_g = bgr[1];
+          *iter_b = bgr[0];
+        }
       }
+    } else {
+      // Throttle duration in milliseconds
+      RCUTILS_LOG_WARN_THROTTLE(
+        RCUTILS_STEADY_TIME, 30000,
+        "Could not fill color channel of the point cloud, "
+        "unsupported encoding '%s'", encoding.c_str());
     }
-  } else {
-    // Throttle duration in milliseconds
-    RCUTILS_LOG_WARN_THROTTLE(
-      RCUTILS_STEADY_TIME, 30000,
-      "Could not fill color channel of the point cloud, "
-      "unsupported encoding '%s'", encoding.c_str());
   }
 
   pub_points2_->publish(*points_msg);
