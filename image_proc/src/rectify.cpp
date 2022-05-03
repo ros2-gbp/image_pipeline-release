@@ -30,22 +30,24 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <rclcpp/rclcpp.hpp>
-#include <cv_bridge/cv_bridge.h>
-#include <image_geometry/pinhole_camera_model.h>
+#include <functional>
+#include <mutex>
+
+#include "cv_bridge/cv_bridge.h"
+#include "tracetools_image_pipeline/tracetools.h"
+
+#include <image_proc/rectify.hpp>
 #include <image_transport/image_transport.hpp>
-
-#include <thread>
-#include <memory>
-#include <vector>
-
-#include "image_proc/rectify.hpp"
+#include <opencv2/imgproc.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
+#include <sensor_msgs/msg/image.hpp>
 
 namespace image_proc
 {
 
 RectifyNode::RectifyNode(const rclcpp::NodeOptions & options)
-: Node("RectifyNode", options)
+: rclcpp::Node("RectifyNode", options)
 {
   queue_size_ = this->declare_parameter("queue_size", 5);
   interpolation = this->declare_parameter("interpolation", 1);
@@ -77,7 +79,19 @@ void RectifyNode::imageCb(
   const sensor_msgs::msg::Image::ConstSharedPtr & image_msg,
   const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg)
 {
+  TRACEPOINT(
+    image_proc_rectify_init,
+    static_cast<const void *>(this),
+    static_cast<const void *>(&(*image_msg)),
+    static_cast<const void *>(&(*info_msg)));
+
   if (pub_rect_.getNumSubscribers() < 1) {
+    TRACEPOINT(
+      image_proc_rectify_fini,
+      static_cast<const void *>(this),
+      static_cast<const void *>(&(*image_msg)),
+      static_cast<const void *>(&(*info_msg)));
+
     return;
   }
 
@@ -86,6 +100,11 @@ void RectifyNode::imageCb(
     RCLCPP_ERROR(
       this->get_logger(), "Rectified topic '%s' requested but camera publishing '%s' "
       "is uncalibrated", pub_rect_.getTopic().c_str(), sub_camera_.getInfoTopic().c_str());
+    TRACEPOINT(
+      image_proc_rectify_fini,
+      static_cast<const void *>(this),
+      static_cast<const void *>(&(*image_msg)),
+      static_cast<const void *>(&(*info_msg)));
     return;
   }
 
@@ -102,6 +121,11 @@ void RectifyNode::imageCb(
   // This will be true if D is empty/zero sized
   if (zero_distortion) {
     pub_rect_.publish(image_msg);
+    TRACEPOINT(
+      image_proc_rectify_fini,
+      static_cast<const void *>(this),
+      static_cast<const void *>(&(*image_msg)),
+      static_cast<const void *>(&(*info_msg)));
     return;
   }
 
@@ -119,6 +143,12 @@ void RectifyNode::imageCb(
   sensor_msgs::msg::Image::SharedPtr rect_msg =
     cv_bridge::CvImage(image_msg->header, image_msg->encoding, rect).toImageMsg();
   pub_rect_.publish(rect_msg);
+
+  TRACEPOINT(
+    image_proc_rectify_fini,
+    static_cast<const void *>(this),
+    static_cast<const void *>(&(*image_msg)),
+    static_cast<const void *>(&(*info_msg)));
 }
 
 }  // namespace image_proc
