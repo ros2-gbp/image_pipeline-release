@@ -30,46 +30,56 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DEPTH_IMAGE_PROC__DEPTH_TRAITS_HPP_
-#define DEPTH_IMAGE_PROC__DEPTH_TRAITS_HPP_
+#ifndef DEPTH_IMAGE_PROC__POINT_CLOUD_XYZ_RADIAL_HPP_
+#define DEPTH_IMAGE_PROC__POINT_CLOUD_XYZ_RADIAL_HPP_
 
-#include <algorithm>
-#include <cmath>
-#include <limits>
+#include <array>
+#include <mutex>
 #include <vector>
+
+#include "depth_image_proc/visibility.h"
+#include "image_geometry/pinhole_camera_model.h"
+
+#include <image_transport/image_transport.hpp>
+#include <opencv2/core/mat.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
+#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 namespace depth_image_proc
 {
 
-// Encapsulate differences between processing float and uint16_t depths
-template<typename T>
-struct DepthTraits {};
-
-template<>
-struct DepthTraits<uint16_t>
+class PointCloudXyzRadialNode : public rclcpp::Node
 {
-  static inline bool valid(uint16_t depth) {return depth != 0;}
-  static inline float toMeters(uint16_t depth) {return depth * 0.001f;}   // originally mm
-  static inline uint16_t fromMeters(float depth) {return (depth * 1000.0f) + 0.5f;}
-  // Do nothing - already zero-filled
-  static inline void initializeBuffer(std::vector<uint8_t> & buffer) {(void) buffer;}
-};
+public:
+  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyzRadialNode(const rclcpp::NodeOptions & options);
 
-template<>
-struct DepthTraits<float>
-{
-  static inline bool valid(float depth) {return std::isfinite(depth);}
-  static inline float toMeters(float depth) {return depth;}
-  static inline float fromMeters(float depth) {return depth;}
+private:
+  // Subscriptions
+  image_transport::CameraSubscriber sub_depth_;
+  int queue_size_;
 
-  static inline void initializeBuffer(std::vector<uint8_t> & buffer)
-  {
-    float * start = reinterpret_cast<float *>(&buffer[0]);
-    float * end = reinterpret_cast<float *>(&buffer[0] + buffer.size());
-    std::fill(start, end, std::numeric_limits<float>::quiet_NaN());
-  }
+  // Publications
+  std::mutex connect_mutex_;
+  using PointCloud = sensor_msgs::msg::PointCloud2;
+  rclcpp::Publisher<PointCloud>::SharedPtr pub_point_cloud_;
+
+  std::vector<double> D_;
+  std::array<double, 9> K_;
+
+  uint32_t width_;
+  uint32_t height_;
+
+  cv::Mat transform_;
+
+  void connectCb();
+
+  void depthCb(
+    const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
+    const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg);
 };
 
 }  // namespace depth_image_proc
 
-#endif  // DEPTH_IMAGE_PROC__DEPTH_TRAITS_HPP_
+#endif  // DEPTH_IMAGE_PROC__POINT_CLOUD_XYZ_RADIAL_HPP_
