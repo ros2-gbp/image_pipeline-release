@@ -30,24 +30,23 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <functional>
-#include <mutex>
-
-#include "cv_bridge/cv_bridge.h"
-#include "tracetools_image_pipeline/tracetools.h"
-
-#include <image_proc/rectify.hpp>
-#include <image_transport/image_transport.hpp>
-#include <opencv2/imgproc.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/camera_info.hpp>
-#include <sensor_msgs/msg/image.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <image_geometry/pinhole_camera_model.h>
+#include <image_transport/image_transport.hpp>
+
+#include <thread>
+#include <memory>
+#include <vector>
+
+#include "tracetools_image_pipeline/tracetools.h"
+#include "image_proc/rectify.hpp"
 
 namespace image_proc
 {
 
 RectifyNode::RectifyNode(const rclcpp::NodeOptions & options)
-: rclcpp::Node("RectifyNode", options)
+: Node("RectifyNode", options)
 {
   queue_size_ = this->declare_parameter("queue_size", 5);
   interpolation = this->declare_parameter("interpolation", 1);
