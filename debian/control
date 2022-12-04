@@ -1,0 +1,12 @@
+Source: ros-foxy-tracetools-image-pipeline
+Section: misc
+Priority: optional
+Maintainer: Víctor Mayoral-Vilches <v.mayoralv@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), pkg-config, ros-foxy-ament-cmake-ros, ros-foxy-ament-lint-auto <!nocheck>, ros-foxy-ament-lint-common <!nocheck>, ros-foxy-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-foxy-tracetools-image-pipeline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-foxy-ros-workspace
+Description: LTTng tracing provider wrapper for image_pipeline ROS 2 meta-package.

@@ -1,0 +1,376 @@
+ros-foxy-tracetools-image-pipeline (2.3.0-1focal) focal; urgency=high
+
+  * Add initial CHANGELOG for tracetools_image_pipeline.
+  * tracetools_image_pipeline version consistent with repo
+  * Omit changelogfile
+    See https://github.com/ros-perception/image_pipeline/pull/717#discussion_r781637389
+  * Deal with uncrustify and cpplint
+  * Add tracetools_image_pipeline package to the pipeline
+    Add an LTTng tracing provider wrapper for image_pipeline
+    metapackage. Include tracepoints for two initial ROS 2
+    components: image_proc::RectifyNode and ResizeNode
+  * Contributors: Víctor Mayoral Vilches
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 04 Dec 2022 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (2.2.1-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 27 Aug 2020 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (2.2.0-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Mon, 27 Jul 2020 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (2.1.1-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 12 Jun 2020 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (2.1.0-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Wed, 27 May 2020 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.23-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 10 May 2018 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.22-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 08 Dec 2017 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.21-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 05 Nov 2017 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.20-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 30 Apr 2017 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.19-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 24 Jul 2016 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.18-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Tue, 12 Jul 2016 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.17-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Mon, 11 Jul 2016 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.16-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sat, 19 Mar 2016 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.15-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 17 Jan 2016 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.14-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Wed, 22 Jul 2015 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.13-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Mon, 06 Apr 2015 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.12-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Wed, 31 Dec 2014 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.11-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 26 Oct 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.10-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 28 Sep 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.9-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 21 Sep 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.8-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Tue, 19 Aug 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.7-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 03 Aug 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.6-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 27 Jul 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.5-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 11 May 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.4-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Mon, 28 Apr 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.3-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sat, 12 Apr 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.2-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Tue, 08 Apr 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.1-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 06 Apr 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.12.0-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 04 Apr 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.11.7-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 28 Mar 2014 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.11.6-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Wed, 29 Jan 2014 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.11.5-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sat, 07 Dec 2013 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.11.4-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sat, 23 Nov 2013 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.11.3-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 06 Oct 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.11.2-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Tue, 27 Aug 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.11.1-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sat, 03 Aug 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.11.0-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 11 Jul 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.10-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Wed, 29 May 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.9-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sun, 05 May 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.8-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Wed, 20 Mar 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.7-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Mon, 18 Mar 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.6-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sat, 16 Mar 2013 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.5-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 01 Mar 2013 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.4-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Sat, 02 Feb 2013 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.3-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 25 Jan 2013 00:09:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.2-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 24 Jan 2013 19:38:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.1-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 04 Jan 2013 06:38:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.10.0-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 04 Jan 2013 00:19:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.12-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 03 Jan 2013 08:06:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.11-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Wed, 19 Dec 2012 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.10-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 15 Nov 2012 08:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.9-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 01 Nov 2012 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.8-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Mon, 29 Oct 2012 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.7-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Tue, 23 Oct 2012 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.6-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 04 Oct 2012 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.5-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Tue, 02 Oct 2012 07:00:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.4-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Tue, 02 Oct 2012 04:30:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.3-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Tue, 02 Oct 2012 02:29:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.2-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 13 Sep 2012 19:42:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.1-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Thu, 13 Sep 2012 07:47:00 -0000
+
+ros-foxy-tracetools-image-pipeline (1.9.0-1focal) focal; urgency=high
+
+
+
+ -- Víctor Mayoral-Vilches <v.mayoralv@gmail.com>  Fri, 07 Sep 2012 07:00:00 -0000
+
+
