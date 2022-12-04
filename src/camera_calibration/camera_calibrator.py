@@ -59,7 +59,7 @@ class SpinThread(threading.Thread):
 
     def run(self):
         rclpy.spin(self.node)
-        
+
 
 class ConsumerThread(threading.Thread):
     def __init__(self, queue, function):
@@ -77,16 +77,18 @@ class ConsumerThread(threading.Thread):
 
 class CalibrationNode(Node):
     def __init__(self, name, boards, service_check = True, synchronizer = message_filters.TimeSynchronizer, flags = 0,
-                 pattern=Patterns.Chessboard, camera_name='', checkerboard_flags = 0):
+                 pattern=Patterns.Chessboard, camera_name='', checkerboard_flags = 0, fisheye_flags = 0,
+                 max_chessboard_speed = -1):
         super().__init__(name)
-
-        self.set_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo,
-                                                          "camera/set_camera_info")
-        self.set_left_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo,
-                                                               "left_camera/set_camera_info")
-        self.set_right_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo,
-                                                                "right_camera/set_camera_info")
-
+        
+        left_camera = self.declare_parameter("left_camera", "left_camera").get_parameter_value().string_value
+        right_camera = self.declare_parameter("right_camera", "right_camera").get_parameter_value().string_value
+        camera = self.declare_parameter("camera", "camera").get_parameter_value().string_value
+        
+        self.set_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, camera + "/set_camera_info")
+        self.set_left_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, left_camera + "/set_camera_info")
+        self.set_right_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, right_camera + "/set_camera_info")
+        
         if service_check:
             # assume any non-default service names have been set.  Wait for the service to become ready
             for cli in [self.set_camera_info_service, self.set_left_camera_info_service, self.set_right_camera_info_service]:
@@ -104,9 +106,11 @@ class CalibrationNode(Node):
 
         self._boards = boards
         self._calib_flags = flags
+        self._fisheye_calib_flags = fisheye_flags
         self._checkerboard_flags = checkerboard_flags
         self._pattern = pattern
         self._camera_name = camera_name
+        self._max_chessboard_speed = max_chessboard_speed
         lsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'left')
         rsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'right')
         ts = synchronizer([lsub, rsub], 4)
@@ -142,11 +146,13 @@ class CalibrationNode(Node):
     def handle_monocular(self, msg):
         if self.c == None:
             if self._camera_name:
-                self.c = MonoCalibrator(self._boards, self._calib_flags, self._pattern, name=self._camera_name,
-                                        checkerboard_flags=self._checkerboard_flags)
+                self.c = MonoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern, name=self._camera_name,
+                                        checkerboard_flags=self._checkerboard_flags,
+                                        max_chessboard_speed = self._max_chessboard_speed)
             else:
-                self.c = MonoCalibrator(self._boards, self._calib_flags, self._pattern,
-                                        checkerboard_flags=self.checkerboard_flags)
+                self.c = MonoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern,
+                                        checkerboard_flags=self.checkerboard_flags,
+                                        max_chessboard_speed = self._max_chessboard_speed)
 
         # This should just call the MonoCalibrator
         drawable = self.c.handle_msg(msg)
@@ -156,11 +162,13 @@ class CalibrationNode(Node):
     def handle_stereo(self, msg):
         if self.c == None:
             if self._camera_name:
-                self.c = StereoCalibrator(self._boards, self._calib_flags, self._pattern, name=self._camera_name,
-                                          checkerboard_flags=self._checkerboard_flags)
+                self.c = StereoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern, name=self._camera_name,
+                                          checkerboard_flags=self._checkerboard_flags,
+                                          max_chessboard_speed = self._max_chessboard_speed)
             else:
-                self.c = StereoCalibrator(self._boards, self._calib_flags, self._pattern,
-                                          checkerboard_flags=self._checkerboard_flags)
+                self.c = StereoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern,
+                                          checkerboard_flags=self._checkerboard_flags,
+                                          max_chessboard_speed = self._max_chessboard_speed)
 
         drawable = self.c.handle_msg(msg)
         self.displaywidth = drawable.lscrib.shape[1] + drawable.rscrib.shape[1]
@@ -238,6 +246,7 @@ class OpenCVCalibrationNode(CalibrationNode):
     def initWindow(self):
         cv2.namedWindow("display", cv2.WINDOW_NORMAL)
         cv2.setMouseCallback("display", self.on_mouse)
+        cv2.createTrackbar("Camera type: \n 0 : pinhole \n 1 : fisheye", "display", 0,1, self.on_model_change)
         cv2.createTrackbar("scale", "display", 0, 100, self.on_scale)
 
     @classmethod
@@ -252,6 +261,7 @@ class OpenCVCalibrationNode(CalibrationNode):
         if event == cv2.EVENT_LBUTTONDOWN and self.displaywidth < x:
             if self.c.goodenough:
                 if 180 <= y < 280:
+                    print("**** Calibrating ****")
                     self.c.do_calibration()
             if self.c.calibrated:
                 if 280 <= y < 380:
@@ -260,6 +270,9 @@ class OpenCVCalibrationNode(CalibrationNode):
                     # Only shut down if we set camera info correctly, #3993
                     if self.do_upload():
                         rclpy.shutdown()
+
+    def on_model_change(self, model_select_val):
+        self.c.set_cammodel( CAMERA_MODEL.PINHOLE if model_select_val < 0.5 else CAMERA_MODEL.FISHEYE)
 
     def on_scale(self, scalevalue):
         if self.c.calibrated:
@@ -291,6 +304,7 @@ class OpenCVCalibrationNode(CalibrationNode):
         while os.access("/tmp/dump%d.png" % i, os.R_OK):
             i += 1
         cv2.imwrite("/tmp/dump%d.png" % i, im)
+        print("Saved screen dump to /tmp/dump%d.png" % i)
 
     def redraw_monocular(self, drawable):
         height = drawable.scrib.shape[0]
@@ -299,7 +313,6 @@ class OpenCVCalibrationNode(CalibrationNode):
         display = numpy.zeros((max(480, height), width + 100, 3), dtype=numpy.uint8)
         display[0:height, 0:width,:] = drawable.scrib
         display[0:height, width:width+100,:].fill(255)
-
 
         self.buttons(display)
         if not self.c.calibrated:
