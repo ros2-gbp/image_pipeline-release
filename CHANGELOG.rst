@@ -2,6 +2,12 @@
 Changelog for package depth_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.1 (2022-12-04)
+------------------
+* Replace deprecated headers
+  Fixing compiler warnings.
+* Contributors: Jacob Perron
+
 3.0.0 (2022-04-29)
 ------------------
 * Cleanup of depth_image_proc.
