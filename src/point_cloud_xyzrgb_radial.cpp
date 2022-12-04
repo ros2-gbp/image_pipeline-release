@@ -29,7 +29,7 @@
 // LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include "depth_image_proc/point_cloud_xyzrgb.hpp"
+#include "depth_image_proc/point_cloud_xyzrgb_radial.hpp"
 #include <rclcpp/rclcpp.hpp>
 #include <image_transport/image_transport.hpp>
 #include <image_transport/subscriber_filter.hpp>
@@ -48,16 +48,14 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include <memory>
-#include <limits>
 #include <string>
-#include <vector>
 
 namespace depth_image_proc
 {
 
 
-PointCloudXyzrgbNode::PointCloudXyzrgbNode(const rclcpp::NodeOptions & options)
-: Node("PointCloudXyzrgbNode", options)
+PointCloudXyzrgbRadialNode::PointCloudXyzrgbRadialNode(const rclcpp::NodeOptions & options)
+: Node("PointCloudXyzrgbRadialNode", options)
 {
   // Read parameters
   int queue_size = this->declare_parameter<int>("queue_size", 5);
@@ -65,23 +63,24 @@ PointCloudXyzrgbNode::PointCloudXyzrgbNode(const rclcpp::NodeOptions & options)
 
   // Synchronize inputs. Topic subscriptions happen on demand in the connection callback.
   if (use_exact_sync) {
-    exact_sync_ = std::make_shared<ExactSynchronizer>(
+    exact_sync_ = std::make_unique<ExactSynchronizer>(
       ExactSyncPolicy(queue_size),
       sub_depth_,
       sub_rgb_,
       sub_info_);
     exact_sync_->registerCallback(
       std::bind(
-        &PointCloudXyzrgbNode::imageCb,
+        &PointCloudXyzrgbRadialNode::imageCb,
         this,
         std::placeholders::_1,
         std::placeholders::_2,
         std::placeholders::_3));
   } else {
-    sync_ = std::make_shared<Synchronizer>(SyncPolicy(queue_size), sub_depth_, sub_rgb_, sub_info_);
+    sync_ =
+      std::make_unique<Synchronizer>(SyncPolicy(queue_size), sub_depth_, sub_rgb_, sub_info_);
     sync_->registerCallback(
       std::bind(
-        &PointCloudXyzrgbNode::imageCb,
+        &PointCloudXyzrgbRadialNode::imageCb,
         this,
         std::placeholders::_1,
         std::placeholders::_2,
@@ -90,11 +89,12 @@ PointCloudXyzrgbNode::PointCloudXyzrgbNode(const rclcpp::NodeOptions & options)
 
   // Monitor whether anyone is subscribed to the output
   // TODO(ros2) Implement when SubscriberStatusCallback is available
-  // ros::SubscriberStatusCallback connect_cb = boost::bind(&PointCloudXyzrgbNode::connectCb, this);
+  // ros::SubscriberStatusCallback connect_cb =
+  //   boost::bind(&PointCloudXyzrgbRadialNode::connectCb, this);
   connectCb();
   // TODO(ros2) Implement when SubscriberStatusCallback is available
   // Make sure we don't enter connectCb() between advertising and assigning to pub_point_cloud_
-  std::lock_guard<std::mutex> lock(connect_mutex_);
+  // std::lock_guard<std::mutex> lock(connect_mutex_);
   // TODO(ros2) Implement connect_cb when SubscriberStatusCallback is available
   // pub_point_cloud_ = depth_nh.advertise<PointCloud>("points", 1, connect_cb, connect_cb);
   pub_point_cloud_ = create_publisher<PointCloud2>("points", rclcpp::SensorDataQoS());
@@ -102,7 +102,7 @@ PointCloudXyzrgbNode::PointCloudXyzrgbNode(const rclcpp::NodeOptions & options)
 }
 
 // Handles (un)subscribing when clients (un)subscribe
-void PointCloudXyzrgbNode::connectCb()
+void PointCloudXyzrgbRadialNode::connectCb()
 {
   std::lock_guard<std::mutex> lock(connect_mutex_);
   // TODO(ros2) Implement getNumSubscribers when rcl/rmw support it
@@ -127,19 +127,17 @@ void PointCloudXyzrgbNode::connectCb()
   }
 }
 
-void PointCloudXyzrgbNode::imageCb(
+void PointCloudXyzrgbRadialNode::imageCb(
   const Image::ConstSharedPtr & depth_msg,
   const Image::ConstSharedPtr & rgb_msg_in,
   const CameraInfo::ConstSharedPtr & info_msg)
 {
   // Check for bad inputs
   if (depth_msg->header.frame_id != rgb_msg_in->header.frame_id) {
-    RCLCPP_WARN_THROTTLE(
-      logger_,
-      *get_clock(),
-      10000,  // 10 seconds
-      "Depth image frame id [%s] doesn't match RGB image frame id [%s]",
+    RCLCPP_WARN(
+      logger_, "Depth image frame id [%s] doesn't match RGB image frame id [%s]",
       depth_msg->header.frame_id.c_str(), rgb_msg_in->header.frame_id.c_str());
+    return;
   }
 
   // Update camera model
@@ -191,6 +189,16 @@ void PointCloudXyzrgbNode::imageCb(
     rgb_msg = rgb_msg_in;
   }
 
+  if (info_msg->d != D_ || info_msg->k != K_ || width_ != info_msg->width ||
+    height_ != info_msg->height)
+  {
+    D_ = info_msg->d;
+    K_ = info_msg->k;
+    width_ = info_msg->width;
+    height_ = info_msg->height;
+    transform_ = initMatrix(cv::Mat_<double>(3, 3, &K_[0]), cv::Mat(D_), width_, height_, true);
+  }
+
   // Supported color encodings: RGB8, BGR8, MONO8
   int red_offset, green_offset, blue_offset, color_step;
   if (rgb_msg->encoding == enc::RGB8) {
@@ -233,9 +241,9 @@ void PointCloudXyzrgbNode::imageCb(
 
   // Convert Depth Image to Pointcloud
   if (depth_msg->encoding == enc::TYPE_16UC1) {
-    convertDepth<uint16_t>(depth_msg, cloud_msg, model_);
+    convertDepthRadial<uint16_t>(depth_msg, cloud_msg, transform_);
   } else if (depth_msg->encoding == enc::TYPE_32FC1) {
-    convertDepth<float>(depth_msg, cloud_msg, model_);
+    convertDepthRadial<float>(depth_msg, cloud_msg, transform_);
   } else {
     RCLCPP_ERROR(logger_, "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
     return;
@@ -261,4 +269,4 @@ void PointCloudXyzrgbNode::imageCb(
 #include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
-RCLCPP_COMPONENTS_REGISTER_NODE(depth_image_proc::PointCloudXyzrgbNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(depth_image_proc::PointCloudXyzrgbRadialNode)
