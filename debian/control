@@ -1,0 +1,12 @@
+Source: ros-rolling-tracetools-image-pipeline
+Section: misc
+Priority: optional
+Maintainer: Víctor Mayoral-Vilches <v.mayoralv@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), pkg-config, ros-rolling-ament-cmake-ros, ros-rolling-ament-lint-auto <!nocheck>, ros-rolling-ament-lint-common <!nocheck>, ros-rolling-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-rolling-tracetools-image-pipeline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-ros-workspace
+Description: LTTng tracing provider wrapper for image_pipeline ROS 2 meta-package.
