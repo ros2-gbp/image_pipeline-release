@@ -1,0 +1,12 @@
+Source: ros-iron-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), libopencv-dev, ros-iron-ament-cmake-auto, ros-iron-ament-lint-auto <!nocheck>, ros-iron-ament-lint-common <!nocheck>, ros-iron-cv-bridge, ros-iron-image-geometry, ros-iron-image-transport, ros-iron-rclcpp, ros-iron-rclcpp-components, ros-iron-rcutils, ros-iron-sensor-msgs, ros-iron-tracetools-image-pipeline, ros-iron-ros-workspace
+Homepage: https://index.ros.org/p/image_proc/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-iron-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libopencv-dev, ros-iron-cv-bridge, ros-iron-image-geometry, ros-iron-image-transport, ros-iron-rclcpp, ros-iron-rclcpp-components, ros-iron-rcutils, ros-iron-sensor-msgs, ros-iron-tracetools-image-pipeline, ros-iron-ros-workspace
+Description: Single image rectification and color processing.
