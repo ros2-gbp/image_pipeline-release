@@ -71,7 +71,7 @@ struct ImageRotateConfig
 class ImageRotateNode : public rclcpp::Node
 {
 public:
-  IMAGE_ROTATE_PUBLIC ImageRotateNode();
+  IMAGE_ROTATE_PUBLIC ImageRotateNode(const rclcpp::NodeOptions & options);
 
 private:
   const std::string frameWithDefault(const std::string & frame, const std::string & image_frame);
@@ -82,10 +82,6 @@ private:
   void do_work(
     const sensor_msgs::msg::Image::ConstSharedPtr & msg,
     const std::string input_frame_from_msg);
-  void subscribe();
-  void unsubscribe();
-  void connectCb();
-  void disconnectCb();
   void onInit();
 
   rclcpp::Node::OnSetParametersCallbackHandle::SharedPtr on_set_parameters_callback_handle_;
