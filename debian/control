@@ -1,0 +1,12 @@
+Source: ros-iron-image-pipeline
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-iron-ament-cmake, ros-iron-ament-cmake-lint-cmake <!nocheck>, ros-iron-ament-cmake-xmllint <!nocheck>, ros-iron-ament-lint-auto <!nocheck>, ros-iron-ros-workspace
+Homepage: https://index.ros.org/p/image_pipeline/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-iron-image-pipeline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-iron-camera-calibration, ros-iron-depth-image-proc, ros-iron-image-proc, ros-iron-image-publisher, ros-iron-image-rotate, ros-iron-image-view, ros-iron-stereo-image-proc, ros-iron-ros-workspace
+Description: image_pipeline fills the gap between getting raw images from a camera driver and higher-level vision processing.
