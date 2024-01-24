@@ -35,7 +35,7 @@
 
 #include <mutex>
 
-#include "image_geometry/pinhole_camera_model.hpp"
+#include "image_geometry/pinhole_camera_model.h"
 
 #include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -62,7 +62,7 @@ private:
   // Processing state (note: only safe because we're using single-threaded NodeHandle!)
   image_geometry::PinholeCameraModel model_;
 
-  void subscribeToCamera();
+  void subscribeToCamera(const rmw_qos_profile_t & qos_profile);
   void imageCb(
     const sensor_msgs::msg::Image::ConstSharedPtr & image_msg,
     const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg);

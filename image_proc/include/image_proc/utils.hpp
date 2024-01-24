@@ -1,4 +1,4 @@
-// Copyright 2008, 2019 Willow Garage, Inc., Andreas Klintberg, Joshua Whitley
+// Copyright 2023 Willow Garage, Inc., Michal Wojcik
 // All rights reserved.
 //
 // Software License Agreement (BSD License 2.0)
@@ -30,53 +30,40 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef IMAGE_PROC__PROCESSOR_HPP_
-#define IMAGE_PROC__PROCESSOR_HPP_
+#ifndef IMAGE_PROC__UTILS_HPP_
+#define IMAGE_PROC__UTILS_HPP_
 
 #include <string>
 
-#include "image_geometry/pinhole_camera_model.h"
-
-#include <sensor_msgs/msg/image.hpp>
-#include <opencv2/core/core.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace image_proc
 {
 
-struct ImageSet
+rmw_qos_profile_t getTopicQosProfile(rclcpp::Node * node, const std::string & topic)
 {
-  std::string color_encoding;
-  cv::Mat mono;
-  cv::Mat rect;
-  cv::Mat color;
-  cv::Mat rect_color;
-};
-
-class Processor
-{
-public:
-  Processor()
-  : interpolation_(cv::INTER_LINEAR)
-  {
+  /**
+   * Given a topic name, get the QoS profile with which it is being published.
+￼  * Replaces history and depth settings with default sensor values since they cannot be retrieved.
+   * @param node pointer to the ROS node
+   * @param topic name of the topic
+   * @returns QoS profile of the publisher to the topic. If there are several publishers, it returns
+   *     returns the profile of the first one on the list. If no publishers exist, it returns
+   *     the sensor data profile.
+   */
+  std::string topic_resolved = node->get_node_base_interface()->resolve_topic_or_service_name(
+    topic, false);
+  auto topics_info = node->get_publishers_info_by_topic(topic_resolved);
+  if (topics_info.size()) {
+    auto profile = topics_info[0].qos_profile().get_rmw_qos_profile();
+    profile.history = rmw_qos_profile_sensor_data.history;
+    profile.depth = rmw_qos_profile_sensor_data.depth;
+    return profile;
+  } else {
+    return rmw_qos_profile_sensor_data;
   }
-
-  int interpolation_;
-
-  enum
-  {
-    MONO       = 1 << 0,
-    RECT       = 1 << 1,
-    COLOR      = 1 << 2,
-    RECT_COLOR = 1 << 3,
-    ALL = MONO | RECT | COLOR | RECT_COLOR
-  };
-
-  bool process(
-    const sensor_msgs::msg::Image::ConstSharedPtr & raw_image,
-    const image_geometry::PinholeCameraModel & model,
-    ImageSet & output, int flags = ALL) const;
-};
+}
 
 }  // namespace image_proc
 
-#endif  // IMAGE_PROC__PROCESSOR_HPP_
+#endif  // IMAGE_PROC__UTILS_HPP_

@@ -35,9 +35,10 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "cv_bridge/cv_bridge.hpp"
+#include "cv_bridge/cv_bridge.h"
 
 #include <image_proc/debayer.hpp>
+#include <image_proc/utils.hpp>
 // Until merged into OpenCV
 #include <image_proc/edge_aware.hpp>
 #include <image_transport/image_transport.hpp>
@@ -51,14 +52,15 @@ namespace image_proc
 DebayerNode::DebayerNode(const rclcpp::NodeOptions & options)
 : Node("DebayerNode", options)
 {
+  auto qos_profile = getTopicQosProfile(this, "image_raw");
   sub_raw_ = image_transport::create_subscription(
     this, "image_raw",
     std::bind(
       &DebayerNode::imageCb, this,
-      std::placeholders::_1), "raw");
+      std::placeholders::_1), "raw", qos_profile);
 
-  pub_mono_ = image_transport::create_publisher(this, "image_mono");
-  pub_color_ = image_transport::create_publisher(this, "image_color");
+  pub_mono_ = image_transport::create_publisher(this, "image_mono", qos_profile);
+  pub_color_ = image_transport::create_publisher(this, "image_color", qos_profile);
   debayer_ = this->declare_parameter("debayer", 3);
 }
 
@@ -189,9 +191,7 @@ void DebayerNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_ms
     }
 
     pub_color_.publish(color_msg);
-  } else if (raw_msg->encoding == sensor_msgs::image_encodings::YUV422 ||  // NOLINT
-    raw_msg->encoding == sensor_msgs::image_encodings::YUV422_YUY2)
-  {
+  } else if (raw_msg->encoding == sensor_msgs::image_encodings::YUV422) {
     // Use cv_bridge to convert to BGR8
     sensor_msgs::msg::Image::SharedPtr color_msg;
 

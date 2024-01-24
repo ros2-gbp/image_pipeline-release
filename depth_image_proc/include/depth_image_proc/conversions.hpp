@@ -35,7 +35,7 @@
 
 #include <limits>
 
-#include "image_geometry/pinhole_camera_model.hpp"
+#include "image_geometry/pinhole_camera_model.h"
 
 #include <opencv2/core/mat.hpp>
 

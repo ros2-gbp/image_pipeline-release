@@ -33,7 +33,7 @@
 #include <functional>
 #include <mutex>
 
-#include "cv_bridge/cv_bridge.hpp"
+#include "cv_bridge/cv_bridge.h"
 #include "depth_image_proc/visibility.h"
 
 #include <rclcpp/rclcpp.hpp>

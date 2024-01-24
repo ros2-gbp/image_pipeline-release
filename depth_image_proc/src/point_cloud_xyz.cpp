@@ -35,7 +35,7 @@
 #include <mutex>
 
 #include "depth_image_proc/visibility.h"
-#include "image_geometry/pinhole_camera_model.hpp"
+#include "image_geometry/pinhole_camera_model.h"
 
 #include <depth_image_proc/point_cloud_xyz.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -105,7 +105,7 @@ void PointCloudXyzNode::depthCb(
   model_.fromCameraInfo(info_msg);
 
   // Convert Depth Image to Pointcloud
-  if (depth_msg->encoding == enc::TYPE_16UC1) {
+  if (depth_msg->encoding == enc::TYPE_16UC1 || depth_msg->encoding == enc::MONO16) {
     convertDepth<uint16_t>(depth_msg, cloud_msg, model_);
   } else if (depth_msg->encoding == enc::TYPE_32FC1) {
     convertDepth<float>(depth_msg, cloud_msg, model_);
