@@ -65,10 +65,14 @@ namespace image_view
 DisparityViewNode::DisparityViewNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("disparity_view_node", options)
 {
-  std::string topic =
-    rclcpp::expand_topic_or_service_name("image", this->get_name(), this->get_namespace());
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  std::string topic = node_base->resolve_topic_or_service_name("image", false);
 
-  if (topic == "image") {
+  auto topics = this->get_topic_names_and_types();
+
+  if (topics.find(topic) == topics.end()) {
     RCLCPP_WARN(
       this->get_logger(), "Topic 'image' has not been remapped! Typical command-line usage:\n"
       "\t$ ros2 run image_view disparity_view --ros-args -r image:=<disparity image topic>");
@@ -78,9 +82,7 @@ DisparityViewNode::DisparityViewNode(const rclcpp::NodeOptions & options)
 
   // Default window name is the resolved topic name
   window_name_ = this->declare_parameter("window_name", topic);
-  // bool autosize = this->declare_parameter("autosize", false);
-
-  // cv::namedWindow(window_name_, autosize ? cv::WND_PROP_AUTOSIZE : 0);
+  autosize_ = this->declare_parameter("autosize", false);
 
   sub_ = this->create_subscription<stereo_msgs::msg::DisparityImage>(
     topic, rclcpp::QoS(10), std::bind(&DisparityViewNode::imageCb, this, std::placeholders::_1));
@@ -88,7 +90,7 @@ DisparityViewNode::DisparityViewNode(const rclcpp::NodeOptions & options)
 
 DisparityViewNode::~DisparityViewNode()
 {
-  cv::destroyWindow(window_name_);
+  cv::destroyAllWindows();
 }
 
 void DisparityViewNode::imageCb(const stereo_msgs::msg::DisparityImage::SharedPtr msg)
@@ -110,7 +112,7 @@ void DisparityViewNode::imageCb(const stereo_msgs::msg::DisparityImage::SharedPt
   }
 
   if (!initialized) {
-    cv::namedWindow(window_name_, false ? cv::WND_PROP_AUTOSIZE : 0);
+    cv::namedWindow(window_name_, autosize_ ? cv::WND_PROP_AUTOSIZE : 0);
     initialized = true;
   }
 
