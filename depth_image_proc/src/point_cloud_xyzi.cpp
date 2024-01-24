@@ -35,7 +35,7 @@
 #include <mutex>
 #include <string>
 
-#include "cv_bridge/cv_bridge.h"
+#include "cv_bridge/cv_bridge.hpp"
 
 #include <image_transport/image_transport.hpp>
 #include <image_transport/subscriber_filter.hpp>
@@ -214,8 +214,6 @@ void PointCloudXyziNode::imageCb(
     convertIntensity<uint16_t>(intensity_msg, cloud_msg);
   } else if (intensity_msg->encoding == enc::TYPE_16UC1) {
     convertIntensity<uint16_t>(intensity_msg, cloud_msg);
-  } else if (intensity_msg->encoding == enc::TYPE_32FC1) {
-    convertIntensity<float>(intensity_msg, cloud_msg);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Intensity image has unsupported encoding [%s]",

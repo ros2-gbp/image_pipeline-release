@@ -60,8 +60,6 @@ protected:
   int height_;
   int width_;
 
-  cv_bridge::CvImage scaled_cv_;
-
   std::mutex connect_mutex_;
 
   void connectCb();

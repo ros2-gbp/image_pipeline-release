@@ -150,7 +150,7 @@ class CameraCheckerNode(Node):
         if ok:
             return corners, ids
         else:
-            return None, None
+            return None
 
     def handle_monocular(self, msg):
 

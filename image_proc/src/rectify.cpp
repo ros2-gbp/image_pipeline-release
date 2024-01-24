@@ -33,12 +33,10 @@
 #include <functional>
 #include <mutex>
 
-#include "cv_bridge/cv_bridge.h"
+#include "cv_bridge/cv_bridge.hpp"
 #include "tracetools_image_pipeline/tracetools.h"
 
 #include <image_proc/rectify.hpp>
-#include <image_proc/utils.hpp>
-
 #include <image_transport/image_transport.hpp>
 #include <opencv2/imgproc.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -51,15 +49,14 @@ namespace image_proc
 RectifyNode::RectifyNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("RectifyNode", options)
 {
-  auto qos_profile = getTopicQosProfile(this, "image");
   queue_size_ = this->declare_parameter("queue_size", 5);
   interpolation = this->declare_parameter("interpolation", 1);
   pub_rect_ = image_transport::create_publisher(this, "image_rect");
-  subscribeToCamera(qos_profile);
+  subscribeToCamera();
 }
 
 // Handles (un)subscribing when clients (un)subscribe
-void RectifyNode::subscribeToCamera(const rmw_qos_profile_t & qos_profile)
+void RectifyNode::subscribeToCamera()
 {
   std::lock_guard<std::mutex> lock(connect_mutex_);
 
@@ -74,7 +71,7 @@ void RectifyNode::subscribeToCamera(const rmw_qos_profile_t & qos_profile)
   sub_camera_ = image_transport::create_camera_subscription(
     this, "image", std::bind(
       &RectifyNode::imageCb,
-      this, std::placeholders::_1, std::placeholders::_2), "raw", qos_profile);
+      this, std::placeholders::_1, std::placeholders::_2), "raw");
   // }
 }
 

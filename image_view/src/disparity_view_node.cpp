@@ -78,7 +78,9 @@ DisparityViewNode::DisparityViewNode(const rclcpp::NodeOptions & options)
 
   // Default window name is the resolved topic name
   window_name_ = this->declare_parameter("window_name", topic);
-  autosize_ = this->declare_parameter("autosize", false);
+  // bool autosize = this->declare_parameter("autosize", false);
+
+  // cv::namedWindow(window_name_, autosize ? cv::WND_PROP_AUTOSIZE : 0);
 
   sub_ = this->create_subscription<stereo_msgs::msg::DisparityImage>(
     topic, rclcpp::QoS(10), std::bind(&DisparityViewNode::imageCb, this, std::placeholders::_1));
@@ -86,7 +88,7 @@ DisparityViewNode::DisparityViewNode(const rclcpp::NodeOptions & options)
 
 DisparityViewNode::~DisparityViewNode()
 {
-  cv::destroyAllWindows();
+  cv::destroyWindow(window_name_);
 }
 
 void DisparityViewNode::imageCb(const stereo_msgs::msg::DisparityImage::SharedPtr msg)
@@ -108,7 +110,7 @@ void DisparityViewNode::imageCb(const stereo_msgs::msg::DisparityImage::SharedPt
   }
 
   if (!initialized) {
-    cv::namedWindow(window_name_, autosize_ ? cv::WND_PROP_AUTOSIZE : 0);
+    cv::namedWindow(window_name_, false ? cv::WND_PROP_AUTOSIZE : 0);
     initialized = true;
   }
 

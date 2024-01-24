@@ -46,9 +46,6 @@ try:
 except ImportError:
     from Queue import Queue
 from camera_calibration.calibrator import CAMERA_MODEL
-from rclpy.qos import qos_profile_system_default
-from rclpy.qos import QoSProfile
-
 
 class BufferQueue(Queue):
     """Slight modification of the standard Queue that discards the oldest item
@@ -64,7 +61,6 @@ class BufferQueue(Queue):
             self._put(item)
             self.unfinished_tasks += 1
             self.not_empty.notify()
-
 
 class SpinThread(threading.Thread):
     """
@@ -97,12 +93,13 @@ class CalibrationNode(Node):
                  max_chessboard_speed = -1, queue_size = 1):
         super().__init__(name)
 
-        self.set_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo,
-                                                          "camera/set_camera_info")
-        self.set_left_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo,
-                                                               "left_camera/set_camera_info")
-        self.set_right_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo,
-                                                                "right_camera/set_camera_info")
+        left_camera = self.declare_parameter("left_camera", "left_camera").get_parameter_value().string_value
+        right_camera = self.declare_parameter("right_camera", "right_camera").get_parameter_value().string_value
+        camera = self.declare_parameter("camera", "camera").get_parameter_value().string_value
+
+        self.set_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, camera + "/set_camera_info")
+        self.set_left_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, left_camera + "/set_camera_info")
+        self.set_right_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, right_camera + "/set_camera_info")
 
         if service_check:
             # assume any non-default service names have been set.  Wait for the service to become ready
@@ -126,12 +123,12 @@ class CalibrationNode(Node):
         self._pattern = pattern
         self._camera_name = camera_name
         self._max_chessboard_speed = max_chessboard_speed
-        lsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'left', qos_profile=self.get_topic_qos("left"))
-        rsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'right', qos_profile=self.get_topic_qos("right"))
+        lsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'left')
+        rsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'right')
         ts = synchronizer([lsub, rsub], 4)
         ts.registerCallback(self.queue_stereo)
 
-        msub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'image', qos_profile=self.get_topic_qos("image"))
+        msub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'image')
         msub.registerCallback(self.queue_monocular)
 
         self.q_mono = BufferQueue(queue_size)
@@ -228,25 +225,6 @@ class CalibrationNode(Node):
             response = self.set_right_camera_info_service.call_async(req)
             rv = rv and self.check_set_camera_info(response)
         return rv
-
-    def get_topic_qos(self, topic_name: str) -> QoSProfile:
-        """!
-        Given a topic name, get the QoS profile with which it is being published.
-        Replaces history and depth settings with default values since they cannot be retrieved
-        @param topic_name (str) the topic name
-        @return QosProfile the qos profile with which the topic is published. If no publishers exist
-        for the given topic, it returns the sensor data QoS. returns None in case ROS1 is being used
-        """
-        topic_name = self.resolve_topic_name(topic_name)
-        topic_info = self.get_publishers_info_by_topic(topic_name=topic_name)
-        if len(topic_info):
-            qos_profile = topic_info[0].qos_profile
-            qos_profile.history = qos_profile_system_default.history
-            qos_profile.depth = qos_profile_system_default.depth
-            return qos_profile
-        else:
-            self.get_logger().warn(f"No publishers available for topic {topic_name}. Using system default QoS for subscriber.")
-            return qos_profile_system_default
 
 
 class OpenCVCalibrationNode(CalibrationNode):
@@ -375,7 +353,7 @@ class OpenCVCalibrationNode(CalibrationNode):
         else:
             self.putText(display, "lin.", (width, self.y(0)))
             linerror = drawable.linear_error
-            if linerror is None or linerror < 0:
+            if linerror < 0:
                 msg = "?"
             else:
                 msg = "%.2f" % linerror
