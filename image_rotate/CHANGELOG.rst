@@ -2,13 +2,23 @@
 Changelog for package image_rotate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.0.0 (2022-12-24)
+5.0.0 (2024-01-24)
 ------------------
-* [backport iron] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#914 <https://github.com/ros-perception/image_pipeline/issues/914>`_)
-  Removed cfg files related with ROS 1 parameters. Backport
-  https://github.com/ros-perception/image_pipeline/pull/911
-* load image_rotate::ImageRotateNode as component (`#856 <https://github.com/ros-perception/image_pipeline/issues/856>`_)
-  This is a fixed version of `#820 <https://github.com/ros-perception/image_pipeline/issues/820>`_ - targeting iron
+* Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_)
+  Removed cfg files related with ROS 1 parameters
+* image_rotate: clean up (`#862 <https://github.com/ros-perception/image_pipeline/issues/862>`_)
+  This is the first component/node with a cleanup pass to be fully
+  implemented:
+  * Fix `#740 <https://github.com/ros-perception/image_pipeline/issues/740>`_ by initializing vectors. Do this by declaring parameters
+  AFTER we define the callback
+  * Implement lazy subscribers (I missed this in the earlier PRs)
+  * Add image_transport parameter so we can specify that desired transport
+  of our subscriptions
+  * Update how we test for connectivity (and update the debug message -
+  has nothing to do with whether we are remapped, it's really about
+  whether we are connected)
+* load image_rotate::ImageRotateNode as component (`#855 <https://github.com/ros-perception/image_pipeline/issues/855>`_)
+  This is a fixed version of `#820 <https://github.com/ros-perception/image_pipeline/issues/820>`_ - targeting rolling
 * add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
 * Contributors: Alejandro Hernández Cordero, Michael Ferguson
 

@@ -2,15 +2,67 @@
 Changelog for package image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.0.0 (2022-12-24)
+5.0.0 (2024-01-24)
 ------------------
-* [backport iron] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#914 <https://github.com/ros-perception/image_pipeline/issues/914>`_)
-  Removed cfg files related with ROS 1 parameters. Backport
-  https://github.com/ros-perception/image_pipeline/pull/911
-* [backport iron] ROS 2: Merged resize.cpp: fix memory leak (`#874 <https://github.com/ros-perception/image_pipeline/issues/874>`_) (`#892 <https://github.com/ros-perception/image_pipeline/issues/892>`_)
-  backport `#874 <https://github.com/ros-perception/image_pipeline/issues/874>`_
-* allow use as component or node (`#858 <https://github.com/ros-perception/image_pipeline/issues/858>`_)
-  Backport `#852 <https://github.com/ros-perception/image_pipeline/issues/852>`_ to Iron
+* Port image_proc test to ROS 2 (`#910 <https://github.com/ros-perception/image_pipeline/issues/910>`_)
+* Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_)
+  Removed cfg files related with ROS 1 parameters
+* image_proc: consistent image_transport (`#884 <https://github.com/ros-perception/image_pipeline/issues/884>`_)
+  * consistent image_transport parameter for crop_decimate, crop_non_zero
+  and debayer nodes
+  * consistent remapping support for compressed/etc topics in all three
+  nodes
+  * add lazy subscription support to crop_non_zero
+  Additional minor fixes:
+  * put the getTopicQosProfile() for publisher right in front of publisher
+  declaration for clarity
+* resize/recify: consistent image_transport (`#883 <https://github.com/ros-perception/image_pipeline/issues/883>`_)
+  * support image_transport parameter
+  * proper renaming so compressed/etc topics work as expected
+  Additional minor fixes:
+  * rename interpolation -> interpolation\_ for consistency
+  * move parameter declaration BEFORE we create a publisher (and possibly
+  get a subscriber created in connect callback)
+  * put the getTopicQosProfile() for publisher right in front of publisher
+  declaration for clarity
+* ROS 2: Merged resize.cpp: fix memory leak (`#874 <https://github.com/ros-perception/image_pipeline/issues/874>`_)
+  Related with this PR in ROS 1
+  https://github.com/ros-perception/image_pipeline/pull/489
+* allow use as component or node (`#852 <https://github.com/ros-perception/image_pipeline/issues/852>`_)
+  This addresses
+  https://github.com/ros-perception/image_pipeline/issues/823:
+  * depth_image_proc was never implemented properly this way
+  * image_proc might have once worked this way, but it appears upstream
+  has changed over time and it was no longer doing the job.
+  * stereo_image_proc is actually implemented correctly - I just added a
+  comment
+  With this PR:
+  ```
+  $ ros2 pkg executables image_proc
+  image_proc crop_decimate_node
+  image_proc crop_non_zero_node
+  image_proc debayer_node
+  image_proc image_proc
+  image_proc rectify_node
+  image_proc resize_node
+  ```
+  ```
+  $ ros2 pkg executables depth_image_proc
+  depth_image_proc convert_metric_node
+  depth_image_proc crop_foremost_node
+  depth_image_proc disparity_node
+  depth_image_proc point_cloud_xyz_node
+  depth_image_proc point_cloud_xyz_radial_node
+  depth_image_proc point_cloud_xyzi_node
+  depth_image_proc point_cloud_xyzi_radial_node
+  depth_image_proc point_cloud_xyzrgb_node
+  depth_image_proc point_cloud_xyzrgb_radial_node
+  depth_image_proc register_node
+  ```
+* add support for lazy subscribers (`#815 <https://github.com/ros-perception/image_pipeline/issues/815>`_)
+  This implements `#780 <https://github.com/ros-perception/image_pipeline/issues/780>`_ for ROS 2 distributions after Iron, where we have:
+  * Connect/disconnect callbacks, per https://github.com/ros2/rmw/issues/330 (this made it into Iron)
+  * Updated APIs in https://github.com/ros-perception/image_common/pull/272 (this is only in Rolling currently)
 * add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
 * Use the same QoS profiles as publishers in image_proc
 * fix to allow remapping resize and image topics

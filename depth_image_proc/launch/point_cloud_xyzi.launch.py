@@ -48,7 +48,7 @@ def generate_launch_description():
             package='realsense_ros2_camera', node_executable='realsense_ros2_camera',
             output='screen'),
 
-        # TODO: Realsense camera do not support intensity message
+        # NOTE: Realsense camera do not support intensity message
         # use color image instead of intensity only for interface test
         launch_ros.actions.ComposableNodeContainer(
             name='container',
@@ -63,7 +63,6 @@ def generate_launch_description():
                     name='point_cloud_xyzi',
                     remappings=[('depth/image_rect', '/camera/aligned_depth_to_color/image_raw'),
                                 ('intensity/image_rect', '/camera/color/image_raw'),
-                                ('intensity/camera_info', '/camera/color/camera_info'),
                                 ('points', '/camera/depth/points')]
                 ),
             ],

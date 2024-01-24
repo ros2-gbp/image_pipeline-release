@@ -37,6 +37,7 @@
 
 #include "cv_bridge/cv_bridge.hpp"
 
+#include <image_transport/camera_common.hpp>
 #include <image_transport/image_transport.hpp>
 #include <image_transport/subscriber_filter.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -50,10 +51,13 @@
 namespace depth_image_proc
 {
 
-
 PointCloudXyziNode::PointCloudXyziNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("PointCloudXyziNode", options)
 {
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("image_transport", "raw");
+  this->declare_parameter<std::string>("depth_image_transport", "raw");
+
   // Read parameters
   int queue_size = this->declare_parameter<int>("queue_size", 5);
 
@@ -71,40 +75,40 @@ PointCloudXyziNode::PointCloudXyziNode(const rclcpp::NodeOptions & options)
       std::placeholders::_2,
       std::placeholders::_3));
 
-  // Monitor whether anyone is subscribed to the output
-  // TODO(ros2) Implement when SubscriberStatusCallback is available
-  // ros::SubscriberStatusCallback connect_cb = boost::bind(&PointCloudXyziNode::connectCb, this);
-  connectCb();
-  // Make sure we don't enter connectCb() between advertising and assigning to pub_point_cloud_
-  std::lock_guard<std::mutex> lock(connect_mutex_);
-  // TODO(ros2) Implement when SubscriberStatusCallback is available
-  // pub_point_cloud_ = depth_nh.advertise<PointCloud>("points", 1, connect_cb, connect_cb);
-  pub_point_cloud_ = create_publisher<PointCloud>("points", rclcpp::SensorDataQoS());
-}
+  // Create publisher with connect callback
+  rclcpp::PublisherOptions pub_options;
+  pub_options.event_callbacks.matched_callback =
+    [this](rclcpp::MatchedInfo & s)
+    {
+      std::lock_guard<std::mutex> lock(connect_mutex_);
+      if (s.current_count == 0) {
+        sub_depth_.unsubscribe();
+        sub_intensity_.unsubscribe();
+        sub_info_.unsubscribe();
+      } else if (!sub_depth_.getSubscriber()) {
+        // For compressed topics to remap appropriately, we need to pass a
+        // fully expanded and remapped topic name to image_transport
+        auto node_base = this->get_node_base_interface();
+        std::string depth_topic =
+          node_base->resolve_topic_or_service_name("depth/image_rect", false);
+        std::string intensity_topic =
+          node_base->resolve_topic_or_service_name("intensity/image_rect", false);
+        // Allow also remapping camera_info to something different than default
+        std::string intensity_info_topic =
+          node_base->resolve_topic_or_service_name(
+          image_transport::getCameraInfoTopic(intensity_topic), false);
 
-// Handles (un)subscribing when clients (un)subscribe
-void PointCloudXyziNode::connectCb()
-{
-  std::lock_guard<std::mutex> lock(connect_mutex_);
-  // TODO(ros2) Implement getNumSubscribers when rcl/rmw support it
-  // if (pub_point_cloud_->getNumSubscribers() == 0)
-  if (0) {
-    sub_depth_.unsubscribe();
-    sub_intensity_.unsubscribe();
-    sub_info_.unsubscribe();
-  } else if (!sub_depth_.getSubscriber()) {
-    // parameter for depth_image_transport hint
-    std::string depth_image_transport_param = "depth_image_transport";
+        // depth image can use different transport.(e.g. compressedDepth)
+        image_transport::TransportHints depth_hints(this, "raw", "depth_image_transport");
+        sub_depth_.subscribe(this, depth_topic, depth_hints.getTransport());
 
-    // depth image can use different transport.(e.g. compressedDepth)
-    image_transport::TransportHints depth_hints(this, "raw", depth_image_transport_param);
-    sub_depth_.subscribe(this, "depth/image_rect", depth_hints.getTransport());
-
-    // intensity uses normal ros transport hints.
-    image_transport::TransportHints hints(this, "raw");
-    sub_intensity_.subscribe(this, "intensity/image_rect", hints.getTransport());
-    sub_info_.subscribe(this, "intensity/camera_info");
-  }
+        // intensity uses normal ros transport hints.
+        image_transport::TransportHints hints(this, "raw");
+        sub_intensity_.subscribe(this, intensity_topic, hints.getTransport());
+        sub_info_.subscribe(this, intensity_info_topic);
+      }
+    };
+  pub_point_cloud_ = create_publisher<PointCloud>("points", rclcpp::SensorDataQoS(), pub_options);
 }
 
 void PointCloudXyziNode::imageCb(
