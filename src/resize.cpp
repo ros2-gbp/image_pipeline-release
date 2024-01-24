@@ -37,6 +37,8 @@
 #include "tracetools_image_pipeline/tracetools.h"
 
 #include <image_proc/resize.hpp>
+#include <image_proc/utils.hpp>
+
 #include <image_transport/image_transport.hpp>
 #include <rclcpp/qos.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -49,15 +51,16 @@ namespace image_proc
 ResizeNode::ResizeNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("ResizeNode", options)
 {
+  auto qos_profile = getTopicQosProfile(this, "image/image_raw");
   // Create image pub
-  pub_image_ = image_transport::create_camera_publisher(this, "resize");
+  pub_image_ = image_transport::create_camera_publisher(this, "resize/image_raw", qos_profile);
   // Create image sub
   sub_image_ = image_transport::create_camera_subscription(
-    this, "image",
+    this, "image/image_raw",
     std::bind(
       &ResizeNode::imageCb, this,
       std::placeholders::_1,
-      std::placeholders::_2), "raw");
+      std::placeholders::_2), "raw", qos_profile);
 
   interpolation_ = this->declare_parameter("interpolation", 1);
   use_scale_ = this->declare_parameter("use_scale", true);
@@ -83,10 +86,10 @@ void ResizeNode::imageCb(
     static_cast<const void *>(&(*image_msg)),
     static_cast<const void *>(&(*info_msg)));
 
-  cv_bridge::CvImagePtr cv_ptr;
+  cv_bridge::CvImageConstPtr cv_ptr;
 
   try {
-    cv_ptr = cv_bridge::toCvCopy(image_msg);
+    cv_ptr = cv_bridge::toCvShare(image_msg);
   } catch (cv_bridge::Exception & e) {
     TRACEPOINT(
       image_proc_resize_fini,
@@ -99,12 +102,12 @@ void ResizeNode::imageCb(
 
   if (use_scale_) {
     cv::resize(
-      cv_ptr->image, cv_ptr->image, cv::Size(0, 0), scale_width_,
+      cv_ptr->image, scaled_cv_.image, cv::Size(0, 0), scale_width_,
       scale_height_, interpolation_);
   } else {
     int height = height_ == -1 ? image_msg->height : height_;
     int width = width_ == -1 ? image_msg->width : width_;
-    cv::resize(cv_ptr->image, cv_ptr->image, cv::Size(width, height), 0, 0, interpolation_);
+    cv::resize(cv_ptr->image, scaled_cv_.image, cv::Size(width, height), 0, 0, interpolation_);
   }
 
   sensor_msgs::msg::CameraInfo::SharedPtr dst_info_msg =
@@ -141,7 +144,9 @@ void ResizeNode::imageCb(
   dst_info_msg->roi.width = static_cast<int>(dst_info_msg->roi.width * scale_x);
   dst_info_msg->roi.height = static_cast<int>(dst_info_msg->roi.height * scale_y);
 
-  pub_image_.publish(*cv_ptr->toImageMsg(), *dst_info_msg);
+  scaled_cv_.header = image_msg->header;
+  scaled_cv_.encoding = image_msg->encoding;
+  pub_image_.publish(*scaled_cv_.toImageMsg(), *dst_info_msg);
 
   TRACEPOINT(
     image_proc_resize_fini,
