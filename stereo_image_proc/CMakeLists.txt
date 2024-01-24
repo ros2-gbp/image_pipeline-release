@@ -26,6 +26,7 @@ target_link_libraries(${PROJECT_NAME}
   ${OpenCV_LIBRARIES}
 )
 
+# Register individual components and also build standalone nodes for each
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "stereo_image_proc::DisparityNode"
   EXECUTABLE disparity_node
@@ -44,22 +45,13 @@ if(BUILD_TESTING)
     set(PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE_DEBUG}")
   endif()
 
-  # Test DisparityNode in launch test
-  add_launch_test("test/test_disparity_node.py"
+  ament_add_pytest_test("test_disparity_node" test/test_disparity_node.py
     PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}"
   )
-  # TODO(jacobperron): As of Eloquent, they're just plain pytests
-  # ament_add_pytest_test("test_disparity_node" test/test_disparity_node.py
-  #   PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}"
-  # )
 
-  # Test PointCloudNode in launch test
-  add_launch_test("test/test_point_cloud_node.py"
+  ament_add_pytest_test("test_point_cloud_node" test/test_point_cloud_node.py
     PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}"
   )
-  # ament_add_pytest_test("test_point_cloud_node" test/test_point_cloud_node.py
-  #   PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}"
-  # )
 
   set(PYTHON_EXECUTABLE "${_PYTHON_EXECUTABLE}")
 endif()
