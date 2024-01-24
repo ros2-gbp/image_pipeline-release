@@ -1,3 +1,35 @@
+## image_pipeline (iron) - 3.0.1-5
+
+The packages in the `image_pipeline` repository were released into the `iron` distro by running `/usr/bin/bloom-release --rosdistro iron --track iron image_pipeline` on `Wed, 24 Jan 2024 10:38:27 -0000`
+
+These packages were released:
+- `camera_calibration`
+- `depth_image_proc`
+- `image_pipeline`
+- `image_proc`
+- `image_publisher`
+- `image_rotate`
+- `image_view`
+- `stereo_image_proc`
+- `tracetools_image_pipeline`
+
+Version of package(s) in repository `image_pipeline`:
+
+- upstream repository: https://github.com/ros-perception/image_pipeline.git
+- release repository: https://github.com/ros2-gbp/image_pipeline-release.git
+- rosdistro version: `3.0.1-3`
+- old version: `3.0.1-4`
+- new version: `3.0.1-5`
+
+Versions of tools used:
+
+- bloom version: `0.11.2`
+- catkin_pkg version: `0.5.2`
+- rosdep version: `0.22.2`
+- rosdistro version: `0.9.0`
+- vcstools version: `0.1.42`
+
+
 ## image_pipeline (iron) - 3.0.1-4
 
 The packages in the `image_pipeline` repository were released into the `iron` distro by running `/usr/bin/bloom-release --rosdistro iron --track iron image_pipeline` on `Wed, 24 Jan 2024 10:33:16 -0000`
