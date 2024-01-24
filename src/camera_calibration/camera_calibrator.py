@@ -46,6 +46,9 @@ try:
 except ImportError:
     from Queue import Queue
 from camera_calibration.calibrator import CAMERA_MODEL
+from rclpy.qos import qos_profile_system_default
+from rclpy.qos import QoSProfile
+
 
 class BufferQueue(Queue):
     """Slight modification of the standard Queue that discards the oldest item
@@ -61,6 +64,7 @@ class BufferQueue(Queue):
             self._put(item)
             self.unfinished_tasks += 1
             self.not_empty.notify()
+
 
 class SpinThread(threading.Thread):
     """
@@ -82,7 +86,7 @@ class ConsumerThread(threading.Thread):
         self.function = function
 
     def run(self):
-        while True:
+        while rclpy.ok():
             m = self.queue.get()
             self.function(m)
 
@@ -93,28 +97,24 @@ class CalibrationNode(Node):
                  max_chessboard_speed = -1, queue_size = 1):
         super().__init__(name)
 
-        left_camera = self.declare_parameter("left_camera", "left_camera").get_parameter_value().string_value
-        right_camera = self.declare_parameter("right_camera", "right_camera").get_parameter_value().string_value
-        camera = self.declare_parameter("camera", "camera").get_parameter_value().string_value
-
-        self.set_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, camera + "/set_camera_info")
-        self.set_left_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, left_camera + "/set_camera_info")
-        self.set_right_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, right_camera + "/set_camera_info")
+        self.set_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, "camera/set_camera_info")
+        self.set_left_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, "left_camera/set_camera_info")
+        self.set_right_camera_info_service = self.create_client(sensor_msgs.srv.SetCameraInfo, "right_camera/set_camera_info")
 
         if service_check:
+            available = False
             # assume any non-default service names have been set.  Wait for the service to become ready
             for cli in [self.set_camera_info_service, self.set_left_camera_info_service, self.set_right_camera_info_service]:
-                #remapped = rclpy.remap_name(svcname)
-                #if remapped != svcname:
-                #fullservicename = "%s/set_camera_info" % remapped
                 print("Waiting for service", cli.srv_name, "...")
                 # check all services so they are ready.
-                try:
-                    cli.wait_for_service(timeout_sec=5)
+                if cli.wait_for_service(timeout_sec=1):
+                    available = True
                     print("OK")
-                except Exception as e:
-                    print("Service not found: %s".format(e))
-                    rclpy.shutdown()
+                else:
+                    print(f"Service {cli.srv_name} not found.")
+
+            if not available:
+                raise RuntimeError("no camera service available")
 
         self._boards = boards
         self._calib_flags = flags
@@ -123,12 +123,12 @@ class CalibrationNode(Node):
         self._pattern = pattern
         self._camera_name = camera_name
         self._max_chessboard_speed = max_chessboard_speed
-        lsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'left')
-        rsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'right')
+        lsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'left', qos_profile=self.get_topic_qos("left"))
+        rsub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'right', qos_profile=self.get_topic_qos("right"))
         ts = synchronizer([lsub, rsub], 4)
         ts.registerCallback(self.queue_stereo)
 
-        msub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'image')
+        msub = message_filters.Subscriber(self, sensor_msgs.msg.Image, 'image', qos_profile=self.get_topic_qos("image"))
         msub.registerCallback(self.queue_monocular)
 
         self.q_mono = BufferQueue(queue_size)
@@ -190,10 +190,8 @@ class CalibrationNode(Node):
 
 
     def check_set_camera_info(self, response):
-        if response.done():
-            if response.result() is not None:
-                if response.result().success:
-                    return True
+        if response.success:
+            return True
 
         for i in range(10):
             print("!" * 80)
@@ -215,16 +213,35 @@ class CalibrationNode(Node):
         rv = True
         if self.c.is_mono:
             req.camera_info = info
-            response = self.set_camera_info_service.call_async(req)
+            response = self.set_camera_info_service.call(req)
             rv = self.check_set_camera_info(response)
         else:
             req.camera_info = info[0]
-            response = self.set_left_camera_info_service.call_async(req)
+            response = self.set_left_camera_info_service.call(req)
             rv = rv and self.check_set_camera_info(response)
             req.camera_info = info[1]
-            response = self.set_right_camera_info_service.call_async(req)
+            response = self.set_right_camera_info_service.call(req)
             rv = rv and self.check_set_camera_info(response)
         return rv
+
+    def get_topic_qos(self, topic_name: str) -> QoSProfile:
+        """!
+        Given a topic name, get the QoS profile with which it is being published.
+        Replaces history and depth settings with default values since they cannot be retrieved
+        @param topic_name (str) the topic name
+        @return QosProfile the qos profile with which the topic is published. If no publishers exist
+        for the given topic, it returns the sensor data QoS. returns None in case ROS1 is being used
+        """
+        topic_name = self.resolve_topic_name(topic_name)
+        topic_info = self.get_publishers_info_by_topic(topic_name=topic_name)
+        if len(topic_info):
+            qos_profile = topic_info[0].qos_profile
+            qos_profile.history = qos_profile_system_default.history
+            qos_profile.depth = qos_profile_system_default.depth
+            return qos_profile
+        else:
+            self.get_logger().warn(f"No publishers available for topic {topic_name}. Using system default QoS for subscriber.")
+            return qos_profile_system_default
 
 
 class OpenCVCalibrationNode(CalibrationNode):
@@ -242,10 +259,9 @@ class OpenCVCalibrationNode(CalibrationNode):
 
     def spin(self):
         sth = SpinThread(self)
-        sth.setDaemon(True)
         sth.start()
 
-        while True:
+        while rclpy.ok():
             if self.queue_display.qsize() > 0:
                 self.image = self.queue_display.get()
                 cv2.imshow("display", self.image)
@@ -253,7 +269,7 @@ class OpenCVCalibrationNode(CalibrationNode):
                 time.sleep(0.1)
             k = cv2.waitKey(6) & 0xFF
             if k in [27, ord('q')]:
-                rclpy.shutdown()
+                return
             elif k == ord('s') and self.image is not None:
                 self.screendump(self.image)
 
@@ -276,7 +292,8 @@ class OpenCVCalibrationNode(CalibrationNode):
             if self.c.goodenough:
                 if 180 <= y < 280:
                     print("**** Calibrating ****")
-                    self.c.do_calibration()
+                    # Perform calibration in another thread to prevent UI blocking
+                    threading.Thread(target=self.c.do_calibration, name="Calibration").start()
                     self.buttons(self._last_display)
                     self.queue_display.put(self._last_display)
             if self.c.calibrated:
@@ -291,9 +308,6 @@ class OpenCVCalibrationNode(CalibrationNode):
             print("Cannot change camera model until the first image has been received")
             return
 
-        self.c.set_cammodel( CAMERA_MODEL.PINHOLE if model_select_val < 0.5 else CAMERA_MODEL.FISHEYE)
-
-    def on_model_change(self, model_select_val):
         self.c.set_cammodel( CAMERA_MODEL.PINHOLE if model_select_val < 0.5 else CAMERA_MODEL.FISHEYE)
 
     def on_scale(self, scalevalue):
@@ -353,7 +367,7 @@ class OpenCVCalibrationNode(CalibrationNode):
         else:
             self.putText(display, "lin.", (width, self.y(0)))
             linerror = drawable.linear_error
-            if linerror < 0:
+            if linerror is None or linerror < 0:
                 msg = "?"
             else:
                 msg = "%.2f" % linerror
