@@ -38,15 +38,9 @@ int main(int argc, char ** argv)
   // Force flush of the stdout buffer.
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
-  if (argc <= 1) {
-    RCUTILS_LOG_WARN(
-      "Topic 'image' has not been remapped! Typical command-line usage:\n"
-      "\t$ ros2 run image_rotate image_rotate image:=<image topic>");
-    return 1;
-  }
-
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<image_rotate::ImageRotateNode>();
+  rclcpp::NodeOptions options;
+  auto node = std::make_shared<image_rotate::ImageRotateNode>(options);
 
   rclcpp::spin(node);
   rclcpp::shutdown();

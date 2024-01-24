@@ -48,13 +48,13 @@
 
 #include <chrono>
 #include <memory>
+#include <sstream>
 #include <string>
 
 #include "cv_bridge/cv_bridge.hpp"
 
 #include "image_view/image_saver_node.hpp"
 
-#include <boost/format.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 #include <rclcpp/rclcpp.hpp>
@@ -64,33 +64,40 @@
 #include <std_srvs/srv/empty.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
+#include "utils.hpp"
+
 namespace image_view
 {
 
 ImageSaverNode::ImageSaverNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("image_saver_node", options)
 {
-  auto topic = rclcpp::expand_topic_or_service_name(
-    "image", this->get_name(), this->get_namespace());
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("image_transport", "raw");
+  image_transport::TransportHints hints(this);
+
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  std::string topic = node_base->resolve_topic_or_service_name("image", false);
 
   // Useful when CameraInfo is being published
   cam_sub_ = image_transport::create_camera_subscription(
     this, topic, std::bind(
       &ImageSaverNode::callbackWithCameraInfo, this, std::placeholders::_1, std::placeholders::_2),
-    "raw");
+    hints.getTransport());
 
   // Useful when CameraInfo is not being published
   image_sub_ = image_transport::create_subscription(
     this, topic, std::bind(
       &ImageSaverNode::callbackWithoutCameraInfo, this, std::placeholders::_1),
-    "raw");
+    hints.getTransport());
 
-  std::string format_string;
-  format_string = this->declare_parameter("filename_format", std::string("left%04i.%s"));
+  g_format = this->declare_parameter("filename_format", std::string("left%04i.%s"));
   encoding_ = this->declare_parameter("encoding", std::string("bgr8"));
   save_all_image_ = this->declare_parameter("save_all_image", true);
+  stamped_filename_ = this->declare_parameter("stamped_filename", false);
   request_start_end_ = this->declare_parameter("request_start_end", false);
-  g_format.parse(format_string);
 
   save_srv_ = this->create_service<std_srvs::srv::Empty>(
     "save",
@@ -123,27 +130,21 @@ bool ImageSaverNode::saveImage(
   }
 
   if (!image.empty()) {
-    try {
-      filename = (g_format).str();
-    } catch (...) {
-      g_format.clear();
-    }
-
-    try {
-      filename = (g_format % count_).str();
-    } catch (...) {
-      g_format.clear();
-    }
-
-    try {
-      filename = (g_format % count_ % "jpg").str();
-    } catch (...) {
-      g_format.clear();
-    }
+    filename = string_format(g_format, count_, "jpg");
 
     if (save_all_image_ || save_image_service_) {
-      cv::imwrite(filename, image);
-      RCLCPP_INFO(this->get_logger(), "Saved image %s", filename.c_str());
+      if (stamped_filename_) {
+        std::stringstream ss;
+        ss << this->now().nanoseconds();
+        std::string timestamp_str = ss.str();
+        filename.insert(0, timestamp_str);
+      }
+
+      if (cv::imwrite(filename, image)) {
+        RCLCPP_INFO(this->get_logger(), "Saved image %s", filename.c_str());
+      } else {
+        RCLCPP_ERROR(this->get_logger(), "Failed to save image to path %s", filename.c_str());
+      }
 
       save_image_service_ = false;
     } else {
