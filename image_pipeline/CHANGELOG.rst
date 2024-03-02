@@ -2,12 +2,13 @@
 Changelog for package image_pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.0 (2024-01-24)
+3.0.4 (2024-03-01)
 ------------------
-* add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
-* Contributors: Michael Ferguson
 
-3.0.1 (2022-12-04)
+3.0.3 (2022-01-24)
+------------------
+
+3.0.2 (2022-01-17)
 ------------------
 
 3.0.0 (2022-04-29)

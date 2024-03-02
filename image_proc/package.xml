@@ -2,13 +2,12 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>image_proc</name>
-  <version>5.0.0</version>
+  <version>3.0.4</version>
   <description>Single image rectification and color processing.</description>
 
   <maintainer email="vincent.rabaud@gmail.com">Vincent Rabaud</maintainer>
   <maintainer email="whitleysoftwareservices@gmail.com">Joshua Whitley</maintainer>
   <maintainer email="jacob@openrobotics.org">Jacob Perron</maintainer>
-  <maintainer email="mfergs7@gmail.com">Michael Ferguson</maintainer>
 
   <license>BSD</license>
   <url type="website">https://index.ros.org/p/image_proc/github-ros-perception-image_pipeline/</url>
@@ -20,7 +19,6 @@
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
-  <depend>camera_calibration_parsers</depend>
   <depend>cv_bridge</depend>
   <depend>image_geometry</depend>
   <depend>image_transport</depend>
