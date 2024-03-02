@@ -2,6 +2,9 @@
 Changelog for package stereo_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.4 (2024-03-01)
+------------------
+
 3.0.3 (2022-01-24)
 ------------------
 * [backport humble] stereo_image_proc: cleanup cmake (`#904 <https://github.com/ros-perception/image_pipeline/issues/904>`_) (`#907 <https://github.com/ros-perception/image_pipeline/issues/907>`_)
