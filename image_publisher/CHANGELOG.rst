@@ -2,6 +2,9 @@
 Changelog for package image_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.4 (2024-03-01)
+------------------
+
 3.0.3 (2022-01-24)
 ------------------
 * [backport Humble] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#913 <https://github.com/ros-perception/image_pipeline/issues/913>`_)
