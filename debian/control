@@ -1,0 +1,13 @@
+Source: ros-rolling-depth-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ament-cmake, ament-cmake-copyright <!nocheck>, ament-cmake-cppcheck <!nocheck>, ament-cmake-cpplint <!nocheck>, ament-cmake-flake8 <!nocheck>, ament-cmake-lint-cmake <!nocheck>, ament-cmake-pep257 <!nocheck>, ament-cmake-uncrustify <!nocheck>, ament-cmake-xmllint <!nocheck>, ament-lint <!nocheck>, image-transport-tools, libclass-loader-dev, libcv-bridge-dev, libimage-geometry-dev, libimage-transport-dev, libmessage-filters-dev, libopencv-dev, libsensor-msgs-dev, libstereo-msgs-dev, libtf2-dev, libtf2-eigen-dev, libtf2-ros-dev, python3-cv-bridge, python3-image-geometry, python3-message-filters, python3-sensor-msgs, python3-stereo-msgs, python3-tf2, python3-tf2-ros, ros-rolling-rclcpp, ros-rolling-rclcpp-components, ros-sensor-msgs, ros-stereo-msgs, ros-rolling-ros-workspace
+Homepage: https://index.ros.org/p/depth_image_proc/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-rolling-depth-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, image-transport-tools, libcv-bridge-dev, libimage-geometry-dev, libimage-transport-dev, libmessage-filters-dev, libopencv-dev, libsensor-msgs-dev, libstereo-msgs-dev, libtf2-dev, libtf2-eigen-dev, libtf2-ros-dev, python3-cv-bridge, python3-image-geometry, python3-message-filters, python3-sensor-msgs, python3-stereo-msgs, python3-tf2, python3-tf2-ros, ros-rolling-rclcpp, ros-rolling-rclcpp-components, ros-sensor-msgs, ros-stereo-msgs, ros-rolling-ros-workspace
+Description: Contains components for processing depth images such as those produced by OpenNI camera.
+ Functions include creating disparity images and point clouds, as well as registering (reprojecting) a depth image into another camera frame.
