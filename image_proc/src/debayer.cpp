@@ -56,12 +56,16 @@ DebayerNode::DebayerNode(const rclcpp::NodeOptions & options)
   // TransportHints does not actually declare the parameter
   this->declare_parameter<std::string>("image_transport", "raw");
 
+  debayer_ = this->declare_parameter("debayer", 3);
+
   // For compressed topics to remap appropriately, we need to pass a
   // fully expanded and remapped topic name to image_transport
   auto node_base = this->get_node_base_interface();
   image_topic_ = node_base->resolve_topic_or_service_name("image_raw", false);
+  std::string mono_topic = node_base->resolve_topic_or_service_name("image_mono", false);
+  std::string color_topic = node_base->resolve_topic_or_service_name("image_color", false);
 
-  // Create publisher options to setup callback
+  // Setup lazy subscriber using publisher connection callback
   rclcpp::PublisherOptions pub_options;
   pub_options.event_callbacks.matched_callback =
     [this](rclcpp::MatchedInfo &)
@@ -69,6 +73,7 @@ DebayerNode::DebayerNode(const rclcpp::NodeOptions & options)
       if (pub_mono_.getNumSubscribers() == 0 && pub_color_.getNumSubscribers() == 0) {
         sub_raw_.shutdown();
       } else if (!sub_raw_) {
+        // Create subscriber with QoS matched to subscribed topic publisher
         auto qos_profile = getTopicQosProfile(this, image_topic_);
         image_transport::TransportHints hints(this);
         sub_raw_ = image_transport::create_subscription(
@@ -79,11 +84,13 @@ DebayerNode::DebayerNode(const rclcpp::NodeOptions & options)
       }
     };
 
-  // Create publisher with same QoS as subscribed topic
+  // Allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+
+  // Create publisher with QoS matched to subscribed topic publisher
   auto qos_profile = getTopicQosProfile(this, image_topic_);
-  pub_mono_ = image_transport::create_publisher(this, "image_mono", qos_profile, pub_options);
-  pub_color_ = image_transport::create_publisher(this, "image_color", qos_profile, pub_options);
-  debayer_ = this->declare_parameter("debayer", 3);
+  pub_mono_ = image_transport::create_publisher(this, mono_topic, qos_profile, pub_options);
+  pub_color_ = image_transport::create_publisher(this, color_topic, qos_profile, pub_options);
 }
 
 void DebayerNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg)
