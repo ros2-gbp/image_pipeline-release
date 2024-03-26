@@ -115,6 +115,7 @@ CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
   // fully expanded and remapped topic name to image_transport
   auto node_base = this->get_node_base_interface();
   image_topic_ = node_base->resolve_topic_or_service_name("in/image_raw", false);
+  std::string pub_topic = node_base->resolve_topic_or_service_name("out/image_raw", false);
 
   queue_size_ = this->declare_parameter("queue_size", 5);
   target_frame_id_ = this->declare_parameter("target_frame_id", std::string());
@@ -133,7 +134,7 @@ CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
   int interpolation = this->declare_parameter("interpolation", 0);
   interpolation_ = static_cast<CropDecimateModes>(interpolation);
 
-  // Create image pub with connection callback
+  // Setup lazy subscriber using publisher connection callback
   rclcpp::PublisherOptions pub_options;
   pub_options.event_callbacks.matched_callback =
     [this](rclcpp::MatchedInfo &)
@@ -141,6 +142,7 @@ CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
       if (pub_.getNumSubscribers() == 0) {
         sub_.shutdown();
       } else if (!sub_) {
+        // Create subscriber with QoS matched to subscribed topic publisher
         auto qos_profile = getTopicQosProfile(this, image_topic_);
         image_transport::TransportHints hints(this);
         sub_ = image_transport::create_camera_subscription(
@@ -150,9 +152,12 @@ CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
       }
     };
 
-  // Create publisher with same QoS as subscribed topic
+  // Allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+
+  // Create publisher with QoS matched to subscribed topic publisher
   auto qos_profile = getTopicQosProfile(this, image_topic_);
-  pub_ = image_transport::create_camera_publisher(this, "out/image_raw", qos_profile, pub_options);
+  pub_ = image_transport::create_camera_publisher(this, pub_topic, qos_profile, pub_options);
 }
 
 void CropDecimateNode::imageCb(
