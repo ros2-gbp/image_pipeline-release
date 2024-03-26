@@ -67,14 +67,13 @@ private:
   image_transport::CameraSubscriber sub_depth_;
   int queue_size_;
 
-  // Parameters
-  double invalid_depth_;
-
   // Publications
   std::mutex connect_mutex_;
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_point_cloud_;
 
   image_geometry::PinholeCameraModel model_;
+
+  void connectCb();
 
   void depthCb(
     const Image::ConstSharedPtr & depth_msg,

@@ -2,52 +2,16 @@
 Changelog for package image_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.1 (2024-03-26)
+4.0.1 (2024-03-26)
 ------------------
-* unified changelog, add missing image, deduplicate tutorials (`#938 <https://github.com/ros-perception/image_pipeline/issues/938>`_)
-  Last bit of documentation updates - putting together a single changelog
-  summary for the whole release (rather than scattering among packages).
-  Unified the camera_info tutorial so it isn't duplicated. Added a missing
-  image from image_rotate (was on local disk, but hadn't committed it)
-* add docs for image_rotate/publisher (`#936 <https://github.com/ros-perception/image_pipeline/issues/936>`_)
-* Contributors: Michael Ferguson
 
-5.0.0 (2024-01-24)
+4.0.0 (2022-12-24)
 ------------------
-* Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_)
-  Removed cfg files related with ROS 1 parameters
-* ROS 2: Fixed CMake (`#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_)
-* image_publisher: functional component (`#861 <https://github.com/ros-perception/image_pipeline/issues/861>`_)
-  * filename now functions when using a component
-  * parameter callback gets called at startup when using the component
-  * cleanup a bit of the logging
-  * add launch file to test component more easily
-* properly remap compressed topics (`#851 <https://github.com/ros-perception/image_pipeline/issues/851>`_)
-  ## Before:
-  Pushing into namespace is broken, only image_raw changes (camera_info
-  and transport topics should change):
-  ```
-  ros2 run image_publisher image_publisher_node --ros-args -p filename:=test.png -r image_raw:=foo/image_raw
-  ---
-  ros2 topic list
-  /camera_info
-  /foo/image_raw
-  /image_raw/compressed
-  /image_raw/compressedDepth
-  /image_raw/theora
-  ```
-  ## After:
-  Pushing into namespace now works:
-  ```
-  ros2 run image_publisher image_publisher_node --ros-args -p filename:=test.png -r image_raw:=foo/image_raw
-  ---
-  ros2 topic list
-  /foo/camera_info
-  /foo/image_raw
-  /foo/image_raw/compressed
-  /foo/image_raw/compressedDepth
-  /foo/image_raw/theora
-  ```
+* [backport iron] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#914 <https://github.com/ros-perception/image_pipeline/issues/914>`_)
+  Removed cfg files related with ROS 1 parameters. Backport
+  https://github.com/ros-perception/image_pipeline/pull/911
+* ROS 2: Fixed CMake (`#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_) (`#902 <https://github.com/ros-perception/image_pipeline/issues/902>`_)
+  #backport `#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_
 * add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
 * Contributors: Alejandro Hernández Cordero, Michael Ferguson
 

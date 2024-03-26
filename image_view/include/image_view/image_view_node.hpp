@@ -28,6 +28,8 @@
 #include <sensor_msgs/msg/image.hpp>
 #include <image_transport/image_transport.hpp>
 
+#include <boost/format.hpp>
+
 namespace image_view
 {
 
@@ -59,7 +61,7 @@ private:
   bool autosize_;
   int window_height_, window_width_;
   bool g_gui;
-  std::string filename_format_;
+  boost::format filename_format_;
   image_transport::Subscriber sub_;
   int count_;
   double min_image_value_, max_image_value_;

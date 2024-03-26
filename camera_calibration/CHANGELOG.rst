@@ -2,32 +2,15 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.1 (2024-03-26)
+4.0.1 (2024-03-26)
 ------------------
-* Fix spelling error for cv2.aruco.DICT from 6x6_50 to 7x7_1000 (`#961 <https://github.com/ros-perception/image_pipeline/issues/961>`_)
-  There was mismatch of capitalisation of "X" for OpenCV
-  cv2.aruco.DICT_n**X**n\_ in camera_calibration package for dicts 6x6_50
-  to 7x7_1000
-  Co-authored-by: Vishal Balaji <vishal.balaji@schanzer-racing.de>
-* unified changelog, add missing image, deduplicate tutorials (`#938 <https://github.com/ros-perception/image_pipeline/issues/938>`_)
-  Last bit of documentation updates - putting together a single changelog
-  summary for the whole release (rather than scattering among packages).
-  Unified the camera_info tutorial so it isn't duplicated. Added a missing
-  image from image_rotate (was on local disk, but hadn't committed it)
-* migrate camera_calibration documentation (`#937 <https://github.com/ros-perception/image_pipeline/issues/937>`_)
-* install tarfile_calibration (`#923 <https://github.com/ros-perception/image_pipeline/issues/923>`_)
-  otherwise, it can't be run easily
-* calibration: better warnings around board configuration `#713 <https://github.com/ros-perception/image_pipeline/issues/713>`_ (`#724 <https://github.com/ros-perception/image_pipeline/issues/724>`_)
-* Contributors: Michael Ferguson, Vishal Balaji, jonathanTIE
 
-5.0.0 (2024-01-24)
+4.0.0 (2022-12-24)
 ------------------
-* ROS 2: Added more aruco dicts, fixed aruco linerror bug (`#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_)
-  Related with this PR in ROS 1
-  https://github.com/ros-perception/image_pipeline/pull/795
-* ROS 2: Fixing thrown Exception in camerachecker.py (`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_)
-  Related with this PR in ROS 1
-  https://github.com/ros-perception/image_pipeline/pull/812
+* [backport iron] ROS 2: Added more aruco dicts, fixed aruco linerror bug (`#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_) (`#890 <https://github.com/ros-perception/image_pipeline/issues/890>`_)
+  backport `#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_
+* [backport iron] ROS 2: Fixing thrown Exception in camerachecker.py (`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_) (`#888 <https://github.com/ros-perception/image_pipeline/issues/888>`_)
+  backport #`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_
 * add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
 * fix threading shutdown
 * use correct synchronous service call
