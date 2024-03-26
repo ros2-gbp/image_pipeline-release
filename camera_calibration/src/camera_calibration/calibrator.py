@@ -80,14 +80,14 @@ class ChessboardInfo():
                 "5x5_100"    : cv2.aruco.DICT_5X5_100,
                 "5x5_250"    : cv2.aruco.DICT_5X5_250,
                 "5x5_1000"    : cv2.aruco.DICT_5X5_1000,
-                "6x6_50"    : cv2.aruco.DICT_6x6_50,
-                "6x6_100"    : cv2.aruco.DICT_6x6_100,
-                "6x6_250"    : cv2.aruco.DICT_6x6_250,
-                "6x6_1000"    : cv2.aruco.DICT_6x6_1000,
-                "7x7_50"    : cv2.aruco.DICT_7x7_50,
-                "7x7_100"    : cv2.aruco.DICT_7x7_100,
-                "7x7_250"    : cv2.aruco.DICT_7x7_250,
-                "7x7_1000"    : cv2.aruco.DICT_7x7_1000}[aruco_dict])
+                "6x6_50"    : cv2.aruco.DICT_6X6_50,
+                "6x6_100"    : cv2.aruco.DICT_6X6_100,
+                "6x6_250"    : cv2.aruco.DICT_6X6_250,
+                "6x6_1000"    : cv2.aruco.DICT_6X6_1000,
+                "7x7_50"    : cv2.aruco.DICT_7X7_50,
+                "7x7_100"    : cv2.aruco.DICT_7X7_100,
+                "7x7_250"    : cv2.aruco.DICT_7X7_250,
+                "7x7_1000"    : cv2.aruco.DICT_7X7_1000}[aruco_dict])
             self.charuco_board = cv2.aruco.CharucoBoard_create(self.n_cols, self.n_rows, self.dim, self.marker_size,
                     self.aruco_dict)
 
@@ -323,7 +323,7 @@ class Calibrator():
         if pattern == Patterns.Chessboard:
             # Make sure n_cols > n_rows to agree with OpenCV CB detector output
             self._boards = [ChessboardInfo("chessboard", max(i.n_cols, i.n_rows), min(i.n_cols, i.n_rows), i.dim) for i in boards]
-        if pattern == Patterns.ChArUco:
+        elif pattern == Patterns.ChArUco:
             self._boards = boards
         elif pattern == Patterns.ACircles:
             # 7x4 and 4x7 are actually different patterns. Assume square-ish pattern, so n_rows > n_cols.
@@ -331,6 +331,9 @@ class Calibrator():
         elif pattern == Patterns.Circles:
             # We end up having to check both ways anyway
             self._boards = boards
+        else:
+            raise CalibratorException('pattern must be one of: Chessboard, Circles, ACircles, or ChArUco')
+
 
         # Set to true after we perform calibration
         self.calibrated = False
