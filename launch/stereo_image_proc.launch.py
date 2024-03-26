@@ -53,9 +53,9 @@ def generate_launch_description():
         ComposableNode(
             package='stereo_image_proc',
             plugin='stereo_image_proc::DisparityNode',
+            namespace=LaunchConfiguration('namespace'),
             parameters=[{
                 'approximate_sync': LaunchConfiguration('approximate_sync'),
-                'use_system_default_qos': LaunchConfiguration('use_system_default_qos'),
                 'stereo_algorithm': LaunchConfiguration('stereo_algorithm'),
                 'prefilter_size': LaunchConfiguration('prefilter_size'),
                 'prefilter_cap': LaunchConfiguration('prefilter_cap'),
@@ -69,7 +69,7 @@ def generate_launch_description():
                 'uniqueness_ratio': LaunchConfiguration('uniqueness_ratio'),
                 'P1': LaunchConfiguration('P1'),
                 'P2': LaunchConfiguration('P2'),
-                'full_dp': LaunchConfiguration('full_dp'),
+                'sgbm_mode': LaunchConfiguration('sgbm_mode'),
             }],
             remappings=[
                 ('left/image_rect', [LaunchConfiguration('left_namespace'), '/image_rect']),
@@ -81,11 +81,11 @@ def generate_launch_description():
         ComposableNode(
             package='stereo_image_proc',
             plugin='stereo_image_proc::PointCloudNode',
+            namespace=LaunchConfiguration('namespace'),
             parameters=[{
                 'approximate_sync': LaunchConfiguration('approximate_sync'),
                 'avoid_point_cloud_padding': LaunchConfiguration('avoid_point_cloud_padding'),
                 'use_color': LaunchConfiguration('use_color'),
-                'use_system_default_qos': LaunchConfiguration('use_system_default_qos'),
             }],
             remappings=[
                 ('left/camera_info', [LaunchConfiguration('left_namespace'), '/camera_info']),
@@ -93,6 +93,10 @@ def generate_launch_description():
                 (
                     'left/image_rect_color',
                     [LaunchConfiguration('left_namespace'), '/image_rect_color']
+                ),
+                (
+                    'right/image_rect_color',
+                    [LaunchConfiguration('right_namespace'), '/image_rect_color']
                 ),
             ]
         ),
@@ -116,12 +120,12 @@ def generate_launch_description():
             description='Generate point cloud with rgb data.'
         ),
         DeclareLaunchArgument(
-            name='use_system_default_qos', default_value='False',
-            description='Use the RMW QoS settings for the image and camera info subscriptions.'
-        ),
-        DeclareLaunchArgument(
             name='launch_image_proc', default_value='True',
             description='Whether to launch debayer and rectify nodes from image_proc.'
+        ),
+        DeclareLaunchArgument(
+            name='namespace', default_value='',
+            description='Namespace for all components loaded'
         ),
         DeclareLaunchArgument(
             name='left_namespace', default_value='left',
@@ -195,8 +199,8 @@ def generate_launch_description():
                         '(Semi-Global Block Matching only)'
         ),
         DeclareLaunchArgument(
-            name='full_dp', default_value='False',
-            description='Run the full variant of the algorithm (Semi-Global Block Matching only)'
+            name='sgbm_mode', default_value='0',
+            description='The mode of the SGBM matcher to be used'
         ),
         ComposableNodeContainer(
             condition=LaunchConfigurationEquals('container', ''),
@@ -225,24 +229,26 @@ def generate_launch_description():
         ),
         GroupAction(
             [
-                PushRosNamespace(LaunchConfiguration('left_namespace')),
+                PushRosNamespace(LaunchConfiguration('namespace')),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource([
                         FindPackageShare('image_proc'), '/launch/image_proc.launch.py'
                     ]),
-                    launch_arguments={'container': LaunchConfiguration('container')}.items()
+                    launch_arguments={'container': LaunchConfiguration('container'),
+                                      'namespace': LaunchConfiguration('left_namespace')}.items()
                 ),
             ],
             condition=IfCondition(LaunchConfiguration('launch_image_proc')),
         ),
         GroupAction(
             [
-                PushRosNamespace(LaunchConfiguration('right_namespace')),
+                PushRosNamespace(LaunchConfiguration('namespace')),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource([
                         FindPackageShare('image_proc'), '/launch/image_proc.launch.py'
                     ]),
-                    launch_arguments={'container': LaunchConfiguration('container')}.items()
+                    launch_arguments={'container': LaunchConfiguration('container'),
+                                      'namespace': LaunchConfiguration('right_namespace')}.items()
                 ),
             ],
             condition=IfCondition(LaunchConfiguration('launch_image_proc')),
