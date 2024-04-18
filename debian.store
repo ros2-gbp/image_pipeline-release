@@ -1,1 +1,1 @@
-{"base": "851407c2", "parent": "debian/rolling/tracetools_image_pipeline", "previous": "5a701fd2", "trim": "", "trimbase": ""}
+{"base": "7ef01450", "parent": "debian/jazzy/tracetools_image_pipeline", "previous": "65fb2628", "trim": "", "trimbase": ""}
