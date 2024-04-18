@@ -1,0 +1,13 @@
+Source: ros-jazzy-image-rotate
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ament-cmake, ament-cmake-copyright <!nocheck>, ament-cmake-cppcheck <!nocheck>, ament-cmake-cpplint <!nocheck>, ament-cmake-flake8 <!nocheck>, ament-cmake-lint-cmake <!nocheck>, ament-cmake-pep257 <!nocheck>, ament-cmake-uncrustify <!nocheck>, ament-cmake-xmllint <!nocheck>, ament-lint <!nocheck>, image-transport-tools, libclass-loader-dev, libcv-bridge-dev, libgeometry-msgs-dev, libimage-transport-dev, libopencv-dev, libsensor-msgs-dev, libtf2-dev, libtf2-geometry-msgs-dev, libtf2-ros-dev, python3-cv-bridge, python3-geometry-msgs, python3-sensor-msgs, python3-tf2, python3-tf2-geometry-msgs, python3-tf2-ros, ros-geometry-msgs, ros-jazzy-rcl-interfaces, ros-jazzy-rclcpp, ros-jazzy-rclcpp-components, ros-sensor-msgs, ros-jazzy-ros-workspace
+Homepage: https://index.ros.org/p/image_rotate/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-image-rotate
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, image-transport-tools, libcv-bridge-dev, libgeometry-msgs-dev, libimage-transport-dev, libopencv-dev, libsensor-msgs-dev, libtf2-dev, libtf2-geometry-msgs-dev, libtf2-ros-dev, python3-cv-bridge, python3-geometry-msgs, python3-sensor-msgs, python3-tf2, python3-tf2-geometry-msgs, python3-tf2-ros, ros-geometry-msgs, ros-jazzy-rcl-interfaces, ros-jazzy-rclcpp, ros-jazzy-rclcpp-components, ros-sensor-msgs, ros-jazzy-ros-workspace
+Description: Contains a node that rotates an image stream in a way that minimizes the angle between a vector in some arbitrary frame and a vector in the camera frame.
+ The frame of the outgoing image is published by the node. This node is intended to allow camera images to be visualized in an orientation that is more intuitive than the hardware-constrained orientation of the physical camera. This is particularly helpful, for example, to show images from the PR2's forearm cameras with a consistent up direction, despite the fact that the forearms need to rotate in arbitrary ways during manipulation. It is not recommended to use the output from this node for further computation, as it interpolates the source image, introduces black borders, and does not output a camera_info.
