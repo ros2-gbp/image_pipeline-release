@@ -1,0 +1,12 @@
+Source: ros-jazzy-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ament-cmake, ament-cmake-copyright <!nocheck>, ament-cmake-cppcheck <!nocheck>, ament-cmake-cpplint <!nocheck>, ament-cmake-flake8 <!nocheck>, ament-cmake-lint-cmake <!nocheck>, ament-cmake-pep257 <!nocheck>, ament-cmake-uncrustify <!nocheck>, ament-cmake-xmllint <!nocheck>, ament-lint <!nocheck>, camera-calibration-parsers-tools, image-transport-tools, libcamera-calibration-parsers-dev, libcv-bridge-dev, libgeometry-msgs-dev, libimage-geometry-dev, libimage-transport-dev, libopencv-dev, librcutils-dev, libsensor-msgs-dev, python3-camera-calibration-parsers, python3-cv-bridge, python3-geometry-msgs, python3-image-geometry, python3-rcutils, python3-sensor-msgs, ros-geometry-msgs, ros-jazzy-rclcpp, ros-jazzy-rclcpp-components, ros-jazzy-tracetools-image-pipeline, ros-sensor-msgs, ros-jazzy-ros-workspace
+Homepage: https://index.ros.org/p/image_proc/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, camera-calibration-parsers-tools, image-transport-tools, libcamera-calibration-parsers-dev, libcv-bridge-dev, libgeometry-msgs-dev, libimage-geometry-dev, libimage-transport-dev, libopencv-dev, librcutils-dev, libsensor-msgs-dev, python3-camera-calibration-parsers, python3-cv-bridge, python3-geometry-msgs, python3-image-geometry, python3-rcutils, python3-sensor-msgs, ros-geometry-msgs, ros-jazzy-rclcpp, ros-jazzy-rclcpp-components, ros-jazzy-tracetools-image-pipeline, ros-sensor-msgs, ros-jazzy-ros-workspace
+Description: Single image rectification and color processing.
