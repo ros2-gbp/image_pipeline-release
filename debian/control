@@ -1,0 +1,12 @@
+Source: ros-jazzy-tracetools-image-pipeline
+Section: misc
+Priority: optional
+Maintainer: Víctor Mayoral-Vilches <v.mayoralv@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), pkg-config, ros-jazzy-ament-cmake-ros, ros-jazzy-ament-lint-auto <!nocheck>, ros-jazzy-ament-lint-common <!nocheck>, ros-jazzy-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-tracetools-image-pipeline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-jazzy-ros-workspace
+Description: LTTng tracing provider wrapper for image_pipeline ROS 2 meta-package.
