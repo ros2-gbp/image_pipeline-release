@@ -44,7 +44,7 @@ import sensor_msgs.msg
 import sys
 import tarfile
 import time
-from distutils.version import LooseVersion
+from semver import VersionInfo
 from enum import Enum
 
 # Supported camera models
@@ -88,8 +88,13 @@ class ChessboardInfo():
                 "7x7_100"    : cv2.aruco.DICT_7X7_100,
                 "7x7_250"    : cv2.aruco.DICT_7X7_250,
                 "7x7_1000"    : cv2.aruco.DICT_7X7_1000}[aruco_dict])
-            self.charuco_board = cv2.aruco.CharucoBoard_create(self.n_cols, self.n_rows, self.dim, self.marker_size,
-                    self.aruco_dict)
+            if cv2.__version__ >= '4.8.0':
+                self.charuco_board = cv2.aruco.CharucoBoard((self.n_cols, self.n_rows), self.dim, self.marker_size,
+                        self.aruco_dict)
+            else:
+                self.charuco_board = cv2.aruco.CharucoBoard_create(self.n_cols, self.n_rows, self.dim, self.marker_size,
+                        self.aruco_dict)
+            
 
 # Make all private!!!!!
 def lmin(seq1, seq2):
@@ -268,10 +273,17 @@ def _get_charuco_corners(img, board, refine):
     else:
         mono = img
 
-    marker_corners, marker_ids, _ = cv2.aruco.detectMarkers(img, board.aruco_dict)
-    if len(marker_corners) == 0:
-        return (False, None, None)
-    _, square_corners, ids = cv2.aruco.interpolateCornersCharuco(marker_corners, marker_ids, img, board.charuco_board)
+
+    if cv2.__version__ >= '4.8.0':
+        charucodetector = cv2.aruco.CharucoDetector(board.charuco_board)
+        square_corners, ids, marker_corners, marker_ids = charucodetector.detectBoard(mono)
+    else:
+        marker_corners, marker_ids, _ = cv2.aruco.detectMarkers(img, board.aruco_dict)
+
+        if len(marker_corners) == 0:
+            return (False, None, None)
+        _, square_corners, ids = cv2.aruco.interpolateCornersCharuco(marker_corners, marker_ids, img, board.charuco_board, minMarkers=1)
+
     return ((square_corners is not None) and (len(square_corners) > 5), square_corners, ids)
 
 def _get_circles(img, board, pattern):
@@ -1145,7 +1157,7 @@ class StereoCalibrator(Calibrator):
 
         if self.camera_model == CAMERA_MODEL.PINHOLE:
             print("stereo pinhole calibration...")
-            if LooseVersion(cv2.__version__).version[0] == 2:
+            if VersionInfo.parse(cv2.__version__).major < 3:
                 cv2.stereoCalibrate(opts, lipts, ripts, self.size,
                                    self.l.intrinsics, self.l.distortion,
                                    self.r.intrinsics, self.r.distortion,
@@ -1164,7 +1176,7 @@ class StereoCalibrator(Calibrator):
                                    flags = flags)
         elif self.camera_model == CAMERA_MODEL.FISHEYE:
             print("stereo fisheye calibration...")
-            if LooseVersion(cv2.__version__).version[0] == 2:
+            if VersionInfo.parse(cv2.__version__).major < 3:
                 print("ERROR: You need OpenCV >3 to use fisheye camera model")
                 sys.exit()
             else:
@@ -1317,9 +1329,9 @@ class StereoCalibrator(Calibrator):
         cam = image_geometry.StereoCameraModel()
         if msg == None:
             msg = self.as_message()
-        cam.fromCameraInfo(*msg)
+        cam.from_camera_info(*msg)
         disparities = lcorners[:,:,0] - rcorners[:,:,0]
-        pt3d = [cam.projectPixelTo3d((lcorners[i,0,0], lcorners[i,0,1]), disparities[i,0]) for i in range(lcorners.shape[0]) ]
+        pt3d = [cam.project_pixel_to_3d((lcorners[i,0,0], lcorners[i,0,1]), disparities[i,0]) for i in range(lcorners.shape[0]) ]
         def l2(p0, p1):
             return math.sqrt(sum([(c0 - c1) ** 2 for (c0, c1) in zip(p0, p1)]))
 
