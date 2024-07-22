@@ -2,10 +2,12 @@
 Changelog for package depth_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.3 (2024-07-16)
+6.0.1 (2024-07-22)
 ------------------
+* Updated deprecated message filter headers (`#1012 <https://github.com/ros-perception/image_pipeline/issues/1012>`_)
+* Contributors: Alejandro Hernández Cordero
 
-5.0.2 (2024-05-27)
+6.0.0 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)
