@@ -103,7 +103,7 @@ PointCloudXyziRadialNode::PointCloudXyziRadialNode(const rclcpp::NodeOptions & o
         // intensity uses normal ros transport hints.
         image_transport::TransportHints hints(this);
         sub_intensity_.subscribe(this, intensity_topic, hints.getTransport());
-        sub_info_.subscribe(this, intensity_info_topic);
+        sub_info_.subscribe(this, intensity_info_topic, rclcpp::QoS(10));
       }
     };
   pub_point_cloud_ = create_publisher<sensor_msgs::msg::PointCloud2>(
