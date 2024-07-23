@@ -2,6 +2,9 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.0.2 (2024-07-23)
+------------------
+
 6.0.1 (2024-07-22)
 ------------------
 * Change camera info message to lower case (`#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_)
