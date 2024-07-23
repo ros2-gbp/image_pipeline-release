@@ -2,6 +2,9 @@
 Changelog for package image_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.0.2 (2024-07-23)
+------------------
+
 6.0.1 (2024-07-22)
 ------------------
 * [rolling] image_publisher: Fix loading of the camera info parameters on startup (`#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_)
