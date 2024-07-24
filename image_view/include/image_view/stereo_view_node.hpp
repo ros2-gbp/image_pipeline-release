@@ -51,11 +51,10 @@
 
 #include <memory>
 #include <mutex>
-#include <string>
 
-#include "message_filters/subscriber.hpp"
-#include "message_filters/sync_policies/approximate_time.hpp"
-#include "message_filters/sync_policies/exact_time.hpp"
+#include "message_filters/subscriber.h"
+#include "message_filters/sync_policies/approximate_time.h"
+#include "message_filters/sync_policies/exact_time.h"
 
 #include <opencv2/highgui/highgui.hpp>
 
@@ -63,6 +62,8 @@
 #include <image_transport/subscriber_filter.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <stereo_msgs/msg/disparity_image.hpp>
+
+#include <boost/format.hpp>
 
 namespace image_view
 {
@@ -100,7 +101,7 @@ private:
   cv::Mat_<cv::Vec3b> disparity_color_;
   std::mutex image_mutex_;
 
-  std::string filename_format_;
+  boost::format filename_format_;
   int save_count_;
 
   rclcpp::TimerBase::SharedPtr check_synced_timer_;
