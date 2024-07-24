@@ -1,0 +1,12 @@
+Source: ros-humble-image-pipeline
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ament-cmake, ros-humble-ament-cmake-lint-cmake <!nocheck>, ros-humble-ament-cmake-xmllint <!nocheck>, ros-humble-ament-lint-auto <!nocheck>, ros-humble-ros-workspace
+Homepage: https://index.ros.org/p/image_pipeline/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-humble-image-pipeline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-camera-calibration, ros-humble-depth-image-proc, ros-humble-image-proc, ros-humble-image-publisher, ros-humble-image-rotate, ros-humble-image-view, ros-humble-stereo-image-proc, ros-humble-ros-workspace
+Description: image_pipeline fills the gap between getting raw images from a camera driver and higher-level vision processing.
