@@ -2,6 +2,14 @@
 Changelog for package image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.5 (2024-07-24)
+------------------
+* [backport humble] Node namespace parameter (`#963 <https://github.com/ros-perception/image_pipeline/issues/963>`_)
+  Backport pull request `#925 <https://github.com/ros-perception/image_pipeline/issues/925>`_ which solves issue `#952 <https://github.com/ros-perception/image_pipeline/issues/952>`_ by adding the
+  `namespace` parameter to the `image_proc` launch file
+  Co-authored-by: Lucas Wendland <82680922+CursedRock17@users.noreply.github.com>
+* Contributors: Alejandro Hernández Cordero
+
 3.0.4 (2024-03-01)
 ------------------
 
