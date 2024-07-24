@@ -2,6 +2,49 @@
 Changelog for package image_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.5 (2024-07-24)
+------------------
+* [humble] image_publisher: Fix loading of the camera info parameters on startup (backport `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_) (`#996 <https://github.com/ros-perception/image_pipeline/issues/996>`_)
+  As described in
+  https://github.com/ros-perception/image_pipeline/issues/965 camera info
+  is not loaded from the file on node initialization, but only when the
+  parameter is reloaded.
+  This PR resolves this issue and should be straightforward to port it to
+  `Humble`, `Iron` and `Jazzy`.<hr>This is an automatic backport of pull
+  request `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_ done by [Mergify](https://mergify.com).
+  ---------
+  Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
+  Co-authored-by: Michael Ferguson <mfergs7@gmail.com>
+* image_publisher: add field of view parameter (backport `#985 <https://github.com/ros-perception/image_pipeline/issues/985>`_) (`#993 <https://github.com/ros-perception/image_pipeline/issues/993>`_)
+  Currently, the default value for focal length when no camera info is
+  provided defaults to `1.0` rendering whole approximate intrinsics and
+  projection matrices useless. Based on [this
+  article](https://learnopencv.com/approximate-focal-length-for-webcams-and-cell-phone-cameras/),
+  I propose a better approximation of the focal length based on the field
+  of view of the camera.
+  For most of the use cases, users will either know the field of view of
+  the camera the used, or they already calibrated it ahead of time.
+  If there is some documentation to fill. please let me know.
+  This PR should be straightforward to port it to `Humble`, `Iron` and
+  `Jazzy`.
+  <hr>This is an automatic backport of pull request `#985 <https://github.com/ros-perception/image_pipeline/issues/985>`_ done by
+  [Mergify](https://mergify.com).
+  Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
+* image_publisher: Fix image, constantly flipping when static image is published (backport `#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_) (`#988 <https://github.com/ros-perception/image_pipeline/issues/988>`_)
+  Continuation of
+  https://github.com/ros-perception/image_pipeline/pull/984.
+  When publishing video stream from a camera, the image was flipped
+  correctly. Yet for a static image, which was loaded once, the flip
+  function was applied every time `ImagePublisher::doWork()` was called,
+  resulting in the published image being flipped back and forth all the
+  time.
+  This PR should be straightforward to port it to `Humble`, `Iron` and
+  `Jazzy`.<hr>This is an automatic backport of pull request `#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_ done by
+  [Mergify](https://mergify.com).
+  Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* Contributors: mergify[bot]
+
 3.0.4 (2024-03-01)
 ------------------
 
