@@ -2,6 +2,23 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.5 (2024-07-24)
+------------------
+* Change camera info message to lower case (backport `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_) (`#1008 <https://github.com/ros-perception/image_pipeline/issues/1008>`_)
+  Change camera info message to lower case since message type had been
+  change in rolling and humble.
+  [](https://github.com/ros2/common_interfaces/blob/rolling/sensor_msgs/msg/CameraInfo.msg)<hr>This
+  is an automatic backport of pull request `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_ done by
+  [Mergify](https://mergify.com).
+  ---------
+  Co-authored-by: SFhmichael <146928033+SFhmichael@users.noreply.github.com>
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* [backport humble] Fix spelling error for cv2.aruco.DICT from 6x6_50 to 7x7_1000 (`#961 <https://github.com/ros-perception/image_pipeline/issues/961>`_) (`#1004 <https://github.com/ros-perception/image_pipeline/issues/1004>`_)
+  Backport `#961 <https://github.com/ros-perception/image_pipeline/issues/961>`_ fix to humble
+  Co-authored-by: Vishal Balaji <vishalvichu45@gmail.com>
+  Co-authored-by: Vishal Balaji <vishal.balaji@schanzer-racing.de>
+* Contributors: Balint Rozgonyi, mergify[bot]
+
 3.0.4 (2024-03-01)
 ------------------
 
