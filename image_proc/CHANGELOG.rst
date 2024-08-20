@@ -2,6 +2,9 @@
 Changelog for package image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.6 (2024-08-20)
+------------------
+
 3.0.5 (2024-07-24)
 ------------------
 * [backport humble] Node namespace parameter (`#963 <https://github.com/ros-perception/image_pipeline/issues/963>`_)
