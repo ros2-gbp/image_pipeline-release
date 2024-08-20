@@ -2,6 +2,16 @@
 Changelog for package image_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.0.4 (2024-08-20)
+------------------
+* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
+  This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
+  - Make sure publishers default to system defaults (reliable)
+  - Add QoS overriding where possible (some of the image_transport /
+  message_filters stuff doesn't really support that)
+  - Use the matching heuristic for subscribers consistently
+* Contributors: mergify[bot]
+
 5.0.3 (2024-07-16)
 ------------------
 * [jazzy] image_publisher: Fix loading of the camera info parameters on startup (backport `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_) (`#995 <https://github.com/ros-perception/image_pipeline/issues/995>`_)
