@@ -129,7 +129,8 @@ void ResizeNode::imageCb(
     cv::resize(cv_ptr->image, scaled_cv_.image, cv::Size(width, height), 0, 0, interpolation_);
   }
 
-  auto dst_info_msg = std::make_unique<sensor_msgs::msg::CameraInfo>(*info_msg);
+  sensor_msgs::msg::CameraInfo::SharedPtr dst_info_msg =
+    std::make_shared<sensor_msgs::msg::CameraInfo>(*info_msg);
 
   double scale_y;
   double scale_x;
@@ -162,13 +163,9 @@ void ResizeNode::imageCb(
   dst_info_msg->roi.width = static_cast<int>(dst_info_msg->roi.width * scale_x);
   dst_info_msg->roi.height = static_cast<int>(dst_info_msg->roi.height * scale_y);
 
-  auto dst_image_msg = std::make_unique<sensor_msgs::msg::Image>();
-
   scaled_cv_.header = image_msg->header;
   scaled_cv_.encoding = image_msg->encoding;
-  scaled_cv_.toImageMsg(*dst_image_msg);
-
-  pub_image_.publish(std::move(dst_image_msg), std::move(dst_info_msg));
+  pub_image_.publish(*scaled_cv_.toImageMsg(), *dst_info_msg);
 
   TRACEPOINT(
     image_proc_resize_fini,

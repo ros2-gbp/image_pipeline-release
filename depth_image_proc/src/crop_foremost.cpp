@@ -152,9 +152,7 @@ void CropForemostNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & r
       break;
   }
 
-  auto image_msg = std::make_unique<sensor_msgs::msg::Image>();
-  cv_ptr->toImageMsg(*image_msg);
-  pub_depth_.publish(std::move(image_msg));
+  pub_depth_.publish(cv_ptr->toImageMsg());
 }
 
 }  // namespace depth_image_proc
