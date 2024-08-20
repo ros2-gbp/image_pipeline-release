@@ -1,0 +1,12 @@
+Source: ros-iron-stereo-image-proc
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-opencv <!nocheck>, ros-iron-ament-cmake-auto, ros-iron-ament-cmake-pytest <!nocheck>, ros-iron-ament-lint-auto <!nocheck>, ros-iron-ament-lint-common <!nocheck>, ros-iron-cv-bridge, ros-iron-image-geometry, ros-iron-image-proc, ros-iron-image-transport, ros-iron-launch <!nocheck>, ros-iron-launch-ros <!nocheck>, ros-iron-launch-testing <!nocheck>, ros-iron-launch-testing-ament-cmake <!nocheck>, ros-iron-message-filters, ros-iron-python-cmake-module <!nocheck>, ros-iron-rclcpp, ros-iron-rclcpp-components, ros-iron-rclpy <!nocheck>, ros-iron-ros-testing <!nocheck>, ros-iron-sensor-msgs, ros-iron-stereo-msgs, ros-iron-ros-workspace
+Homepage: https://index.ros.org/p/stereo_image_proc/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-iron-stereo-image-proc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-iron-cv-bridge, ros-iron-image-geometry, ros-iron-image-proc, ros-iron-image-transport, ros-iron-message-filters, ros-iron-rclcpp, ros-iron-rclcpp-components, ros-iron-sensor-msgs, ros-iron-stereo-msgs, ros-iron-ros-workspace
+Description: Stereo and single image rectification and disparity processing.
