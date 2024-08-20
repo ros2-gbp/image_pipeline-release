@@ -2,51 +2,19 @@
 Changelog for package image_rotate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.4 (2024-08-20)
-------------------
-* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
-  This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
-  - Make sure publishers default to system defaults (reliable)
-  - Add QoS overriding where possible (some of the image_transport /
-  message_filters stuff doesn't really support that)
-  - Use the matching heuristic for subscribers consistently
-* Contributors: mergify[bot]
-
-5.0.3 (2024-07-16)
+4.0.2 (2024-08-20)
 ------------------
 
-5.0.2 (2024-05-27)
+4.0.1 (2024-03-26)
 ------------------
 
-5.0.1 (2024-03-26)
+4.0.0 (2022-12-24)
 ------------------
-* fix image publisher remapping (`#941 <https://github.com/ros-perception/image_pipeline/issues/941>`_)
-  Addresses `#940 <https://github.com/ros-perception/image_pipeline/issues/940>`_ - fixes the compressed/etc topic remapping for publishers
-* unified changelog, add missing image, deduplicate tutorials (`#938 <https://github.com/ros-perception/image_pipeline/issues/938>`_)
-  Last bit of documentation updates - putting together a single changelog
-  summary for the whole release (rather than scattering among packages).
-  Unified the camera_info tutorial so it isn't duplicated. Added a missing
-  image from image_rotate (was on local disk, but hadn't committed it)
-* add docs for image_rotate/publisher (`#936 <https://github.com/ros-perception/image_pipeline/issues/936>`_)
-* Contributors: Michael Ferguson
-
-5.0.0 (2024-01-24)
-------------------
-* Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_)
-  Removed cfg files related with ROS 1 parameters
-* image_rotate: clean up (`#862 <https://github.com/ros-perception/image_pipeline/issues/862>`_)
-  This is the first component/node with a cleanup pass to be fully
-  implemented:
-  * Fix `#740 <https://github.com/ros-perception/image_pipeline/issues/740>`_ by initializing vectors. Do this by declaring parameters
-  AFTER we define the callback
-  * Implement lazy subscribers (I missed this in the earlier PRs)
-  * Add image_transport parameter so we can specify that desired transport
-  of our subscriptions
-  * Update how we test for connectivity (and update the debug message -
-  has nothing to do with whether we are remapped, it's really about
-  whether we are connected)
-* load image_rotate::ImageRotateNode as component (`#855 <https://github.com/ros-perception/image_pipeline/issues/855>`_)
-  This is a fixed version of `#820 <https://github.com/ros-perception/image_pipeline/issues/820>`_ - targeting rolling
+* [backport iron] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#914 <https://github.com/ros-perception/image_pipeline/issues/914>`_)
+  Removed cfg files related with ROS 1 parameters. Backport
+  https://github.com/ros-perception/image_pipeline/pull/911
+* load image_rotate::ImageRotateNode as component (`#856 <https://github.com/ros-perception/image_pipeline/issues/856>`_)
+  This is a fixed version of `#820 <https://github.com/ros-perception/image_pipeline/issues/820>`_ - targeting iron
 * add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
 * Contributors: Alejandro Hernández Cordero, Michael Ferguson
 

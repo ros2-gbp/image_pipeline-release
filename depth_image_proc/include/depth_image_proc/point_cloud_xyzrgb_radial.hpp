@@ -93,6 +93,8 @@ private:
 
   image_geometry::PinholeCameraModel model_;
 
+  void connectCb();
+
   void imageCb(
     const Image::ConstSharedPtr & depth_msg,
     const Image::ConstSharedPtr & rgb_msg,

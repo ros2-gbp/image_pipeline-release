@@ -84,6 +84,8 @@ private:
   bool fill_upsampling_holes_;
   bool use_rgb_timestamp_;  // use source time stamp from RGB camera
 
+  void connectCb();
+
   void imageCb(
     const Image::ConstSharedPtr & depth_image_msg,
     const CameraInfo::ConstSharedPtr & depth_info_msg,
@@ -99,9 +101,6 @@ private:
 RegisterNode::RegisterNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("RegisterNode", options)
 {
-  // TransportHints does not actually declare the parameter
-  this->declare_parameter<std::string>("depth_image_transport", "raw");
-
   rclcpp::Clock::SharedPtr clock = this->get_clock();
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(clock);
   tf_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
@@ -122,39 +121,36 @@ RegisterNode::RegisterNode(const rclcpp::NodeOptions & options)
       &RegisterNode::imageCb, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3));
 
-  // Create publisher with connect callback
-  rclcpp::PublisherOptions pub_options;
-  pub_options.event_callbacks.matched_callback =
-    [this](rclcpp::MatchedInfo &)
-    {
-      std::lock_guard<std::mutex> lock(connect_mutex_);
-      if (pub_registered_.getNumSubscribers() == 0) {
-        sub_depth_image_.unsubscribe();
-        sub_depth_info_.unsubscribe();
-        sub_rgb_info_.unsubscribe();
-      } else if (!sub_depth_image_.getSubscriber()) {
-        // For compressed topics to remap appropriately, we need to pass a
-        // fully expanded and remapped topic name to image_transport
-        auto node_base = this->get_node_base_interface();
-        std::string topic = node_base->resolve_topic_or_service_name("depth/image_rect", false);
-        image_transport::TransportHints hints(this, "raw", "depth_image_transport");
-        sub_depth_image_.subscribe(this, topic, hints.getTransport());
-        sub_depth_info_.subscribe(this, "depth/camera_info");
-        sub_rgb_info_.subscribe(this, "rgb/camera_info");
-      }
-    };
-  // For compressed topics to remap appropriately, we need to pass a
-  // fully expanded and remapped topic name to image_transport
-  auto node_base = this->get_node_base_interface();
-  std::string topic =
-    node_base->resolve_topic_or_service_name("depth_registered/image_rect", false);
+  // Monitor whether anyone is subscribed to the output
+  // TODO(ros2) Implement when SubscriberStatusCallback is available
+  // image_transport::SubscriberStatusCallback image_connect_cb
+  //   boost::bind(&RegisterNode::connectCb, this);
+  // ros::SubscriberStatusCallback info_connect_cb = boost::bind(&RegisterNode::connectCb, this);
+  connectCb();
+  // Make sure we don't enter connectCb() between advertising and assigning to pub_registered_
+  std::lock_guard<std::mutex> lock(connect_mutex_);
+  // pub_registered_ = it_depth_reg.advertiseCamera("image_rect", 1,
+  //                                               image_connect_cb, image_connect_cb,
+  //                                               info_connect_cb, info_connect_cb);
+  pub_registered_ = image_transport::create_camera_publisher(this, "depth_registered/image_rect");
+}
 
-  // Allow overriding QoS settings (history, depth, reliability)
-  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  pub_registered_ =
-    image_transport::create_camera_publisher(
-    this, topic,
-    rmw_qos_profile_default, pub_options);
+// Handles (un)subscribing when clients (un)subscribe
+void RegisterNode::connectCb()
+{
+  std::lock_guard<std::mutex> lock(connect_mutex_);
+  // TODO(ros2) Implement getNumSubscribers when rcl/rmw support it
+  // if (pub_point_cloud_->getNumSubscribers() == 0)
+  if (0) {
+    sub_depth_image_.unsubscribe();
+    sub_depth_info_.unsubscribe();
+    sub_rgb_info_.unsubscribe();
+  } else if (!sub_depth_image_.getSubscriber()) {
+    image_transport::TransportHints hints(this, "raw");
+    sub_depth_image_.subscribe(this, "depth/image_rect", hints.getTransport());
+    sub_depth_info_.subscribe(this, "depth/camera_info");
+    sub_rgb_info_.subscribe(this, "rgb/camera_info");
+  }
 }
 
 void RegisterNode::imageCb(

@@ -2,19 +2,9 @@
 Changelog for package image_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.4 (2024-08-20)
+4.0.2 (2024-08-20)
 ------------------
-* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
-  This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
-  - Make sure publishers default to system defaults (reliable)
-  - Add QoS overriding where possible (some of the image_transport /
-  message_filters stuff doesn't really support that)
-  - Use the matching heuristic for subscribers consistently
-* Contributors: mergify[bot]
-
-5.0.3 (2024-07-16)
-------------------
-* [jazzy] image_publisher: Fix loading of the camera info parameters on startup (backport `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_) (`#995 <https://github.com/ros-perception/image_pipeline/issues/995>`_)
+* [iron] image_publisher: Fix loading of the camera info parameters on startup (backport `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_) (`#997 <https://github.com/ros-perception/image_pipeline/issues/997>`_)
   As described in
   https://github.com/ros-perception/image_pipeline/issues/965 camera info
   is not loaded from the file on node initialization, but only when the
@@ -22,21 +12,10 @@ Changelog for package image_publisher
   This PR resolves this issue and should be straightforward to port it to
   `Humble`, `Iron` and `Jazzy`.<hr>This is an automatic backport of pull
   request `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_ done by [Mergify](https://mergify.com).
+  ---------
   Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
-* image_publisher: Fix image, constantly flipping when static image is published (backport `#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_) (`#987 <https://github.com/ros-perception/image_pipeline/issues/987>`_)
-  Continuation of
-  https://github.com/ros-perception/image_pipeline/pull/984.
-  When publishing video stream from a camera, the image was flipped
-  correctly. Yet for a static image, which was loaded once, the flip
-  function was applied every time `ImagePublisher::doWork()` was called,
-  resulting in the published image being flipped back and forth all the
-  time.
-  This PR should be straightforward to port it to `Humble`, `Iron` and
-  `Jazzy`.<hr>This is an automatic backport of pull request `#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_ done by
-  [Mergify](https://mergify.com).
-  Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
-  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* [jazzy] image_publisher: add field of view parameter (backport `#985 <https://github.com/ros-perception/image_pipeline/issues/985>`_) (`#992 <https://github.com/ros-perception/image_pipeline/issues/992>`_)
+  Co-authored-by: Michael Ferguson <mfergs7@gmail.com>
+* image_publisher: add field of view parameter (backport `#985 <https://github.com/ros-perception/image_pipeline/issues/985>`_) (`#994 <https://github.com/ros-perception/image_pipeline/issues/994>`_)
   Currently, the default value for focal length when no camera info is
   provided defaults to `1.0` rendering whole approximate intrinsics and
   projection matrices useless. Based on [this
@@ -51,57 +30,30 @@ Changelog for package image_publisher
   <hr>This is an automatic backport of pull request `#985 <https://github.com/ros-perception/image_pipeline/issues/985>`_ done by
   [Mergify](https://mergify.com).
   Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
+* [rolling] image_publisher: Fix image, constantly flipping when static image is published (backport `#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_) (`#989 <https://github.com/ros-perception/image_pipeline/issues/989>`_)
+  Continuation of
+  https://github.com/ros-perception/image_pipeline/pull/984.
+  When publishing video stream from a camera, the image was flipped
+  correctly. Yet for a static image, which was loaded once, the flip
+  function was applied every time `ImagePublisher::doWork()` was called,
+  resulting in the published image being flipped back and forth all the
+  time.
+  This PR should be straightforward to port it to `Humble`, `Iron` and
+  `Jazzy`.<hr>This is an automatic backport of pull request `#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_ done by
+  [Mergify](https://mergify.com).
+  Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
 * Contributors: mergify[bot]
 
-5.0.2 (2024-05-27)
+4.0.1 (2024-03-26)
 ------------------
 
-5.0.1 (2024-03-26)
+4.0.0 (2022-12-24)
 ------------------
-* unified changelog, add missing image, deduplicate tutorials (`#938 <https://github.com/ros-perception/image_pipeline/issues/938>`_)
-  Last bit of documentation updates - putting together a single changelog
-  summary for the whole release (rather than scattering among packages).
-  Unified the camera_info tutorial so it isn't duplicated. Added a missing
-  image from image_rotate (was on local disk, but hadn't committed it)
-* add docs for image_rotate/publisher (`#936 <https://github.com/ros-perception/image_pipeline/issues/936>`_)
-* Contributors: Michael Ferguson
-
-5.0.0 (2024-01-24)
-------------------
-* Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_)
-  Removed cfg files related with ROS 1 parameters
-* ROS 2: Fixed CMake (`#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_)
-* image_publisher: functional component (`#861 <https://github.com/ros-perception/image_pipeline/issues/861>`_)
-  * filename now functions when using a component
-  * parameter callback gets called at startup when using the component
-  * cleanup a bit of the logging
-  * add launch file to test component more easily
-* properly remap compressed topics (`#851 <https://github.com/ros-perception/image_pipeline/issues/851>`_)
-  ## Before:
-  Pushing into namespace is broken, only image_raw changes (camera_info
-  and transport topics should change):
-  ```
-  ros2 run image_publisher image_publisher_node --ros-args -p filename:=test.png -r image_raw:=foo/image_raw
-  ---
-  ros2 topic list
-  /camera_info
-  /foo/image_raw
-  /image_raw/compressed
-  /image_raw/compressedDepth
-  /image_raw/theora
-  ```
-  ## After:
-  Pushing into namespace now works:
-  ```
-  ros2 run image_publisher image_publisher_node --ros-args -p filename:=test.png -r image_raw:=foo/image_raw
-  ---
-  ros2 topic list
-  /foo/camera_info
-  /foo/image_raw
-  /foo/image_raw/compressed
-  /foo/image_raw/compressedDepth
-  /foo/image_raw/theora
-  ```
+* [backport iron] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#914 <https://github.com/ros-perception/image_pipeline/issues/914>`_)
+  Removed cfg files related with ROS 1 parameters. Backport
+  https://github.com/ros-perception/image_pipeline/pull/911
+* ROS 2: Fixed CMake (`#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_) (`#902 <https://github.com/ros-perception/image_pipeline/issues/902>`_)
+  #backport `#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_
 * add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
 * Contributors: Alejandro Hernández Cordero, Michael Ferguson
 

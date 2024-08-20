@@ -2,80 +2,27 @@
 Changelog for package stereo_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.4 (2024-08-20)
+4.0.2 (2024-08-20)
 ------------------
 
-5.0.3 (2024-07-16)
+4.0.1 (2024-03-26)
 ------------------
 
-5.0.2 (2024-05-27)
+4.0.0 (2022-12-24)
 ------------------
-
-5.0.1 (2024-03-26)
-------------------
-* DisparityNode: replace full_dp parameter with sgbm_mode (`#945 <https://github.com/ros-perception/image_pipeline/issues/945>`_)
-  Previously, only the SGBM and HH modes were allowed
-* unified changelog, add missing image, deduplicate tutorials (`#938 <https://github.com/ros-perception/image_pipeline/issues/938>`_)
-  Last bit of documentation updates - putting together a single changelog
-  summary for the whole release (rather than scattering among packages).
-  Unified the camera_info tutorial so it isn't duplicated. Added a missing
-  image from image_rotate (was on local disk, but hadn't committed it)
-* migrate stereo_image_proc docs (`#928 <https://github.com/ros-perception/image_pipeline/issues/928>`_)
-* QoS improvements for image_proc and stereo_image_proc (`#922 <https://github.com/ros-perception/image_pipeline/issues/922>`_)
-  First part of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_
-  * Add QoS overrides for all publishers (in the new, standard way)
-  * stereo_image_proc: Default subscriber QoS to SensorDataQoS
-  * Clean up some of the comments around lazy subscribers, make them more
-  consistent across nodes
-* Contributors: Michael Ferguson, Pablo David Aranda Rodríguez
-
-5.0.0 (2024-01-24)
-------------------
-* stereo_image_proc: cleanup cmake (`#904 <https://github.com/ros-perception/image_pipeline/issues/904>`_)
+* [backport iron] stereo_image_proc: cleanup cmake (`#904 <https://github.com/ros-perception/image_pipeline/issues/904>`_) (`#908 <https://github.com/ros-perception/image_pipeline/issues/908>`_)
   This was supposed to be switched over when e-turtle rolled out. J-turtle
   ain't that late...
-* stereo_image_proc: consistent image_transport (`#903 <https://github.com/ros-perception/image_pipeline/issues/903>`_)
-  * make image_transport work
-  * make remap work as expected with image_transport
-  * make subscribers lazy
-* support rgba8 and bgra8 encodings by skipping alpha channel (`#869 <https://github.com/ros-perception/image_pipeline/issues/869>`_)
-  Related with the change in ROS 1
-  https://github.com/ros-perception/image_pipeline/pull/671/files
-  ---------
-* allow use as component or node (`#852 <https://github.com/ros-perception/image_pipeline/issues/852>`_)
-  This addresses
-  https://github.com/ros-perception/image_pipeline/issues/823:
-  * depth_image_proc was never implemented properly this way
-  * image_proc might have once worked this way, but it appears upstream
-  has changed over time and it was no longer doing the job.
-  * stereo_image_proc is actually implemented correctly - I just added a
-  comment
-  With this PR:
-  ```
-  $ ros2 pkg executables image_proc
-  image_proc crop_decimate_node
-  image_proc crop_non_zero_node
-  image_proc debayer_node
-  image_proc image_proc
-  image_proc rectify_node
-  image_proc resize_node
-  ```
-  ```
-  $ ros2 pkg executables depth_image_proc
-  depth_image_proc convert_metric_node
-  depth_image_proc crop_foremost_node
-  depth_image_proc disparity_node
-  depth_image_proc point_cloud_xyz_node
-  depth_image_proc point_cloud_xyz_radial_node
-  depth_image_proc point_cloud_xyzi_node
-  depth_image_proc point_cloud_xyzi_radial_node
-  depth_image_proc point_cloud_xyzrgb_node
-  depth_image_proc point_cloud_xyzrgb_radial_node
-  depth_image_proc register_node
-  ```
-* fix: change type for epsilon (`#822 <https://github.com/ros-perception/image_pipeline/issues/822>`_)
+  backport https://github.com/ros-perception/image_pipeline/pull/904
+  Co-authored-by: Michael Ferguson <mfergs7@gmail.com>
+* [backport iron] support rgba8 and bgra8 encodings by skipping alpha channel (`#869 <https://github.com/ros-perception/image_pipeline/issues/869>`_) (`#896 <https://github.com/ros-perception/image_pipeline/issues/896>`_)
+  backport `#869 <https://github.com/ros-perception/image_pipeline/issues/869>`_
+* allow use as component or node (`#858 <https://github.com/ros-perception/image_pipeline/issues/858>`_)
+  Backport `#852 <https://github.com/ros-perception/image_pipeline/issues/852>`_ to Iron
+* fix: change type for epsilon (`#822 <https://github.com/ros-perception/image_pipeline/issues/822>`_) (`#849 <https://github.com/ros-perception/image_pipeline/issues/849>`_)
+  Co-authored-by: Daisuke Nishimatsu <42202095+wep21@users.noreply.github.com>
 * add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
-* Contributors: Alejandro Hernández Cordero, Daisuke Nishimatsu, Michael Ferguson
+* Contributors: Alejandro Hernández Cordero, Michael Ferguson
 
 3.0.1 (2022-12-04)
 ------------------

@@ -71,14 +71,13 @@ private:
   using Synchronizer = message_filters::Synchronizer<SyncPolicy>;
   std::shared_ptr<Synchronizer> sync_;
 
-  // parameters
-  float invalid_depth_;
-
   // Publications
   std::mutex connect_mutex_;
   rclcpp::Publisher<PointCloud>::SharedPtr pub_point_cloud_;
 
   image_geometry::PinholeCameraModel model_;
+
+  void connectCb();
 
   void imageCb(
     const Image::ConstSharedPtr & depth_msg,

@@ -44,7 +44,7 @@ import sensor_msgs.msg
 import sys
 import tarfile
 import time
-from semver import VersionInfo
+from distutils.version import LooseVersion
 from enum import Enum
 
 # Supported camera models
@@ -88,13 +88,8 @@ class ChessboardInfo():
                 "7x7_100"    : cv2.aruco.DICT_7X7_100,
                 "7x7_250"    : cv2.aruco.DICT_7X7_250,
                 "7x7_1000"    : cv2.aruco.DICT_7X7_1000}[aruco_dict])
-            if cv2.__version__ >= '4.8.0':
-                self.charuco_board = cv2.aruco.CharucoBoard((self.n_cols, self.n_rows), self.dim, self.marker_size,
-                        self.aruco_dict)
-            else:
-                self.charuco_board = cv2.aruco.CharucoBoard_create(self.n_cols, self.n_rows, self.dim, self.marker_size,
-                        self.aruco_dict)
-            
+            self.charuco_board = cv2.aruco.CharucoBoard_create(self.n_cols, self.n_rows, self.dim, self.marker_size,
+                    self.aruco_dict)
 
 # Make all private!!!!!
 def lmin(seq1, seq2):
@@ -273,17 +268,10 @@ def _get_charuco_corners(img, board, refine):
     else:
         mono = img
 
-
-    if cv2.__version__ >= '4.8.0':
-        charucodetector = cv2.aruco.CharucoDetector(board.charuco_board)
-        square_corners, ids, marker_corners, marker_ids = charucodetector.detectBoard(mono)
-    else:
-        marker_corners, marker_ids, _ = cv2.aruco.detectMarkers(img, board.aruco_dict)
-
-        if len(marker_corners) == 0:
-            return (False, None, None)
-        _, square_corners, ids = cv2.aruco.interpolateCornersCharuco(marker_corners, marker_ids, img, board.charuco_board, minMarkers=1)
-
+    marker_corners, marker_ids, _ = cv2.aruco.detectMarkers(img, board.aruco_dict)
+    if len(marker_corners) == 0:
+        return (False, None, None)
+    _, square_corners, ids = cv2.aruco.interpolateCornersCharuco(marker_corners, marker_ids, img, board.charuco_board)
     return ((square_corners is not None) and (len(square_corners) > 5), square_corners, ids)
 
 def _get_circles(img, board, pattern):
@@ -335,7 +323,7 @@ class Calibrator():
         if pattern == Patterns.Chessboard:
             # Make sure n_cols > n_rows to agree with OpenCV CB detector output
             self._boards = [ChessboardInfo("chessboard", max(i.n_cols, i.n_rows), min(i.n_cols, i.n_rows), i.dim) for i in boards]
-        elif pattern == Patterns.ChArUco:
+        if pattern == Patterns.ChArUco:
             self._boards = boards
         elif pattern == Patterns.ACircles:
             # 7x4 and 4x7 are actually different patterns. Assume square-ish pattern, so n_rows > n_cols.
@@ -343,9 +331,6 @@ class Calibrator():
         elif pattern == Patterns.Circles:
             # We end up having to check both ways anyway
             self._boards = boards
-        else:
-            raise CalibratorException('pattern must be one of: Chessboard, Circles, ACircles, or ChArUco')
-
 
         # Set to true after we perform calibration
         self.calibrated = False
@@ -491,11 +476,8 @@ class Calibrator():
         return list(zip(self._param_names, min_params, max_params, progress))
 
     def mk_object_points(self, boards, use_board_size = False):
-        if self.pattern == Patterns.ChArUco:
-            opts = [board.charuco_board.chessboardCorners for board in boards]
-            return opts
         opts = []
-        for b in boards:
+        for i, b in enumerate(boards):
             num_pts = b.n_cols * b.n_rows
             opts_loc = numpy.zeros((num_pts, 1, 3), numpy.float32)
             for j in range(num_pts):
@@ -1154,31 +1136,32 @@ class StereoCalibrator(Calibrator):
         self.T = numpy.zeros((3, 1), dtype=numpy.float64)
         self.R = numpy.eye(3, dtype=numpy.float64)
 
+        if self.pattern == Patterns.ChArUco:
+            # TODO: implement stereo ChArUco calibration
+            raise NotImplemented("Stereo calibration not implemented for ChArUco boards")
+
         if self.camera_model == CAMERA_MODEL.PINHOLE:
             print("stereo pinhole calibration...")
-            if VersionInfo.parse(cv2.__version__).major < 3:
-                ret_values = cv2.stereoCalibrate(opts, lipts, ripts, self.size,
-                                                 self.l.intrinsics, self.l.distortion,
-                                                 self.r.intrinsics, self.r.distortion,
-                                                 self.R,                            # R
-                                                 self.T,                            # T
-                                                 criteria=(cv2.TERM_CRITERIA_EPS + \
-                                                           cv2.TERM_CRITERIA_MAX_ITER, 1, 1e-5),
-                                                 flags=flags)
+            if LooseVersion(cv2.__version__).version[0] == 2:
+                cv2.stereoCalibrate(opts, lipts, ripts, self.size,
+                                   self.l.intrinsics, self.l.distortion,
+                                   self.r.intrinsics, self.r.distortion,
+                                   self.R,                            # R
+                                   self.T,                            # T
+                                   criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 1, 1e-5),
+                                   flags = flags)
             else:
-                ret_values = cv2.stereoCalibrate(opts, lipts, ripts,
-                                                 self.l.intrinsics, self.l.distortion,
-                                                 self.r.intrinsics, self.r.distortion,
-                                                 self.size,
-                                                 self.R,                            # R
-                                                 self.T,                            # T
-                                                 criteria=(cv2.TERM_CRITERIA_EPS + \
-                                                           cv2.TERM_CRITERIA_MAX_ITER, 1, 1e-5),
-                                                 flags=flags)
-            print(f"Stereo RMS re-projection error: {ret_values[0]}")
+                cv2.stereoCalibrate(opts, lipts, ripts,
+                                   self.l.intrinsics, self.l.distortion,
+                                   self.r.intrinsics, self.r.distortion,
+                                   self.size,
+                                   self.R,                            # R
+                                   self.T,                            # T
+                                   criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 1, 1e-5),
+                                   flags = flags)
         elif self.camera_model == CAMERA_MODEL.FISHEYE:
             print("stereo fisheye calibration...")
-            if VersionInfo.parse(cv2.__version__).major < 3:
+            if LooseVersion(cv2.__version__).version[0] == 2:
                 print("ERROR: You need OpenCV >3 to use fisheye camera model")
                 sys.exit()
             else:
@@ -1331,9 +1314,9 @@ class StereoCalibrator(Calibrator):
         cam = image_geometry.StereoCameraModel()
         if msg == None:
             msg = self.as_message()
-        cam.from_camera_info(*msg)
+        cam.fromCameraInfo(*msg)
         disparities = lcorners[:,:,0] - rcorners[:,:,0]
-        pt3d = [cam.project_pixel_to_3d((lcorners[i,0,0], lcorners[i,0,1]), disparities[i,0]) for i in range(lcorners.shape[0]) ]
+        pt3d = [cam.projectPixelTo3d((lcorners[i,0,0], lcorners[i,0,1]), disparities[i,0]) for i in range(lcorners.shape[0]) ]
         def l2(p0, p1):
             return math.sqrt(sum([(c0 - c1) ** 2 for (c0, c1) in zip(p0, p1)]))
 
@@ -1344,19 +1327,6 @@ class StereoCalibrator(Calibrator):
             [l2(pt3d[cc * r + 0], pt3d[cc * r + (cc - 1)]) / (cc - 1) for r in range(cr)] +
             [l2(pt3d[c + 0], pt3d[c + (cc * (cr - 1))]) / (cr - 1) for c in range(cc)])
         return sum(lengths) / len(lengths)
-
-    def update_db(self, lgray, rgray, lcorners, rcorners, lids, rids, lboard):
-        """
-        update database with images and good corners if good samples are detected
-        """
-        params = self.get_parameters(
-            lcorners, lids, lboard, (lgray.shape[1], lgray.shape[0]))
-        if self.is_good_sample(params, lcorners, lids, self.last_frame_corners, self.last_frame_ids):
-            self.db.append((params, lgray, rgray))
-            self.good_corners.append(
-                (lcorners, rcorners, lids, rids, lboard))
-            print(("*** Added sample %d, p_x = %.3f, p_y = %.3f, p_size = %.3f, skew = %.3f" %
-                tuple([len(self.db)] + params)))
 
     def handle_msg(self, msg):
         # TODO Various asserts that images have same dimension, same board detected...
@@ -1414,12 +1384,11 @@ class StereoCalibrator(Calibrator):
 
             # Add sample to database only if it's sufficiently different from any previous sample
             if lcorners is not None and rcorners is not None and len(lcorners) == len(rcorners):
-                # Add samples only with entire board in view if charuco
-                if self.pattern == Patterns.ChArUco:
-                    if len(lcorners) == lboard.charuco_board.chessboardCorners.shape[0]:
-                        self.update_db(lgray, rgray, lcorners, rcorners, lids, rids, lboard)
-                else:
-                    self.update_db(lgray, rgray, lcorners, rcorners, lids, rids, lboard)
+                params = self.get_parameters(lcorners, lids, lboard, (lgray.shape[1], lgray.shape[0]))
+                if self.is_good_sample(params, lcorners, lids, self.last_frame_corners, self.last_frame_ids):
+                    self.db.append( (params, lgray, rgray) )
+                    self.good_corners.append( (lcorners, rcorners, lids, rids, lboard) )
+                    print(("*** Added sample %d, p_x = %.3f, p_y = %.3f, p_size = %.3f, skew = %.3f" % tuple([len(self.db)] + params)))
 
         self.last_frame_corners = lcorners
         self.last_frame_ids = lids

@@ -165,7 +165,7 @@ class CalibrationNode(Node):
                                         max_chessboard_speed = self._max_chessboard_speed)
             else:
                 self.c = MonoCalibrator(self._boards, self._calib_flags, self._fisheye_calib_flags, self._pattern,
-                                        checkerboard_flags=self._checkerboard_flags,
+                                        checkerboard_flags=self.checkerboard_flags,
                                         max_chessboard_speed = self._max_chessboard_speed)
 
         # This should just call the MonoCalibrator
@@ -311,7 +311,7 @@ class OpenCVCalibrationNode(CalibrationNode):
         self.c.set_cammodel( CAMERA_MODEL.PINHOLE if model_select_val < 0.5 else CAMERA_MODEL.FISHEYE)
 
     def on_scale(self, scalevalue):
-        if self.c and self.c.calibrated:
+        if self.c.calibrated:
             self.c.set_alpha(scalevalue / 100.0)
 
     def button(self, dst, label, enable):

@@ -2,24 +2,9 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.4 (2024-08-20)
+4.0.2 (2024-08-20)
 ------------------
-
-5.0.3 (2024-07-16)
-------------------
-* Added stereo calibration using charuco board (backport `#976 <https://github.com/ros-perception/image_pipeline/issues/976>`_) (`#1002 <https://github.com/ros-perception/image_pipeline/issues/1002>`_)
-  From `#972 <https://github.com/ros-perception/image_pipeline/issues/972>`_
-  Doing this first for rolling.
-  This was a TODO in the repository, opening this PR to add this feature.
-  - The main issue why this wasn't possible imo is the way `mk_obj_points`
-  works. I'm using the inbuilt opencv function to get the points there.
-  - The other is a condition when aruco markers are detected they are
-  added as good points, This is fine in case of mono but in stereo these
-  have to be the same number as the object points to find matches although
-  this should be possible with aruco.<hr>This is an automatic backport of
-  pull request `#976 <https://github.com/ros-perception/image_pipeline/issues/976>`_ done by [Mergify](https://mergify.com).
-  Co-authored-by: Myron Rodrigues <41271144+MRo47@users.noreply.github.com>
-* Change camera info message to lower case (backport `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_) (`#1007 <https://github.com/ros-perception/image_pipeline/issues/1007>`_)
+* Change camera info message to lower case (backport `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_) (`#1009 <https://github.com/ros-perception/image_pipeline/issues/1009>`_)
   Change camera info message to lower case since message type had been
   change in rolling and humble.
   [](https://github.com/ros2/common_interfaces/blob/rolling/sensor_msgs/msg/CameraInfo.msg)<hr>This
@@ -28,86 +13,21 @@ Changelog for package camera_calibration
   ---------
   Co-authored-by: SFhmichael <146928033+SFhmichael@users.noreply.github.com>
   Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* Contributors: mergify[bot]
+* [Iron] Fix aruco dictionary names  (`#971 <https://github.com/ros-perception/image_pipeline/issues/971>`_)
+  There was a aruco dictionary naming issue in `iron`, this seems to be
+  fixed in `rolling`.
+  where the `x` had to be changed to `X`
+* Contributors: Myron Rodrigues, mergify[bot]
 
-5.0.2 (2024-05-27)
+4.0.1 (2024-03-26)
 ------------------
-* fix: cv2.aruco.interpolateCornersCharuco is deprecated (backport `#979 <https://github.com/ros-perception/image_pipeline/issues/979>`_) (`#980 <https://github.com/ros-perception/image_pipeline/issues/980>`_)
-  There has been API Changes in the newer releases of opencv2 (from
-  4.8.0). The PR addresses this by supporting both the old and new APIs.
-  updated Syntax
-  ```
-  charucodetector = cv2.aruco.CharucoDetector(board)
-  charuco_corners, charuco_ids, marker_corners, marker_ids = charucodetector.detectBoard(image)
-  ```
-  before 4.8.0
-  ```
-  marker_corners, marker_ids, rejectedImgPoints = cv2.aruco.detectMarkers( image, dictionary)
-  retval, charuco_corners, charuco_ids = cv2.aruco.interpolateCornersCharuco( marker_corners, marker_ids, image, board)
-  ```
-  See the changed examples in the main opencv2 repo:
-  https://github.com/opencv/opencv/blob/f9a59f2592993d3dcc080e495f4f5e02dd8ec7ef/samples/python/calibrate.py#L110<hr>This
-  is an automatic backport of pull request `#979 <https://github.com/ros-perception/image_pipeline/issues/979>`_ done by
-  [Mergify](https://mergify.com).
-  Co-authored-by: Földi Tamás <tfoldi@xsi.hu>
-* Update for compatibility with image_pipeline 4.1.0 (`#968 <https://github.com/ros-perception/image_pipeline/issues/968>`_)
-  This is a PR to fix:
-  - `#966 <https://github.com/ros-perception/image_pipeline/issues/966>`_
-  As noted in `#966 <https://github.com/ros-perception/image_pipeline/issues/966>`_, as of writing image_pipeline [4.1.0 has been
-  released](https://github.com/ros-perception/vision_opencv/releases/tag/4.1.0),
-  is updated on
-  [index.ros.org](https://index.ros.org/p/image_geometry/github-ros-perception-vision_opencv/#rolling),
-  but it has not yet been migrated to
-  [packages.ros.org](http://packages.ros.org/ros2/ubuntu/dists/noble/main/binary-amd64/Packages).
-  As such `camera_calibration` will also require the source of
-  [image_pipeline
-  4.1.0](https://github.com/ros-perception/vision_opencv/releases/tag/4.1.0)
-  or higher to successfully build.
-  I tested to ensure successful build with colcon build & colcon test.
-  Note that colcon test has the following warning that is out of scope of
-  this PR:
-  ```
-  =============================== warnings summary ===============================
-  src/camera_calibration/calibrator.py:47
-  Warning: The distutils package is deprecated and slated for removal in Python 3.12. Use setuptools or check PEP 632 for potential alternatives
-  ```
-  Please let me know if there are any questions, concerns, or requested
-  changes.
-* replace disutils with python3-semver (`#970 <https://github.com/ros-perception/image_pipeline/issues/970>`_)
-  Fix for
-  - `#969 <https://github.com/ros-perception/image_pipeline/issues/969>`_
-  I added a dependency for `python3-semver` to replace version parsing
-  with `disutils`.
-  Please let me know if you have any questions, concerns, or additional
-  requested changes.
-* Contributors: Scott Monaghan, mergify[bot]
 
-5.0.1 (2024-03-26)
+4.0.0 (2022-12-24)
 ------------------
-* Fix spelling error for cv2.aruco.DICT from 6x6_50 to 7x7_1000 (`#961 <https://github.com/ros-perception/image_pipeline/issues/961>`_)
-  There was mismatch of capitalisation of "X" for OpenCV
-  cv2.aruco.DICT_n**X**n\_ in camera_calibration package for dicts 6x6_50
-  to 7x7_1000
-  Co-authored-by: Vishal Balaji <vishal.balaji@schanzer-racing.de>
-* unified changelog, add missing image, deduplicate tutorials (`#938 <https://github.com/ros-perception/image_pipeline/issues/938>`_)
-  Last bit of documentation updates - putting together a single changelog
-  summary for the whole release (rather than scattering among packages).
-  Unified the camera_info tutorial so it isn't duplicated. Added a missing
-  image from image_rotate (was on local disk, but hadn't committed it)
-* migrate camera_calibration documentation (`#937 <https://github.com/ros-perception/image_pipeline/issues/937>`_)
-* install tarfile_calibration (`#923 <https://github.com/ros-perception/image_pipeline/issues/923>`_)
-  otherwise, it can't be run easily
-* calibration: better warnings around board configuration `#713 <https://github.com/ros-perception/image_pipeline/issues/713>`_ (`#724 <https://github.com/ros-perception/image_pipeline/issues/724>`_)
-* Contributors: Michael Ferguson, Vishal Balaji, jonathanTIE
-
-5.0.0 (2024-01-24)
-------------------
-* ROS 2: Added more aruco dicts, fixed aruco linerror bug (`#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_)
-  Related with this PR in ROS 1
-  https://github.com/ros-perception/image_pipeline/pull/795
-* ROS 2: Fixing thrown Exception in camerachecker.py (`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_)
-  Related with this PR in ROS 1
-  https://github.com/ros-perception/image_pipeline/pull/812
+* [backport iron] ROS 2: Added more aruco dicts, fixed aruco linerror bug (`#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_) (`#890 <https://github.com/ros-perception/image_pipeline/issues/890>`_)
+  backport `#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_
+* [backport iron] ROS 2: Fixing thrown Exception in camerachecker.py (`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_) (`#888 <https://github.com/ros-perception/image_pipeline/issues/888>`_)
+  backport #`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_
 * add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
 * fix threading shutdown
 * use correct synchronous service call
