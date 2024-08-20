@@ -2,6 +2,14 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.6 (2024-08-20)
+------------------
+* [backport] use correct synchronous service call (`#1006 <https://github.com/ros-perception/image_pipeline/issues/1006>`_)
+  Backport from https://github.com/ros-perception/image_pipeline/pull/792
+  to fix https://github.com/ros-perception/image_pipeline/pull/838
+  Co-authored-by: Christian Rauch <Rauch.Christian@gmx.de>
+* Contributors: Balint Rozgonyi
+
 3.0.5 (2024-07-24)
 ------------------
 * Change camera info message to lower case (backport `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_) (`#1008 <https://github.com/ros-perception/image_pipeline/issues/1008>`_)
