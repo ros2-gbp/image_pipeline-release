@@ -2,6 +2,9 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.0.4 (2024-08-20)
+------------------
+
 5.0.3 (2024-07-16)
 ------------------
 * Added stereo calibration using charuco board (backport `#976 <https://github.com/ros-perception/image_pipeline/issues/976>`_) (`#1002 <https://github.com/ros-perception/image_pipeline/issues/1002>`_)
