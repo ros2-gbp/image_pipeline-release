@@ -2,6 +2,9 @@
 Changelog for package image_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.6 (2024-08-20)
+------------------
+
 3.0.5 (2024-07-24)
 ------------------
 * [humble] image_publisher: Fix loading of the camera info parameters on startup (backport `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_) (`#996 <https://github.com/ros-perception/image_pipeline/issues/996>`_)
