@@ -2,16 +2,15 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>camera_calibration</name>
-  <version>4.0.2</version>
+  <version>3.0.6</version>
   <description>
      camera_calibration allows easy calibration of monocular or stereo
-     cameras using a checkerboard calibration target.
+     cameras using a checkerboard calibration target. 
   </description>
 
   <maintainer email="vincent.rabaud@gmail.com">Vincent Rabaud</maintainer>
   <maintainer email="whitleysoftwareservices@gmail.com">Joshua Whitley</maintainer>
   <maintainer email="jacob@openrobotics.org">Jacob Perron</maintainer>
-  <maintainer email="mfergs7@gmail.com">Michael Ferguson</maintainer>
 
   <license>BSD</license>
   <url type="website">https://index.ros.org/p/camera_calibration/github-ros-perception-image_pipeline/</url>
@@ -23,7 +22,6 @@
   <depend>cv_bridge</depend>
   <depend>image_geometry</depend>
   <depend>message_filters</depend>
-  <depend>python3-opencv</depend>
   <depend>rclpy</depend>
   <depend>std_srvs</depend>
   <depend>sensor_msgs</depend>

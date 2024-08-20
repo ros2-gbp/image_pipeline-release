@@ -2,37 +2,36 @@
 Changelog for package image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.0.2 (2024-08-20)
+3.0.6 (2024-08-20)
 ------------------
 
-4.0.1 (2024-03-26)
+3.0.5 (2024-07-24)
 ------------------
-* [backport iron] Node namespace parameter (`#953 <https://github.com/ros-perception/image_pipeline/issues/953>`_)
+* [backport humble] Node namespace parameter (`#963 <https://github.com/ros-perception/image_pipeline/issues/963>`_)
   Backport pull request `#925 <https://github.com/ros-perception/image_pipeline/issues/925>`_ which solves issue `#952 <https://github.com/ros-perception/image_pipeline/issues/952>`_ by adding the
   `namespace` parameter to the `image_proc` launch file
-* Contributors: Lucas Wendland
+  Co-authored-by: Lucas Wendland <82680922+CursedRock17@users.noreply.github.com>
+* Contributors: Alejandro Hernández Cordero
 
-4.0.0 (2022-12-24)
+3.0.4 (2024-03-01)
 ------------------
-* [backport iron] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#914 <https://github.com/ros-perception/image_pipeline/issues/914>`_)
+
+3.0.3 (2022-01-24)
+------------------
+* [backport Humble] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#913 <https://github.com/ros-perception/image_pipeline/issues/913>`_)
   Removed cfg files related with ROS 1 parameters. Backport
   https://github.com/ros-perception/image_pipeline/pull/911
-* [backport iron] ROS 2: Merged resize.cpp: fix memory leak (`#874 <https://github.com/ros-perception/image_pipeline/issues/874>`_) (`#892 <https://github.com/ros-perception/image_pipeline/issues/892>`_)
+* [backport humble] ROS 2: Merged resize.cpp: fix memory leak (`#874 <https://github.com/ros-perception/image_pipeline/issues/874>`_) (`#891 <https://github.com/ros-perception/image_pipeline/issues/891>`_)
   backport `#874 <https://github.com/ros-perception/image_pipeline/issues/874>`_
-* allow use as component or node (`#858 <https://github.com/ros-perception/image_pipeline/issues/858>`_)
-  Backport `#852 <https://github.com/ros-perception/image_pipeline/issues/852>`_ to Iron
-* add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
-* Use the same QoS profiles as publishers in image_proc
-* fix to allow remapping resize and image topics
-* Contributors: Alejandro Hernández Cordero, Joe Schornak, Michael Ferguson, Michal Wojcik
+* allow use as component or node (`#859 <https://github.com/ros-perception/image_pipeline/issues/859>`_)
+  backport `#852 <https://github.com/ros-perception/image_pipeline/issues/852>`_ to humble
+* Contributors: Alejandro Hernández Cordero, Michael Ferguson
 
-3.0.1 (2022-12-04)
+3.0.2 (2022-01-17)
 ------------------
-* Replace deprecated headers
-  Fixing compiler warnings.
-* add NOLINT to keep cpplint happy about curly brace being on new line
-* Add conversion from YUV422-YUY2
-* Contributors: Jacob Perron, Kenji Brameld, Tillmann Falck
+* Fix to allow remapping resize and image topics
+* Use the same QoS profiles as publishers in image_proc
+* Contributors: Michal Wojcik
 
 3.0.0 (2022-04-29)
 ------------------

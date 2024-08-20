@@ -2,38 +2,36 @@
 Changelog for package image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.0.2 (2024-08-20)
+3.0.6 (2024-08-20)
 ------------------
 
-4.0.1 (2024-03-26)
+3.0.5 (2024-07-24)
 ------------------
 
-4.0.0 (2022-12-24)
+3.0.4 (2024-03-01)
 ------------------
-* [backport iron] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#914 <https://github.com/ros-perception/image_pipeline/issues/914>`_)
+
+3.0.3 (2022-01-24)
+------------------
+* [backport Humble] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#913 <https://github.com/ros-perception/image_pipeline/issues/913>`_)
   Removed cfg files related with ROS 1 parameters. Backport
   https://github.com/ros-perception/image_pipeline/pull/911
-* [backport iron] enable autosize parameter in disparity view (`#875 <https://github.com/ros-perception/image_pipeline/issues/875>`_) (`#898 <https://github.com/ros-perception/image_pipeline/issues/898>`_)
+* [backport humble] enable autosize parameter in disparity view (`#875 <https://github.com/ros-perception/image_pipeline/issues/875>`_) (`#897 <https://github.com/ros-perception/image_pipeline/issues/897>`_)
   backport `#875 <https://github.com/ros-perception/image_pipeline/issues/875>`_
   Co-authored-by: Michael Ferguson <mfergs7@gmail.com>
-* [backport iron] ROS 2: Add option to prepend timestamp to image filename in image_saver node (`#870 <https://github.com/ros-perception/image_pipeline/issues/870>`_) (`#886 <https://github.com/ros-perception/image_pipeline/issues/886>`_)
+* [backport humble] ROS 2: Add option to prepend timestamp to image filename in image_saver node (`#870 <https://github.com/ros-perception/image_pipeline/issues/870>`_) (`#885 <https://github.com/ros-perception/image_pipeline/issues/885>`_)
   backport `#870 <https://github.com/ros-perception/image_pipeline/issues/870>`_
-* [backport Iron] Add support for floating point fps (`#866 <https://github.com/ros-perception/image_pipeline/issues/866>`_) (`#878 <https://github.com/ros-perception/image_pipeline/issues/878>`_)
+* [backport humble] Add support for floating point fps (`#866 <https://github.com/ros-perception/image_pipeline/issues/866>`_) (`#877 <https://github.com/ros-perception/image_pipeline/issues/877>`_)
   Backport `#866 <https://github.com/ros-perception/image_pipeline/issues/866>`_
-* [backport Iron] use cv::DestroyAllWindows (`#863 <https://github.com/ros-perception/image_pipeline/issues/863>`_) (`#865 <https://github.com/ros-perception/image_pipeline/issues/865>`_)
+* [backport Humble] use cv::DestroyAllWindows (`#863 <https://github.com/ros-perception/image_pipeline/issues/863>`_) (`#864 <https://github.com/ros-perception/image_pipeline/issues/864>`_)
   This ports `#816 <https://github.com/ros-perception/image_pipeline/issues/816>`_ to ROS 2 and prevents weird exit conditions if you
   already closed the window
   backport https://github.com/ros-perception/image_pipeline/pull/863
   Co-authored-by: Michael Ferguson <mfergs7@gmail.com>
-* add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
-* feat: image_saver reports an error on file save
-* Contributors: Alejandro Hernández Cordero, Michael Ferguson, Russ Webber
+* Contributors: Alejandro Hernández Cordero
 
-3.0.1 (2022-12-04)
+3.0.2 (2022-01-17)
 ------------------
-* Replace deprecated headers
-  Fixing compiler warnings.
-* Contributors: Jacob Perron
 
 3.0.0 (2022-04-29)
 ------------------

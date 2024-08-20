@@ -16,7 +16,7 @@
 #include <memory>
 #include <string>
 
-#include "cv_bridge/cv_bridge.hpp"
+#include "cv_bridge/cv_bridge.h"
 
 #include "image_view/video_recorder_node.hpp"
 

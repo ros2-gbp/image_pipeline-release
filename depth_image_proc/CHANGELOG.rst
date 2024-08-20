@@ -2,40 +2,37 @@
 Changelog for package depth_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.0.2 (2024-08-20)
+3.0.6 (2024-08-20)
 ------------------
 
-4.0.1 (2024-03-26)
+3.0.5 (2024-07-24)
 ------------------
-* [backport iron] Fixed image types in depth_image_proc (`#917 <https://github.com/ros-perception/image_pipeline/issues/917>`_)
-  backport iron
+
+3.0.4 (2024-03-01)
+------------------
+* [backport humble] Fixed image types in depth_image_proc (`#916 <https://github.com/ros-perception/image_pipeline/issues/916>`_)
+  backport humble
   https://github.com/ros-perception/image_pipeline/pull/915#event-11585393591
 * Contributors: Alejandro Hernández Cordero
 
-4.0.0 (2022-12-24)
+3.0.3 (2022-01-24)
 ------------------
-* [backport iron] support rgba8 and bgra8 encodings by skipping alpha channel (`#869 <https://github.com/ros-perception/image_pipeline/issues/869>`_) (`#896 <https://github.com/ros-perception/image_pipeline/issues/896>`_)
+* [backport humble] upport rgba8 and bgra8 encodings by skipping alpha channel (`#869 <https://github.com/ros-perception/image_pipeline/issues/869>`_) (`#895 <https://github.com/ros-perception/image_pipeline/issues/895>`_)
   backport `#869 <https://github.com/ros-perception/image_pipeline/issues/869>`_
-* [backport iron] ROS 2: Add option to use the RGB image timestamp for the registered depth image (`#872 <https://github.com/ros-perception/image_pipeline/issues/872>`_) (`#894 <https://github.com/ros-perception/image_pipeline/issues/894>`_)
+* [backport humble] ROS 2: Add option to use the RGB image timestamp for the registered depth image (`#872 <https://github.com/ros-perception/image_pipeline/issues/872>`_) (`#893 <https://github.com/ros-perception/image_pipeline/issues/893>`_)
   backport `#872 <https://github.com/ros-perception/image_pipeline/issues/872>`_
-* [backport Iron] Support MONO16 image encodings: point_cloud_xyz (`#868 <https://github.com/ros-perception/image_pipeline/issues/868>`_) (`#882 <https://github.com/ros-perception/image_pipeline/issues/882>`_)
-  backport Iron `#868 <https://github.com/ros-perception/image_pipeline/issues/868>`_
-* [backport iron] ROS 2: depth_image_proc/point_cloud_xyzi_radial Add intensity conversion (copy) for float (`#867 <https://github.com/ros-perception/image_pipeline/issues/867>`_) (`#880 <https://github.com/ros-perception/image_pipeline/issues/880>`_)
-  Backport `#867 <https://github.com/ros-perception/image_pipeline/issues/867>`_
-* allow use as component or node (`#858 <https://github.com/ros-perception/image_pipeline/issues/858>`_)
-  Backport `#852 <https://github.com/ros-perception/image_pipeline/issues/852>`_ to Iron
-* add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
-* Depth image transport configure susbcribers (`#844 <https://github.com/ros-perception/image_pipeline/issues/844>`_) (`#845 <https://github.com/ros-perception/image_pipeline/issues/845>`_)
-* Updated depth_image_proc for ros2
-  Instantiated template for convertDepth, added options to register, and
-  changed register from a class loader to an RCLPP component.
-* Contributors: Alejandro Hernández Cordero, Michael Ferguson, ksommerkohrt
+* [backport Humble] Support MONO16 image encodings: point_cloud_xyz (`#868 <https://github.com/ros-perception/image_pipeline/issues/868>`_) (`#881 <https://github.com/ros-perception/image_pipeline/issues/881>`_)
+  backport Humble `#868 <https://github.com/ros-perception/image_pipeline/issues/868>`_
+* [backport humble] ROS 2: depth_image_proc/point_cloud_xyzi_radial Add intensity conversion (copy) for float (`#867 <https://github.com/ros-perception/image_pipeline/issues/867>`_) (`#879 <https://github.com/ros-perception/image_pipeline/issues/879>`_)
+  backport `#867 <https://github.com/ros-perception/image_pipeline/issues/867>`_
+* allow use as component or node (`#859 <https://github.com/ros-perception/image_pipeline/issues/859>`_)
+  backport `#852 <https://github.com/ros-perception/image_pipeline/issues/852>`_ to humble
+* Contributors: Alejandro Hernández Cordero, Michael Ferguson
 
-3.0.1 (2022-12-04)
+3.0.2 (2022-01-17)
 ------------------
-* Replace deprecated headers
-  Fixing compiler warnings.
-* Contributors: Jacob Perron
+* Depth image transport configure susbcribers (`#844 <https://github.com/ros-perception/image_pipeline/issues/844>`_)
+* Contributors: Alejandro Hernández Cordero
 
 3.0.0 (2022-04-29)
 ------------------

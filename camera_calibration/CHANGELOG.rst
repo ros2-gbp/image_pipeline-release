@@ -2,9 +2,17 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.0.2 (2024-08-20)
+3.0.6 (2024-08-20)
 ------------------
-* Change camera info message to lower case (backport `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_) (`#1009 <https://github.com/ros-perception/image_pipeline/issues/1009>`_)
+* [backport] use correct synchronous service call (`#1006 <https://github.com/ros-perception/image_pipeline/issues/1006>`_)
+  Backport from https://github.com/ros-perception/image_pipeline/pull/792
+  to fix https://github.com/ros-perception/image_pipeline/pull/838
+  Co-authored-by: Christian Rauch <Rauch.Christian@gmx.de>
+* Contributors: Balint Rozgonyi
+
+3.0.5 (2024-07-24)
+------------------
+* Change camera info message to lower case (backport `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_) (`#1008 <https://github.com/ros-perception/image_pipeline/issues/1008>`_)
   Change camera info message to lower case since message type had been
   change in rolling and humble.
   [](https://github.com/ros2/common_interfaces/blob/rolling/sensor_msgs/msg/CameraInfo.msg)<hr>This
@@ -13,37 +21,27 @@ Changelog for package camera_calibration
   ---------
   Co-authored-by: SFhmichael <146928033+SFhmichael@users.noreply.github.com>
   Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* [Iron] Fix aruco dictionary names  (`#971 <https://github.com/ros-perception/image_pipeline/issues/971>`_)
-  There was a aruco dictionary naming issue in `iron`, this seems to be
-  fixed in `rolling`.
-  where the `x` had to be changed to `X`
-* Contributors: Myron Rodrigues, mergify[bot]
+* [backport humble] Fix spelling error for cv2.aruco.DICT from 6x6_50 to 7x7_1000 (`#961 <https://github.com/ros-perception/image_pipeline/issues/961>`_) (`#1004 <https://github.com/ros-perception/image_pipeline/issues/1004>`_)
+  Backport `#961 <https://github.com/ros-perception/image_pipeline/issues/961>`_ fix to humble
+  Co-authored-by: Vishal Balaji <vishalvichu45@gmail.com>
+  Co-authored-by: Vishal Balaji <vishal.balaji@schanzer-racing.de>
+* Contributors: Balint Rozgonyi, mergify[bot]
 
-4.0.1 (2024-03-26)
+3.0.4 (2024-03-01)
 ------------------
 
-4.0.0 (2022-12-24)
+3.0.3 (2022-01-24)
 ------------------
-* [backport iron] ROS 2: Added more aruco dicts, fixed aruco linerror bug (`#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_) (`#890 <https://github.com/ros-perception/image_pipeline/issues/890>`_)
+* [backport humble] ROS 2: Added more aruco dicts, fixed aruco linerror bug (`#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_) (`#889 <https://github.com/ros-perception/image_pipeline/issues/889>`_)
   backport `#873 <https://github.com/ros-perception/image_pipeline/issues/873>`_
-* [backport iron] ROS 2: Fixing thrown Exception in camerachecker.py (`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_) (`#888 <https://github.com/ros-perception/image_pipeline/issues/888>`_)
-  backport #`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_
-* add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
-* fix threading shutdown
-* use correct synchronous service call
-* use remap rules instead of parameters for services
-* remove duplicated definition of on_model_change
-* fix service check
-* remove commented code
-* Fix QoS incompatibility camera_calibration ROS2
-* perform calibration in another thread
-* Contributors: Alejandro Hernández Cordero, Christian Rauch, Kenji Brameld, Michael Ferguson, Michal Wojcik
+* [backport humble] ROS 2: Fixing thrown Exception in camerachecker.py (`#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_) (`#887 <https://github.com/ros-perception/image_pipeline/issues/887>`_)
+  backport `#871 <https://github.com/ros-perception/image_pipeline/issues/871>`_
+* Contributors: Alejandro Hernández Cordero
 
-3.0.1 (2022-12-04)
+3.0.2 (2022-01-17)
 ------------------
-* add python3-opencv to camera calibration dependency
-* port changes from `#755 <https://github.com/ros-perception/image_pipeline/issues/755>`_ to rolling branch
-* Contributors: Kenji Brameld
+* Fix QoS incompatibility camera_calibration ROS2
+* Contributors: Michal Wojcik
 
 3.0.0 (2022-04-29)
 ------------------

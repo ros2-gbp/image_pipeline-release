@@ -35,7 +35,7 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "cv_bridge/cv_bridge.hpp"
+#include "cv_bridge/cv_bridge.h"
 
 #include <image_proc/debayer.hpp>
 #include <image_proc/utils.hpp>
@@ -191,9 +191,7 @@ void DebayerNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_ms
     }
 
     pub_color_.publish(color_msg);
-  } else if (raw_msg->encoding == sensor_msgs::image_encodings::YUV422 ||  // NOLINT
-    raw_msg->encoding == sensor_msgs::image_encodings::YUV422_YUY2)
-  {
+  } else if (raw_msg->encoding == sensor_msgs::image_encodings::YUV422) {
     // Use cv_bridge to convert to BGR8
     sensor_msgs::msg::Image::SharedPtr color_msg;
 
