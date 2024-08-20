@@ -1,10 +1,7 @@
-image_pipeline
-==============
+# tracetools_image_pipeline
 
-[![](https://github.com/ros-perception/image_pipeline/workflows/Basic%20Build%20Workflow/badge.svg?branch=ros2)](https://github.com/ros-perception/image_pipeline/actions)
+LTTng tracing provider wrapper for image_pipeline ROS 2 meta-package. `tracetools_image_pipeline` is a fork of [tracetools](https://gitlab.com/ros-tracing/ros2_tracing/-/tree/master/tracetools), refer to this package for the original work.
 
-This package fills the gap between getting raw images from a camera driver and higher-level vision processing.
+### Quality Declaration
 
-For more information on this metapackage and underlying packages, please see [the ROS wiki entry](http://wiki.ros.org/image_pipeline).
-
-For examples, see the [image_pipeline tutorials entry](http://wiki.ros.org/image_pipeline/Tutorials) on the ROS Wiki.
+No quality is claimed according to [REP-2004](https://www.ros.org/reps/rep-2004.html).
