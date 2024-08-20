@@ -2,6 +2,12 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.0.3 (2024-08-20)
+------------------
+* Refactoring calibration code (`#1000 <https://github.com/ros-perception/image_pipeline/issues/1000>`_)
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* Contributors: Myron Rodrigues
+
 6.0.2 (2024-07-23)
 ------------------
 
