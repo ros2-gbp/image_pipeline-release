@@ -35,33 +35,38 @@
 import cv2
 import cv_bridge
 import functools
-import message_filters
 import numpy
-import rclpy
-from rclpy.node import Node
-import sensor_msgs.msg
-import sensor_msgs.srv
 import threading
-
-from camera_calibration.calibrator import MonoCalibrator, StereoCalibrator, ChessboardInfo
-from message_filters import ApproximateTimeSynchronizer
-
 try:
     from queue import Queue
 except ImportError:
     from Queue import Queue
 
+import message_filters
+from message_filters import ApproximateTimeSynchronizer
+import rclpy
+from rclpy.node import Node
+import sensor_msgs.msg
+import sensor_msgs.srv
+
+from camera_calibration.mono_calibrator import MonoCalibrator
+from camera_calibration.stereo_calibrator import StereoCalibrator
+from camera_calibration.calibrator import ChessboardInfo
+
 
 def mean(seq):
     return sum(seq) / len(seq)
+
 
 def lmin(seq1, seq2):
     """ Pairwise minimum of two sequences """
     return [min(a, b) for (a, b) in zip(seq1, seq2)]
 
+
 def lmax(seq1, seq2):
     """ Pairwise maximum of two sequences """
     return [max(a, b) for (a, b) in zip(seq1, seq2)]
+
 
 class ConsumerThread(threading.Thread):
     def __init__(self, queue, function):
@@ -75,6 +80,7 @@ class ConsumerThread(threading.Thread):
             if self.queue.empty():
                 break
         self.function(m)
+
 
 class CameraCheckerNode(Node):
 
@@ -100,9 +106,11 @@ class CameraCheckerNode(Node):
         if approximate <= 0:
             sync = message_filters.TimeSynchronizer
         else:
-            sync = functools.partial(ApproximateTimeSynchronizer, slop=approximate)
+            sync = functools.partial(
+                ApproximateTimeSynchronizer, slop=approximate)
 
-        tsm = sync([message_filters.Subscriber(self, type, topic) for (topic, type) in tosync_mono], 10)
+        tsm = sync([message_filters.Subscriber(self, type, topic)
+                   for (topic, type) in tosync_mono], 10)
         tsm.registerCallback(self.queue_monocular)
 
         left_topic = "stereo/left/image_rect"
@@ -117,7 +125,8 @@ class CameraCheckerNode(Node):
             (right_camera_topic, sensor_msgs.msg.CameraInfo)
         ]
 
-        tss = sync([message_filters.Subscriber(self, type, topic) for (topic, type) in tosync_stereo], 10)
+        tss = sync([message_filters.Subscriber(self, type, topic)
+                   for (topic, type) in tosync_stereo], 10)
         tss.registerCallback(self.queue_stereo)
 
         self.br = cv_bridge.CvBridge()
@@ -162,24 +171,29 @@ class CameraCheckerNode(Node):
 
             # Add in reprojection check
             image_points = C
-            object_points = self.mc.mk_object_points([self.board], use_board_size=True)[0]
+            object_points = self.mc.mk_object_points(
+                [self.board], use_board_size=True)[0]
             dist_coeffs = numpy.zeros((4, 1))
-            camera_matrix = numpy.array( [ [ camera.p[0], camera.p[1], camera.p[2]  ],
-                                           [ camera.p[4], camera.p[5], camera.p[6]  ],
-                                           [ camera.p[8], camera.p[9], camera.p[10] ] ] )
-            ok, rot, trans = cv2.solvePnP(object_points, image_points, camera_matrix, dist_coeffs)
+            camera_matrix = numpy.array([[camera.p[0], camera.p[1], camera.p[2]],
+                                         [camera.p[4], camera.p[5], camera.p[6]],
+                                         [camera.p[8], camera.p[9], camera.p[10]]])
+            ok, rot, trans = cv2.solvePnP(
+                object_points, image_points, camera_matrix, dist_coeffs)
             # Convert rotation into a 3x3 Rotation Matrix
             rot3x3, _ = cv2.Rodrigues(rot)
             # Reproject model points into image
-            object_points_world = numpy.asmatrix(rot3x3) * numpy.asmatrix(object_points.squeeze().T) + numpy.asmatrix(trans)
+            object_points_world = numpy.asmatrix(
+                rot3x3) * numpy.asmatrix(object_points.squeeze().T) + numpy.asmatrix(trans)
             reprojected_h = camera_matrix * object_points_world
-            reprojected   = (reprojected_h[0:2, :] / reprojected_h[2, :])
+            reprojected = (reprojected_h[0:2, :] / reprojected_h[2, :])
             reprojection_errors = image_points.squeeze().T - reprojected
 
-            reprojection_rms = numpy.sqrt(numpy.sum(numpy.array(reprojection_errors) ** 2) / numpy.product(reprojection_errors.shape))
+            reprojection_rms = numpy.sqrt(numpy.sum(numpy.array(
+                reprojection_errors) ** 2) / numpy.product(reprojection_errors.shape))
 
             # Print the results
-            print("Linearity RMS Error: %.3f Pixels      Reprojection RMS Error: %.3f Pixels" % (linearity_rms, reprojection_rms))
+            print("Linearity RMS Error: %.3f Pixels      Reprojection RMS Error: %.3f Pixels" % (
+                linearity_rms, reprojection_rms))
         else:
             print('no chessboard')
 
@@ -194,8 +208,10 @@ class CameraCheckerNode(Node):
         if L is not None and R is not None:
             epipolar = self.sc.epipolar_error(L, R)
 
-            dimension = self.sc.chessboard_size(L, R, self.board, msg=(lcmsg, rcmsg))
+            dimension = self.sc.chessboard_size(
+                L, R, self.board, msg=(lcmsg, rcmsg))
 
-            print("epipolar error: %f pixels   dimension: %f m" % (epipolar, dimension))
+            print("epipolar error: %f pixels   dimension: %f m" %
+                  (epipolar, dimension))
         else:
             print("no chessboard")

@@ -33,9 +33,10 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <string>
 #include <vector>
 
-#include "cv_bridge/cv_bridge.h"
+#include "cv_bridge/cv_bridge.hpp"
 
 #include <image_proc/crop_non_zero.hpp>
 #include <image_proc/utils.hpp>
@@ -52,21 +53,43 @@ namespace image_proc
 CropNonZeroNode::CropNonZeroNode(const rclcpp::NodeOptions & options)
 : Node("CropNonZeroNode", options)
 {
-  auto qos_profile = getTopicQosProfile(this, "image_raw");
-  pub_ = image_transport::create_publisher(this, "image", qos_profile);
-  RCLCPP_INFO(this->get_logger(), "subscribe: %s", "image_raw");
-  sub_raw_ = image_transport::create_subscription(
-    this, "image_raw",
-    std::bind(
-      &CropNonZeroNode::imageCb,
-      this, std::placeholders::_1), "raw", qos_profile);
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("image_transport", "raw");
+
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  image_topic_ = node_base->resolve_topic_or_service_name("image_raw", false);
+  std::string pub_topic = node_base->resolve_topic_or_service_name("image", false);
+
+  // Setup lazy subscriber using publisher connection callback
+  rclcpp::PublisherOptions pub_options;
+  pub_options.event_callbacks.matched_callback =
+    [this](rclcpp::MatchedInfo &)
+    {
+      if (pub_.getNumSubscribers() == 0) {
+        sub_raw_.shutdown();
+      } else if (!sub_raw_) {
+        // Create subscriber with QoS matched to subscribed topic publisher
+        auto qos_profile = getTopicQosProfile(this, image_topic_);
+        image_transport::TransportHints hints(this);
+        sub_raw_ = image_transport::create_subscription(
+          this, image_topic_, std::bind(
+            &CropNonZeroNode::imageCb, this,
+            std::placeholders::_1), hints.getTransport(), qos_profile);
+      }
+    };
+
+  // Create publisher - allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  pub_ = image_transport::create_publisher(this, pub_topic, rmw_qos_profile_default, pub_options);
 }
 
 void CropNonZeroNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg)
 {
-  cv_bridge::CvImagePtr cv_ptr;
+  cv_bridge::CvImageConstPtr cv_ptr;
   try {
-    cv_ptr = cv_bridge::toCvCopy(raw_msg);
+    cv_ptr = cv_bridge::toCvShare(raw_msg);
   } catch (cv_bridge::Exception & e) {
     RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
     return;
@@ -109,7 +132,10 @@ void CropNonZeroNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & ra
   out_msg.encoding = raw_msg->encoding;
   out_msg.image = cv_ptr->image(r);
 
-  pub_.publish(out_msg.toImageMsg());
+  auto out_image = std::make_unique<sensor_msgs::msg::Image>();
+  out_msg.toImageMsg(*out_image);
+
+  pub_.publish(std::move(out_image));
 }
 
 }  // namespace image_proc

@@ -1,4 +1,4 @@
-// Copyright 2008, 2019 Willow Garage, Inc., Andreas Klintberg, Joshua Whitley
+// Copyright 2024 Open Navigation LLC
 // All rights reserved.
 //
 // Software License Agreement (BSD License 2.0)
@@ -30,36 +30,45 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <memory>
+#ifndef IMAGE_PROC__TRACK_MARKER_HPP_
+#define IMAGE_PROC__TRACK_MARKER_HPP_
 
-#include <image_proc/debayer.hpp>
-#include <image_proc/rectify.hpp>
+#include <memory>
+#include <mutex>
+#include <string>
+
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <image_transport/image_transport.hpp>
+#include <opencv2/aruco.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
+#include <sensor_msgs/msg/image.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-int main(int argc, char * argv[])
+namespace image_proc
 {
-  // Force flush of the stdout buffer.
-  setvbuf(stdout, NULL, _IONBF, BUFSIZ);
 
-  rclcpp::init(argc, argv);
+class TrackMarkerNode : public rclcpp::Node
+{
+public:
+  explicit TrackMarkerNode(const rclcpp::NodeOptions &);
 
-  rclcpp::executors::SingleThreadedExecutor exec;
-  const rclcpp::NodeOptions options;
+private:
+  image_transport::CameraSubscriber sub_camera_;
 
-  // Debayer component, image_raw -> image_mono, image_color
-  auto debayer_node = std::make_shared<image_proc::DebayerNode>(options);
+  int queue_size_;
+  int marker_id_;
+  double marker_size_;
+  std::string image_topic_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_;
 
-  // Rectify component, image_mono -> image_rect
-  auto rectify_mono_node = std::make_shared<image_proc::RectifyNode>(options);
+  cv::Ptr<cv::aruco::DetectorParameters> detector_params_;
+  cv::Ptr<cv::aruco::Dictionary> dictionary_;
 
-  // Rectify component, image_color -> image_rect_color
-  auto rectify_color_node = std::make_shared<image_proc::RectifyNode>(options);
+  void imageCb(
+    const sensor_msgs::msg::Image::ConstSharedPtr & image_msg,
+    const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg);
+};
 
-  exec.add_node(debayer_node);
-  exec.add_node(rectify_mono_node);
-  exec.add_node(rectify_color_node);
-  exec.spin();
+}  // namespace image_proc
 
-  rclcpp::shutdown();
-  return 0;
-}
+#endif  // IMAGE_PROC__TRACK_MARKER_HPP_

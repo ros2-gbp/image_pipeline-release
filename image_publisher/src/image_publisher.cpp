@@ -38,7 +38,7 @@
 #include <thread>
 #include <vector>
 
-#include "cv_bridge/cv_bridge.h"
+#include "cv_bridge/cv_bridge.hpp"
 
 #include <camera_info_manager/camera_info_manager.hpp>
 #include <image_publisher/image_publisher.hpp>
@@ -51,10 +51,19 @@ namespace image_publisher
 
 using namespace std::chrono_literals;
 
-ImagePublisher::ImagePublisher(const rclcpp::NodeOptions & options)
+ImagePublisher::ImagePublisher(
+  const rclcpp::NodeOptions & options,
+  const std::string & filename)
 : rclcpp::Node("ImagePublisher", options)
 {
-  pub_ = image_transport::create_camera_publisher(this, "image_raw");
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  std::string topic_name = node_base->resolve_topic_or_service_name("image_raw", false);
+  rclcpp::PublisherOptions pub_options;
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  pub_ = image_transport::create_camera_publisher(this, topic_name, rmw_qos_profile_default,
+      pub_options);
 
   field_of_view_ = this->declare_parameter("field_of_view", static_cast<double>(0));
   flip_horizontal_ = this->declare_parameter("flip_horizontal", false);
@@ -99,7 +108,7 @@ ImagePublisher::ImagePublisher(const rclcpp::NodeOptions & options)
           call_reconfigure = true;
         } else if (parameter.get_name() == "camera_info_url") {
           camera_info_url_ = parameter.as_string();
-          RCLCPP_INFO(get_logger(), "Reset camera_info_url as '%s'", camera_info_url_.c_str());
+          RCLCPP_INFO(get_logger(), "Reset camera_info_rul as '%s'", camera_info_url_.c_str());
           call_reconfigure = true;
         }
       }
@@ -113,6 +122,9 @@ ImagePublisher::ImagePublisher(const rclcpp::NodeOptions & options)
       return result;
     };
   on_set_parameters_callback_handle_ = this->add_on_set_parameters_callback(param_change_callback);
+
+  // Set the filename after we do add_on_set_parameters_callback so the callback triggers
+  filename_ = this->declare_parameter("filename", filename);
 }
 
 void ImagePublisher::reconfigureCallback()
@@ -123,7 +135,7 @@ void ImagePublisher::reconfigureCallback()
 
   camera_info_manager::CameraInfoManager c(this);
   if (!camera_info_url_.empty()) {
-    RCLCPP_INFO(get_logger(), "camera_info_url exist");
+    RCLCPP_INFO(get_logger(), "camera_info_url: %s", camera_info_url_.c_str());
     try {
       c.validateURL(camera_info_url_);
       c.loadCameraInfo(camera_info_url_);
@@ -157,14 +169,16 @@ void ImagePublisher::doWork()
       image_flipped_ = true;
     }
 
-    sensor_msgs::msg::Image::SharedPtr out_img =
-      cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_).toImageMsg();
+    auto out_img = std::make_unique<sensor_msgs::msg::Image>();
+    cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_).toImageMsg(*out_img);
     out_img->header.frame_id = frame_id_;
     out_img->header.stamp = this->now();
-    camera_info_.header.frame_id = out_img->header.frame_id;
-    camera_info_.header.stamp = out_img->header.stamp;
 
-    pub_.publish(*out_img, camera_info_);
+    auto cam_info = std::make_unique<sensor_msgs::msg::CameraInfo>(camera_info_);
+    cam_info->header.frame_id = out_img->header.frame_id;
+    cam_info->header.stamp = out_img->header.stamp;
+
+    pub_.publish(std::move(out_img), std::move(cam_info));
   } catch (cv::Exception & e) {
     RCLCPP_ERROR(
       this->get_logger(), "Image processing error: %s %s %s %i",
@@ -174,7 +188,7 @@ void ImagePublisher::doWork()
 
 void ImagePublisher::onInit()
 {
-  RCLCPP_INFO(this->get_logger(), "File name for publishing image is : %s", filename_.c_str());
+  RCLCPP_INFO(this->get_logger(), "File name for publishing image is: %s", filename_.c_str());
   try {
     image_ = cv::imread(filename_, cv::IMREAD_COLOR);
     if (image_.empty()) {  // if filename not exist, open video device
@@ -203,10 +217,10 @@ void ImagePublisher::onInit()
 
   RCLCPP_INFO(
     this->get_logger(),
-    "Flip horizontal image is : %s", ((flip_horizontal_) ? "true" : "false"));
+    "Flip horizontal image is: %s", ((flip_horizontal_) ? "true" : "false"));
   RCLCPP_INFO(
     this->get_logger(),
-    "Flip flip_vertical image is : %s", ((flip_vertical_) ? "true" : "false"));
+    "Flip flip_vertical image is: %s", ((flip_vertical_) ? "true" : "false"));
 
   // From http://docs.opencv.org/modules/core/doc/operations_on_arrays.html
   // #void flip(InputArray src, OutputArray dst, int flipCode)

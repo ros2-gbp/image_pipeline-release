@@ -2,19 +2,28 @@
 Changelog for package tracetools_image_pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.0.5 (2024-07-24)
+6.0.3 (2024-08-20)
 ------------------
 
-3.0.4 (2024-03-01)
+6.0.2 (2024-07-23)
 ------------------
 
-3.0.3 (2022-01-24)
+6.0.1 (2024-07-22)
 ------------------
-* ROS 2: Fixed CMake (`#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_) (`#901 <https://github.com/ros-perception/image_pipeline/issues/901>`_)
-  backport `#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_
-* Contributors: Alejandro Hernández Cordero
 
-3.0.2 (2022-01-17)
+6.0.0 (2024-05-27)
+------------------
+
+5.0.1 (2024-03-26)
+------------------
+
+5.0.0 (2024-01-24)
+------------------
+* ROS 2: Fixed CMake (`#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_)
+* add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
+* Contributors: Alejandro Hernández Cordero, Michael Ferguson
+
+3.0.1 (2022-12-04)
 ------------------
 
 3.0.0 (2022-04-29)

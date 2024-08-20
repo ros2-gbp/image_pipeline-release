@@ -5,12 +5,12 @@ PACKAGE_NAME = "camera_calibration"
 
 setup(
     name=PACKAGE_NAME,
-    version='3.0.5',
+    version='6.0.3',
     packages=["camera_calibration", "camera_calibration.nodes"],
     data_files=[
-    ('share/ament_index/resource_index/packages',
-      ['resource/' + PACKAGE_NAME]),
-    ('share/' + PACKAGE_NAME, ['package.xml']),
+        ('share/ament_index/resource_index/packages',
+         ['resource/' + PACKAGE_NAME]),
+        ('share/' + PACKAGE_NAME, ['package.xml']),
     ],
     py_modules=[],
     package_dir={'': 'src'},
@@ -32,6 +32,7 @@ setup(
         'console_scripts': [
             'cameracalibrator = camera_calibration.nodes.cameracalibrator:main',
             'cameracheck = camera_calibration.nodes.cameracheck:main',
+            'tarfile_calibration = camera_calibration.nodes.tarfile_calibration:main',
         ],
     },
 )
