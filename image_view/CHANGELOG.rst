@@ -2,6 +2,16 @@
 Changelog for package image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.0.3 (2024-08-20)
+------------------
+* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
+  This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
+  - Make sure publishers default to system defaults (reliable)
+  - Add QoS overriding where possible (some of the image_transport /
+  message_filters stuff doesn't really support that)
+  - Use the matching heuristic for subscribers consistently
+* Contributors: Michael Ferguson
+
 6.0.2 (2024-07-23)
 ------------------
 * Removed deprecation warnings (`#1010 <https://github.com/ros-perception/image_pipeline/issues/1010>`_)
