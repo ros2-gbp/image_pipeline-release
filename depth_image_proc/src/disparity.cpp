@@ -34,10 +34,11 @@
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <string>
 
 #include "depth_image_proc/visibility.h"
-#include "message_filters/subscriber.h"
-#include "message_filters/time_synchronizer.h"
+#include "message_filters/subscriber.hpp"
+#include "message_filters/time_synchronizer.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 #include <image_transport/image_transport.hpp>
@@ -69,8 +70,6 @@ private:
   double max_range_;
   double delta_d_;
 
-  void connectCb();
-
   void depthCb(
     const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
     const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg);
@@ -78,12 +77,15 @@ private:
   template<typename T>
   void convert(
     const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
-    stereo_msgs::msg::DisparityImage::SharedPtr & disp_msg);
+    stereo_msgs::msg::DisparityImage & disp_msg);
 };
 
 DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("DisparityNode", options)
 {
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("image_transport", "raw");
+
   // Read parameters
   int queue_size = this->declare_parameter<int>("queue_size", 5);
   min_range_ = this->declare_parameter<double>("min_range", 0.0);
@@ -98,41 +100,36 @@ DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
     std::bind(
       &DisparityNode::depthCb, this, std::placeholders::_1, std::placeholders::_2));
 
-  // Monitor whether anyone is subscribed to the output
-  // TODO(ros2) Implement when SubscriberStatusCallback is available
-  // ros::SubscriberStatusCallback connect_cb = std::bind(&DisparityNode::connectCb, this);
-  connectCb();
-
-  // Make sure we don't enter connectCb() between advertising and assigning to pub_disparity_
-  std::lock_guard<std::mutex> lock(connect_mutex_);
-  // TODO(ros2) Implement when SubscriberStatusCallback is available
-  // pub_disparity_ =
-  //   left_nh.advertise<stereo_msgs::DisparityImage>("disparity", 1, connect_cb, connect_cb);
+  // Create publisher with connect callback
+  rclcpp::PublisherOptions pub_options;
+  pub_options.event_callbacks.matched_callback =
+    [this](rclcpp::MatchedInfo &)
+    {
+      std::lock_guard<std::mutex> lock(connect_mutex_);
+      if (pub_disparity_->get_subscription_count() == 0) {
+        sub_depth_image_.unsubscribe();
+        sub_info_.unsubscribe();
+      } else if (!sub_depth_image_.getSubscriber()) {
+        // For compressed topics to remap appropriately, we need to pass a
+        // fully expanded and remapped topic name to image_transport
+        auto node_base = this->get_node_base_interface();
+        std::string topic = node_base->resolve_topic_or_service_name("left/image_rect", false);
+        image_transport::TransportHints hints(this);
+        sub_depth_image_.subscribe(this, topic, hints.getTransport());
+        sub_info_.subscribe(this, "right/camera_info", rclcpp::QoS(10));
+      }
+    };
+  // Allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
   pub_disparity_ = create_publisher<stereo_msgs::msg::DisparityImage>(
-    "left/disparity", rclcpp::SensorDataQoS());
-}
-
-// Handles (un)subscribing when clients (un)subscribe
-void DisparityNode::connectCb()
-{
-  std::lock_guard<std::mutex> lock(connect_mutex_);
-  // TODO(ros2) Implement getNumSubscribers when rcl/rmw support it
-  // if (pub_disparity_.getNumSubscribers() == 0)
-  if (0) {
-    sub_depth_image_.unsubscribe();
-    sub_info_.unsubscribe();
-  } else if (!sub_depth_image_.getSubscriber()) {
-    image_transport::TransportHints hints(this, "raw");
-    sub_depth_image_.subscribe(this, "left/image_rect", hints.getTransport());
-    sub_info_.subscribe(this, "right/camera_info");
-  }
+    "left/disparity", rclcpp::SystemDefaultsQoS(), pub_options);
 }
 
 void DisparityNode::depthCb(
   const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
   const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg)
 {
-  auto disp_msg = std::make_shared<DisparityImage>();
+  auto disp_msg = std::make_unique<DisparityImage>();
   disp_msg->header = depth_msg->header;
   disp_msg->image.header = disp_msg->header;
   disp_msg->image.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
@@ -149,30 +146,30 @@ void DisparityNode::depthCb(
   disp_msg->delta_d = delta_d_;
 
   if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    convert<uint16_t>(depth_msg, disp_msg);
+    convert<uint16_t>(depth_msg, *disp_msg);
   } else if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    convert<float>(depth_msg, disp_msg);
+    convert<float>(depth_msg, *disp_msg);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
     return;
   }
 
-  pub_disparity_->publish(*disp_msg);
+  pub_disparity_->publish(std::move(disp_msg));
 }
 
 template<typename T>
 void DisparityNode::convert(
   const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
-  stereo_msgs::msg::DisparityImage::SharedPtr & disp_msg)
+  stereo_msgs::msg::DisparityImage & disp_msg)
 {
   // For each depth Z, disparity d = fT / Z
   float unit_scaling = DepthTraits<T>::toMeters(T(1) );
-  float constant = disp_msg->f * disp_msg->t / unit_scaling;
+  float constant = disp_msg.f * disp_msg.t / unit_scaling;
 
   const T * depth_row = reinterpret_cast<const T *>(&depth_msg->data[0]);
   int row_step = depth_msg->step / sizeof(T);
-  float * disp_data = reinterpret_cast<float *>(&disp_msg->image.data[0]);
+  float * disp_data = reinterpret_cast<float *>(&disp_msg.image.data[0]);
   for (int v = 0; v < static_cast<int>(depth_msg->height); ++v) {
     for (int u = 0; u < static_cast<int>(depth_msg->width); ++u) {
       T depth = depth_row[u];

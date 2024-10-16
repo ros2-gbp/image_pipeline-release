@@ -37,10 +37,10 @@
 
 #include "Eigen/Geometry"
 #include "depth_image_proc/visibility.h"
-#include "image_geometry/pinhole_camera_model.h"
-#include "message_filters/subscriber.h"
-#include "message_filters/synchronizer.h"
-#include "message_filters/sync_policies/approximate_time.h"
+#include "image_geometry/pinhole_camera_model.hpp"
+#include "message_filters/subscriber.hpp"
+#include "message_filters/synchronizer.hpp"
+#include "message_filters/sync_policies/approximate_time.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 
@@ -84,8 +84,6 @@ private:
   bool fill_upsampling_holes_;
   bool use_rgb_timestamp_;  // use source time stamp from RGB camera
 
-  void connectCb();
-
   void imageCb(
     const Image::ConstSharedPtr & depth_image_msg,
     const CameraInfo::ConstSharedPtr & depth_info_msg,
@@ -94,13 +92,16 @@ private:
   template<typename T>
   void convert(
     const Image::ConstSharedPtr & depth_msg,
-    const Image::SharedPtr & registered_msg,
+    Image & registered_msg,
     const Eigen::Affine3d & depth_to_rgb);
 };
 
 RegisterNode::RegisterNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("RegisterNode", options)
 {
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("depth_image_transport", "raw");
+
   rclcpp::Clock::SharedPtr clock = this->get_clock();
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(clock);
   tf_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
@@ -121,36 +122,39 @@ RegisterNode::RegisterNode(const rclcpp::NodeOptions & options)
       &RegisterNode::imageCb, this, std::placeholders::_1,
       std::placeholders::_2, std::placeholders::_3));
 
-  // Monitor whether anyone is subscribed to the output
-  // TODO(ros2) Implement when SubscriberStatusCallback is available
-  // image_transport::SubscriberStatusCallback image_connect_cb
-  //   boost::bind(&RegisterNode::connectCb, this);
-  // ros::SubscriberStatusCallback info_connect_cb = boost::bind(&RegisterNode::connectCb, this);
-  connectCb();
-  // Make sure we don't enter connectCb() between advertising and assigning to pub_registered_
-  std::lock_guard<std::mutex> lock(connect_mutex_);
-  // pub_registered_ = it_depth_reg.advertiseCamera("image_rect", 1,
-  //                                               image_connect_cb, image_connect_cb,
-  //                                               info_connect_cb, info_connect_cb);
-  pub_registered_ = image_transport::create_camera_publisher(this, "depth_registered/image_rect");
-}
+  // Create publisher with connect callback
+  rclcpp::PublisherOptions pub_options;
+  pub_options.event_callbacks.matched_callback =
+    [this](rclcpp::MatchedInfo &)
+    {
+      std::lock_guard<std::mutex> lock(connect_mutex_);
+      if (pub_registered_.getNumSubscribers() == 0) {
+        sub_depth_image_.unsubscribe();
+        sub_depth_info_.unsubscribe();
+        sub_rgb_info_.unsubscribe();
+      } else if (!sub_depth_image_.getSubscriber()) {
+        // For compressed topics to remap appropriately, we need to pass a
+        // fully expanded and remapped topic name to image_transport
+        auto node_base = this->get_node_base_interface();
+        std::string topic = node_base->resolve_topic_or_service_name("depth/image_rect", false);
+        image_transport::TransportHints hints(this, "raw", "depth_image_transport");
+        sub_depth_image_.subscribe(this, topic, hints.getTransport());
+        sub_depth_info_.subscribe(this, "depth/camera_info", rclcpp::QoS(10));
+        sub_rgb_info_.subscribe(this, "rgb/camera_info", rclcpp::QoS(10));
+      }
+    };
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  std::string topic =
+    node_base->resolve_topic_or_service_name("depth_registered/image_rect", false);
 
-// Handles (un)subscribing when clients (un)subscribe
-void RegisterNode::connectCb()
-{
-  std::lock_guard<std::mutex> lock(connect_mutex_);
-  // TODO(ros2) Implement getNumSubscribers when rcl/rmw support it
-  // if (pub_point_cloud_->getNumSubscribers() == 0)
-  if (0) {
-    sub_depth_image_.unsubscribe();
-    sub_depth_info_.unsubscribe();
-    sub_rgb_info_.unsubscribe();
-  } else if (!sub_depth_image_.getSubscriber()) {
-    image_transport::TransportHints hints(this, "raw");
-    sub_depth_image_.subscribe(this, "depth/image_rect", hints.getTransport());
-    sub_depth_info_.subscribe(this, "depth/camera_info");
-    sub_rgb_info_.subscribe(this, "rgb/camera_info");
-  }
+  // Allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  pub_registered_ =
+    image_transport::create_camera_publisher(
+    this, topic,
+    rmw_qos_profile_default, pub_options);
 }
 
 void RegisterNode::imageCb(
@@ -181,7 +185,7 @@ void RegisterNode::imageCb(
     /// don't call publish() in this cb. What's going on roscpp?
   }
 
-  auto registered_msg = std::make_shared<Image>();
+  auto registered_msg = std::make_unique<Image>();
   registered_msg->header.stamp =
     use_rgb_timestamp_ ? rgb_info_msg->header.stamp : depth_image_msg->header.stamp;
   registered_msg->header.frame_id = rgb_info_msg->header.frame_id;
@@ -193,9 +197,9 @@ void RegisterNode::imageCb(
   // step and data set in convert(), depend on depth data type
 
   if (depth_image_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    convert<uint16_t>(depth_image_msg, registered_msg, depth_to_rgb);
+    convert<uint16_t>(depth_image_msg, *registered_msg, depth_to_rgb);
   } else if (depth_image_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    convert<float>(depth_image_msg, registered_msg, depth_to_rgb);
+    convert<float>(depth_image_msg, *registered_msg, depth_to_rgb);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Depth image has unsupported encoding [%s]",
@@ -204,24 +208,24 @@ void RegisterNode::imageCb(
   }
 
   // Registered camera info is the same as the RGB info, but uses the depth timestamp
-  auto registered_info_msg = std::make_shared<CameraInfo>(*rgb_info_msg);
+  auto registered_info_msg = std::make_unique<CameraInfo>(*rgb_info_msg);
   registered_info_msg->header.stamp = registered_msg->header.stamp;
 
-  pub_registered_.publish(registered_msg, registered_info_msg);
+  pub_registered_.publish(std::move(registered_msg), std::move(registered_info_msg));
 }
 
 template<typename T>
 void RegisterNode::convert(
   const Image::ConstSharedPtr & depth_msg,
-  const Image::SharedPtr & registered_msg,
+  Image & registered_msg,
   const Eigen::Affine3d & depth_to_rgb)
 {
   // Allocate memory for registered depth image
-  registered_msg->step = registered_msg->width * sizeof(T);
-  registered_msg->data.resize(registered_msg->height * registered_msg->step);
+  registered_msg.step = registered_msg.width * sizeof(T);
+  registered_msg.data.resize(registered_msg.height * registered_msg.step);
   // data is already zero-filled in the uint16 case,
   //   but for floats we want to initialize everything to NaN.
-  DepthTraits<T>::initializeBuffer(registered_msg->data);
+  DepthTraits<T>::initializeBuffer(registered_msg.data);
 
   // Extract all the parameters we need
   double inv_depth_fx = 1.0 / depth_model_.fx();
@@ -237,7 +241,7 @@ void RegisterNode::convert(
   //   registered image
   const T * depth_row = reinterpret_cast<const T *>(&depth_msg->data[0]);
   int row_step = depth_msg->step / sizeof(T);
-  T * registered_data = reinterpret_cast<T *>(&registered_msg->data[0]);
+  T * registered_data = reinterpret_cast<T *>(&registered_msg.data[0]);
   int raw_index = 0;
   for (unsigned v = 0; v < depth_msg->height; ++v, depth_row += row_step) {
     for (unsigned u = 0; u < depth_msg->width; ++u, ++raw_index) {
@@ -265,13 +269,13 @@ void RegisterNode::convert(
         int u_rgb = (rgb_fx * xyz_rgb.x() + rgb_Tx) * inv_Z + rgb_cx + 0.5;
         int v_rgb = (rgb_fy * xyz_rgb.y() + rgb_Ty) * inv_Z + rgb_cy + 0.5;
 
-        if (u_rgb < 0 || u_rgb >= static_cast<int>(registered_msg->width) ||
-          v_rgb < 0 || v_rgb >= static_cast<int>(registered_msg->height))
+        if (u_rgb < 0 || u_rgb >= static_cast<int>(registered_msg.width) ||
+          v_rgb < 0 || v_rgb >= static_cast<int>(registered_msg.height))
         {
           continue;
         }
 
-        T & reg_depth = registered_data[v_rgb * registered_msg->width + u_rgb];
+        T & reg_depth = registered_data[v_rgb * registered_msg.width + u_rgb];
         T new_depth = DepthTraits<T>::fromMeters(xyz_rgb.z());
         // Validity and Z-buffer checks
         if (!DepthTraits<T>::valid(reg_depth) || reg_depth > new_depth) {
@@ -301,15 +305,15 @@ void RegisterNode::convert(
         int u_rgb_2 = (rgb_fx * xyz_rgb_2.x() + rgb_Tx) * inv_Z + rgb_cx + 0.5;
         int v_rgb_2 = (rgb_fy * xyz_rgb_2.y() + rgb_Ty) * inv_Z + rgb_cy + 0.5;
 
-        if (u_rgb_1 < 0 || u_rgb_2 >= static_cast<int>(registered_msg->width) ||
-          v_rgb_1 < 0 || v_rgb_2 >= static_cast<int>(registered_msg->height))
+        if (u_rgb_1 < 0 || u_rgb_2 >= static_cast<int>(registered_msg.width) ||
+          v_rgb_1 < 0 || v_rgb_2 >= static_cast<int>(registered_msg.height))
         {
           continue;
         }
 
         for (int nv = v_rgb_1; nv <= v_rgb_2; ++nv) {
           for (int nu = u_rgb_1; nu <= u_rgb_2; ++nu) {
-            T & reg_depth = registered_data[nv * registered_msg->width + nu];
+            T & reg_depth = registered_data[nv * registered_msg.width + nu];
             T new_depth = DepthTraits<T>::fromMeters(0.5 * (xyz_rgb_1.z() + xyz_rgb_2.z()));
             // Validity and Z-buffer checks
             if (!DepthTraits<T>::valid(reg_depth) || reg_depth > new_depth) {

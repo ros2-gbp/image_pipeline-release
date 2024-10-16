@@ -108,7 +108,14 @@ void decimate(const cv::Mat & src, cv::Mat & dst, int decimation_x, int decimati
 CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
 : Node("CropNonZeroNode", options)
 {
-  auto qos_profile = getTopicQosProfile(this, "in/image_raw");
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("image_transport", "raw");
+
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  image_topic_ = node_base->resolve_topic_or_service_name("in/image_raw", false);
+  std::string pub_topic = node_base->resolve_topic_or_service_name("out/image_raw", false);
 
   queue_size_ = this->declare_parameter("queue_size", 5);
   target_frame_id_ = this->declare_parameter("target_frame_id", std::string());
@@ -127,11 +134,28 @@ CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
   int interpolation = this->declare_parameter("interpolation", 0);
   interpolation_ = static_cast<CropDecimateModes>(interpolation);
 
-  pub_ = image_transport::create_camera_publisher(this, "out/image_raw", qos_profile);
-  sub_ = image_transport::create_camera_subscription(
-    this, "in/image_raw", std::bind(
-      &CropDecimateNode::imageCb, this,
-      std::placeholders::_1, std::placeholders::_2), "raw", qos_profile);
+  // Setup lazy subscriber using publisher connection callback
+  rclcpp::PublisherOptions pub_options;
+  pub_options.event_callbacks.matched_callback =
+    [this](rclcpp::MatchedInfo &)
+    {
+      if (pub_.getNumSubscribers() == 0) {
+        sub_.shutdown();
+      } else if (!sub_) {
+        // Create subscriber with QoS matched to subscribed topic publisher
+        auto qos_profile = getTopicQosProfile(this, image_topic_);
+        image_transport::TransportHints hints(this);
+        sub_ = image_transport::create_camera_subscription(
+          this, image_topic_, std::bind(
+            &CropDecimateNode::imageCb, this,
+            std::placeholders::_1, std::placeholders::_2), hints.getTransport(), qos_profile);
+      }
+    };
+
+  // Create publisher - allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  pub_ = image_transport::create_camera_publisher(this, pub_topic, rmw_qos_profile_default,
+      pub_options);
 }
 
 void CropDecimateNode::imageCb(
@@ -301,11 +325,11 @@ void CropDecimateNode::imageCb(
 
   // Create output Image message
   /// @todo Could save copies by allocating this above and having output.image alias it
-  sensor_msgs::msg::Image::SharedPtr out_image = output.toImageMsg();
+  auto out_image = std::make_unique<sensor_msgs::msg::Image>();
+  output.toImageMsg(*out_image);
 
   // Create updated CameraInfo message
-  sensor_msgs::msg::CameraInfo::SharedPtr out_info =
-    std::make_shared<sensor_msgs::msg::CameraInfo>(*info_msg);
+  auto out_info = std::make_unique<sensor_msgs::msg::CameraInfo>(*info_msg);
   int binning_x = std::max(static_cast<int>(info_msg->binning_x), 1);
   int binning_y = std::max(static_cast<int>(info_msg->binning_y), 1);
   out_info->binning_x = binning_x * decimation_x_;
@@ -327,7 +351,7 @@ void CropDecimateNode::imageCb(
     out_info->header.frame_id = target_frame_id_;
   }
 
-  pub_.publish(out_image, out_info);
+  pub_.publish(std::move(out_image), std::move(out_info));
 }
 
 }  // namespace image_proc

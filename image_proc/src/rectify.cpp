@@ -32,8 +32,9 @@
 
 #include <functional>
 #include <mutex>
+#include <string>
 
-#include "cv_bridge/cv_bridge.h"
+#include "cv_bridge/cv_bridge.hpp"
 #include "tracetools_image_pipeline/tracetools.h"
 
 #include <image_proc/rectify.hpp>
@@ -51,31 +52,39 @@ namespace image_proc
 RectifyNode::RectifyNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("RectifyNode", options)
 {
-  auto qos_profile = getTopicQosProfile(this, "image");
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("image_transport", "raw");
+
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  image_topic_ = node_base->resolve_topic_or_service_name("image", false);
+
   queue_size_ = this->declare_parameter("queue_size", 5);
-  interpolation = this->declare_parameter("interpolation", 1);
-  pub_rect_ = image_transport::create_publisher(this, "image_rect");
-  subscribeToCamera(qos_profile);
-}
+  interpolation_ = this->declare_parameter("interpolation", 1);
 
-// Handles (un)subscribing when clients (un)subscribe
-void RectifyNode::subscribeToCamera(const rmw_qos_profile_t & qos_profile)
-{
-  std::lock_guard<std::mutex> lock(connect_mutex_);
+  // Setup lazy subscriber using publisher connection callback
+  rclcpp::PublisherOptions pub_options;
+  pub_options.event_callbacks.matched_callback =
+    [this](rclcpp::MatchedInfo &)
+    {
+      if (pub_rect_.getNumSubscribers() == 0) {
+        sub_camera_.shutdown();
+      } else if (!sub_camera_) {
+        // Create subscriber with QoS matched to subscribed topic publisher
+        auto qos_profile = getTopicQosProfile(this, image_topic_);
+        image_transport::TransportHints hints(this);
+        sub_camera_ = image_transport::create_camera_subscription(
+          this, image_topic_, std::bind(
+            &RectifyNode::imageCb,
+            this, std::placeholders::_1, std::placeholders::_2), hints.getTransport(), qos_profile);
+      }
+    };
 
-  /*
-  *  SubscriberStatusCallback not yet implemented
-  *
-  if (pub_rect_.getNumSubscribers() == 0)
-    sub_camera_.shutdown();
-  else if (!sub_camera_)
-  {
-  */
-  sub_camera_ = image_transport::create_camera_subscription(
-    this, "image", std::bind(
-      &RectifyNode::imageCb,
-      this, std::placeholders::_1, std::placeholders::_2), "raw", qos_profile);
-  // }
+  // Create publisher - allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  pub_rect_ = image_transport::create_publisher(this, "image_rect", rmw_qos_profile_default,
+      pub_options);
 }
 
 void RectifyNode::imageCb(
@@ -140,12 +149,12 @@ void RectifyNode::imageCb(
   cv::Mat rect;
 
   // Rectify and publish
-  model_.rectifyImage(image, rect, interpolation);
+  model_.rectifyImage(image, rect, interpolation_);
 
   // Allocate new rectified image message
-  sensor_msgs::msg::Image::SharedPtr rect_msg =
-    cv_bridge::CvImage(image_msg->header, image_msg->encoding, rect).toImageMsg();
-  pub_rect_.publish(rect_msg);
+  auto rect_msg = std::make_unique<sensor_msgs::msg::Image>();
+  cv_bridge::CvImage(image_msg->header, image_msg->encoding, rect).toImageMsg(*rect_msg);
+  pub_rect_.publish(std::move(rect_msg));
 
   TRACEPOINT(
     image_proc_rectify_fini,
