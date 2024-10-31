@@ -2,6 +2,20 @@
 Changelog for package image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.0.5 (2024-10-31)
+------------------
+* Use TF2 package for quaternion conversion (backport `#1031 <https://github.com/ros-perception/image_pipeline/issues/1031>`_) (`#1041 <https://github.com/ros-perception/image_pipeline/issues/1041>`_)
+  The OpenCV quaternion class was not added until OpenCV 4.5.1, so it's
+  less widely available than the TF2 conversion. This change allows a
+  source build of the ROS 2 "perception" variant on Ubuntu 20.04 without a
+  custom source build of OpenCV.
+  Addresses issue
+  https://github.com/ros-perception/image_pipeline/issues/1030<hr>This is
+  an automatic backport of pull request `#1031 <https://github.com/ros-perception/image_pipeline/issues/1031>`_ done by
+  [Mergify](https://mergify.com).
+  Co-authored-by: Ted Steiner <tsteiner2@gmail.com>
+* Contributors: mergify[bot]
+
 5.0.4 (2024-08-20)
 ------------------
 * Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
