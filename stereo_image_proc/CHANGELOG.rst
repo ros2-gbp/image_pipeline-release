@@ -2,30 +2,16 @@
 Changelog for package stereo_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.0.5 (2024-10-30)
+5.0.5 (2024-10-31)
 ------------------
 
-6.0.4 (2024-10-16)
+5.0.4 (2024-08-20)
 ------------------
 
-6.0.3 (2024-08-20)
+5.0.3 (2024-07-16)
 ------------------
-* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
-  Prevents doing an extra copy of the data when using intra-process
-  communication.
-* Contributors: Błażej Sowa
 
-6.0.2 (2024-07-23)
-------------------
-* Removed deprecation warnings (`#1010 <https://github.com/ros-perception/image_pipeline/issues/1010>`_)
-* Contributors: Alejandro Hernández Cordero
-
-6.0.1 (2024-07-22)
-------------------
-* Updated deprecated message filter headers (`#1012 <https://github.com/ros-perception/image_pipeline/issues/1012>`_)
-* Contributors: Alejandro Hernández Cordero
-
-6.0.0 (2024-05-27)
+5.0.2 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)
