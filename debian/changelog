@@ -1,0 +1,232 @@
+ros-rolling-image-pipeline (6.0.6-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 10 Dec 2024 23:00:00 -0000
+
+ros-rolling-image-pipeline (6.0.5-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 29 Oct 2024 23:00:00 -0000
+
+ros-rolling-image-pipeline (6.0.4-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 15 Oct 2024 22:00:00 -0000
+
+ros-rolling-image-pipeline (6.0.3-1bookworm) bookworm; urgency=high
+
+  * Finish QoS updates (#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>)
+    This implements the remainder of #847 <https://github.com/ros-perception/image_pipeline/issues/847>:
+    - Make sure publishers default to system defaults (reliable)
+    - Add QoS overriding where possible (some of the image_transport /
+    message_filters stuff doesn't really support that)
+    - Use the matching heuristic for subscribers consistently
+  * Contributors: Michael Ferguson
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 19 Aug 2024 22:00:00 -0000
+
+ros-rolling-image-pipeline (6.0.2-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 22 Jul 2024 22:00:00 -0000
+
+ros-rolling-image-pipeline (6.0.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 21 Jul 2024 22:00:00 -0000
+
+ros-rolling-image-pipeline (6.0.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 26 May 2024 22:00:00 -0000
+
+ros-rolling-image-pipeline (5.0.1-1bookworm) bookworm; urgency=high
+
+  * DisparityNode: replace full_dp parameter with sgbm_mode (#945 <https://github.com/ros-perception/image_pipeline/issues/945>)
+    Previously, only the SGBM and HH modes were allowed
+  * add missing tutorial page (#939 <https://github.com/ros-perception/image_pipeline/issues/939>)
+    This was supposed to be part of #938 <https://github.com/ros-perception/image_pipeline/issues/938>
+  * unified changelog, add missing image, deduplicate tutorials (#938 <https://github.com/ros-perception/image_pipeline/issues/938>)
+    Last bit of documentation updates - putting together a single changelog
+    summary for the whole release (rather than scattering among packages).
+    Unified the camera_info tutorial so it isn't duplicated. Added a missing
+    image from image_rotate (was on local disk, but hadn't committed it)
+  * fix documentation links (#933 <https://github.com/ros-perception/image_pipeline/issues/933>)
+  * migrate image_pipeline docs (#929 <https://github.com/ros-perception/image_pipeline/issues/929>)
+    * Migrates image_pipeline overview page
+    * Migrates CameraInfo wiki page
+    * Adds links to the other packages in this stack
+    * Updates depth_image_proc and image_proc to have the overview page properly named and in the TOC
+  * Contributors: Michael Ferguson, Pablo David Aranda Rodríguez
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 25 Mar 2024 23:00:00 -0000
+
+ros-rolling-image-pipeline (5.0.0-1bookworm) bookworm; urgency=high
+
+  * add myself as a maintainer (#846 <https://github.com/ros-perception/image_pipeline/issues/846>)
+  * Contributors: Michael Ferguson
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 23 Jan 2024 23:00:00 -0000
+
+ros-rolling-image-pipeline (3.0.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 03 Dec 2022 23:00:00 -0000
+
+ros-rolling-image-pipeline (3.0.0-1bookworm) bookworm; urgency=high
+
+  * Add maintainer (#667 <https://github.com/ros-perception/image_pipeline/issues/667>)
+  * Contributors: Jacob Perron
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 28 Apr 2022 22:00:00 -0000
+
+ros-rolling-image-pipeline (2.2.1-1bookworm) bookworm; urgency=high
+
+  * remove email blasts from steve macenski (#596 <https://github.com/ros-perception/image_pipeline/issues/596>)
+  * [Foxy] Use ament_auto Macros (#573 <https://github.com/ros-perception/image_pipeline/issues/573>)
+  * Contributors: Joshua Whitley, Steve Macenski
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 26 Aug 2020 22:00:00 -0000
+
+ros-rolling-image-pipeline (2.2.0-1bookworm) bookworm; urgency=high
+
+  * Initial ROS2 commit.
+  * Contributors: Michael Carroll
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 26 Jul 2020 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.23-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Wed, 09 May 2018 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.22-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 07 Dec 2017 23:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.21-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 04 Nov 2017 23:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.20-1bookworm) bookworm; urgency=high
+
+  * Update package.xml (#263 <https://github.com/ros-perception/image_pipeline/issues/263>)
+  * Contributors: Kei Okada
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 29 Apr 2017 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.19-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 23 Jul 2016 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.18-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 11 Jul 2016 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.17-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 10 Jul 2016 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.16-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 18 Mar 2016 23:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.15-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 16 Jan 2016 23:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.14-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 21 Jul 2015 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.13-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 05 Apr 2015 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.12-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Tue, 30 Dec 2014 23:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.11-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 25 Oct 2014 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.10-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 27 Sep 2014 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.9-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 20 Sep 2014 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.8-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 18 Aug 2014 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.6-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sat, 26 Jul 2014 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.4-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Sun, 27 Apr 2014 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.3-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Fri, 11 Apr 2014 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.12.2-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Mon, 07 Apr 2014 22:00:00 -0000
+
+ros-rolling-image-pipeline (1.11.7-1bookworm) bookworm; urgency=high
+
+
+
+ -- Vincent Rabaud <vincent.rabaud@gmail.com>  Thu, 27 Mar 2014 23:00:00 -0000
+
+
