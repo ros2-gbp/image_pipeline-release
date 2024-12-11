@@ -2,23 +2,47 @@
 Changelog for package image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.5 (2024-10-31)
+6.0.6 (2024-12-11)
+------------------
+* `image_view_node`: support bayer images (`#1046 <https://github.com/ros-perception/image_pipeline/issues/1046>`_)
+  so far bayer images always failed with an error:
+  ```
+  [ERROR] [..] [image_view_node]: Unable to convert 'bayer_rggb8' image for display: 'cv_bridge.cvtColorForDisplay() does not have an output encoding                that is color or mono, and has is bit in depth'
+  ```
+  the `stereo_view_node` on the other hand already supports bayer images,
+  however it always forcibly converts them to monochrome, even if they are
+  colour images.
+  for now, this adds the same logic for the single-image viewer and thus
+  only partially resolves `#1045 <https://github.com/ros-perception/image_pipeline/issues/1045>`_.
+* Contributors: Ralph Ursprung
+
+6.0.5 (2024-10-30)
 ------------------
 
-5.0.4 (2024-08-20)
+6.0.4 (2024-10-16)
 ------------------
-* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
+
+6.0.3 (2024-08-20)
+------------------
+* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
   This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
   - Make sure publishers default to system defaults (reliable)
   - Add QoS overriding where possible (some of the image_transport /
   message_filters stuff doesn't really support that)
   - Use the matching heuristic for subscribers consistently
-* Contributors: mergify[bot]
+* Contributors: Michael Ferguson
 
-5.0.3 (2024-07-16)
+6.0.2 (2024-07-23)
 ------------------
+* Removed deprecation warnings (`#1010 <https://github.com/ros-perception/image_pipeline/issues/1010>`_)
+* Contributors: Alejandro Hernández Cordero
 
-5.0.2 (2024-05-27)
+6.0.1 (2024-07-22)
+------------------
+* Updated deprecated message filter headers (`#1012 <https://github.com/ros-perception/image_pipeline/issues/1012>`_)
+* Contributors: Alejandro Hernández Cordero
+
+6.0.0 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)

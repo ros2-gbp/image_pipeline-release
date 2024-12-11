@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-#
-# Software License Agreement (BSD License)
-#
-# Copyright (c) 2009, Willow Garage, Inc.
+# Copyright (c) 2022, CHRISLab, Christopher Newport University
 # All rights reserved.
+#
+# Software License Agreement (BSD License 2.0)
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -32,30 +30,20 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rclpy
-from camera_calibration.camera_checker import CameraCheckerNode
+"""Demonstration of basic launch of the image_flip_node with remappings."""
+
+from launch import LaunchDescription
+import launch_ros.actions
 
 
-def main():
-    from optparse import OptionParser
-    parser = OptionParser()
-    parser.add_option("-s", "--size", default="8x6",
-                      help="specify chessboard size as nxm [default: %default]")
-    parser.add_option("-q", "--square", default=".108",
-                      help="specify chessboard square size in meters [default: %default]")
-    parser.add_option(
-        "--approximate", type="float", default=0.0,
-        help="allow specified slop (in seconds) when pairing images from unsynchronized stereo cameras")
-
-    options, _ = parser.parse_args(rclpy.utilities.remove_ros_args())
-    rclpy.init()
-
-    size = tuple([int(c) for c in options.size.split('x')])
-    dim = float(options.square)
-    approximate = float(options.approximate)
-    node = CameraCheckerNode("cameracheck", size, dim, approximate)
-    rclpy.spin(node)
-
-
-if __name__ == "__main__":
-    main()
+def generate_launch_description():
+    """Launch description for basic launch of the image_flip."""
+    return LaunchDescription([
+        launch_ros.actions.Node(
+            package='image_rotate', executable='image_flip',
+            output='screen', name='camera_flip',
+            remappings=[('image',                'camera/rgb/image_raw'),
+                        ('rotated/image',        'camera_rotated/image_rotated')],
+            parameters=[{'output_frame_id': 'camera_rotated',
+                         'rotation_steps': 2,
+                         'use_camera_info': True}])])

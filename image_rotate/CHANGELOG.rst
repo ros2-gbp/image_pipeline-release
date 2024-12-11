@@ -2,23 +2,48 @@
 Changelog for package image_rotate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.5 (2024-10-31)
+6.0.6 (2024-12-11)
+------------------
+* add image_flip node (`#942 <https://github.com/ros-perception/image_pipeline/issues/942>`_)
+  This is a continuation of
+  https://github.com/ros-perception/image_pipeline/pull/756:
+  * [x] Squashed 16 commits in original PR for ease of rebase/review
+  * [x] Moved node into image_rotate package
+  * [x] Added lazy subscriber
+  * [x] Removes QoS parameters - will add proper QoS overrides in a
+  different PR (when we do the same for image_rotate)
+  * [x] Adds documentation
+  ---------
+  Co-authored-by: David Conner <robotics@cnu.edu>
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* Contributors: Michael Ferguson
+
+6.0.5 (2024-10-30)
 ------------------
 
-5.0.4 (2024-08-20)
+6.0.4 (2024-10-16)
 ------------------
-* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
+
+6.0.3 (2024-08-20)
+------------------
+* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
+  Prevents doing an extra copy of the data when using intra-process
+  communication.
+* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
   This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
   - Make sure publishers default to system defaults (reliable)
   - Add QoS overriding where possible (some of the image_transport /
   message_filters stuff doesn't really support that)
   - Use the matching heuristic for subscribers consistently
-* Contributors: mergify[bot]
+* Contributors: Błażej Sowa, Michael Ferguson
 
-5.0.3 (2024-07-16)
+6.0.2 (2024-07-23)
 ------------------
 
-5.0.2 (2024-05-27)
+6.0.1 (2024-07-22)
+------------------
+
+6.0.0 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)

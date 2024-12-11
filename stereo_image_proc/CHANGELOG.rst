@@ -2,16 +2,52 @@
 Changelog for package stereo_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.5 (2024-10-31)
+6.0.6 (2024-12-11)
+------------------
+* stereo_image_proc: disparity_node: Add parameter to control camera_info (`#1051 <https://github.com/ros-perception/image_pipeline/issues/1051>`_)
+  Add a parameter, use_image_transport_camera_info (default:
+  true), to control whether DisparityNode uses
+  image_transport::getCameraInfoTopic for deriving camera_info topics.
+  Default Behavior (backward compatible):
+  When use_image_transport_camera_info is true, the node continues using
+  image_transport::getCameraInfoTopic for camera_info resolution,
+  maintaining existing functionality.
+  Custom Behavior:
+  When use_image_transport_camera_info is false, the node directly uses
+  the camera_info topics specified via remapping (e.g., left/camera_info
+  and right/camera_info), bypassing image_transport's derivation logic.
+  This solution allows users to explicitly remap the camera_info topics
+  for both cameras, providing flexibility for scenarios where topic names
+  are not unique or need customization.
+  ---------
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* Fix spelling error in topic name (`#1049 <https://github.com/ros-perception/image_pipeline/issues/1049>`_)
+* Contributors: Michael Ferguson, quic-zhaoyuan
+
+6.0.5 (2024-10-30)
 ------------------
 
-5.0.4 (2024-08-20)
+6.0.4 (2024-10-16)
 ------------------
 
-5.0.3 (2024-07-16)
+6.0.3 (2024-08-20)
 ------------------
+* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
+  Prevents doing an extra copy of the data when using intra-process
+  communication.
+* Contributors: Błażej Sowa
 
-5.0.2 (2024-05-27)
+6.0.2 (2024-07-23)
+------------------
+* Removed deprecation warnings (`#1010 <https://github.com/ros-perception/image_pipeline/issues/1010>`_)
+* Contributors: Alejandro Hernández Cordero
+
+6.0.1 (2024-07-22)
+------------------
+* Updated deprecated message filter headers (`#1012 <https://github.com/ros-perception/image_pipeline/issues/1012>`_)
+* Contributors: Alejandro Hernández Cordero
+
+6.0.0 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)
