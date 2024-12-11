@@ -2,45 +2,18 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.0.6 (2024-12-11)
+5.0.6 (2024-12-11)
 ------------------
 
-6.0.5 (2024-10-30)
+5.0.5 (2024-10-31)
 ------------------
 
-6.0.4 (2024-10-16)
-------------------
-* check_set_camera_info() code clean-up (`#1034 <https://github.com/ros-perception/image_pipeline/issues/1034>`_)
-  Removed the unnecessary `if response.status_message is not None` checks
-  Co-authored-by: ugol-1 <ugol-1@potatomatic.com>
-* Fix `#1032 <https://github.com/ros-perception/image_pipeline/issues/1032>`_ (`#1033 <https://github.com/ros-perception/image_pipeline/issues/1033>`_)
-  Use `status_message` from `SetCameraInfo` response instead of some
-  non-existing `result()`.
-  Fixes `#1032 <https://github.com/ros-perception/image_pipeline/issues/1032>`_
-  Co-authored-by: ugol-1 <ugol-1@potatomatic.com>
-* Contributors: ugol-1
-
-6.0.3 (2024-08-20)
-------------------
-* Refactoring calibration code (`#1000 <https://github.com/ros-perception/image_pipeline/issues/1000>`_)
-  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* Contributors: Myron Rodrigues
-
-6.0.2 (2024-07-23)
+5.0.4 (2024-08-20)
 ------------------
 
-6.0.1 (2024-07-22)
+5.0.3 (2024-07-16)
 ------------------
-* Change camera info message to lower case (`#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_)
-  Change camera info message to lower case since message type had been
-  change in rolling and humble.
-  [](https://github.com/ros2/common_interfaces/blob/rolling/sensor_msgs/msg/CameraInfo.msg)
-* Formatting calib code before refactoring (`#999 <https://github.com/ros-perception/image_pipeline/issues/999>`_)
-  As discussed in `#975 <https://github.com/ros-perception/image_pipeline/issues/975>`_ and `#973 <https://github.com/ros-perception/image_pipeline/issues/973>`_
-  doing the linting first.
-  using style from
-  [here](https://github.com/ament/ament_lint/blob/rolling/ament_pycodestyle/ament_pycodestyle/configuration/ament_pycodestyle.ini)
-* Added stereo calibration using charuco board (`#976 <https://github.com/ros-perception/image_pipeline/issues/976>`_)
+* Added stereo calibration using charuco board (backport `#976 <https://github.com/ros-perception/image_pipeline/issues/976>`_) (`#1002 <https://github.com/ros-perception/image_pipeline/issues/1002>`_)
   From `#972 <https://github.com/ros-perception/image_pipeline/issues/972>`_
   Doing this first for rolling.
   This was a TODO in the repository, opening this PR to add this feature.
@@ -49,12 +22,23 @@ Changelog for package camera_calibration
   - The other is a condition when aruco markers are detected they are
   added as good points, This is fine in case of mono but in stereo these
   have to be the same number as the object points to find matches although
-  this should be possible with aruco.
-* Contributors: Myron Rodrigues, SFhmichael
+  this should be possible with aruco.<hr>This is an automatic backport of
+  pull request `#976 <https://github.com/ros-perception/image_pipeline/issues/976>`_ done by [Mergify](https://mergify.com).
+  Co-authored-by: Myron Rodrigues <41271144+MRo47@users.noreply.github.com>
+* Change camera info message to lower case (backport `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_) (`#1007 <https://github.com/ros-perception/image_pipeline/issues/1007>`_)
+  Change camera info message to lower case since message type had been
+  change in rolling and humble.
+  [](https://github.com/ros2/common_interfaces/blob/rolling/sensor_msgs/msg/CameraInfo.msg)<hr>This
+  is an automatic backport of pull request `#1005 <https://github.com/ros-perception/image_pipeline/issues/1005>`_ done by
+  [Mergify](https://mergify.com).
+  ---------
+  Co-authored-by: SFhmichael <146928033+SFhmichael@users.noreply.github.com>
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* Contributors: mergify[bot]
 
-6.0.0 (2024-05-27)
+5.0.2 (2024-05-27)
 ------------------
-* fix: cv2.aruco.interpolateCornersCharuco is deprecated (`#979 <https://github.com/ros-perception/image_pipeline/issues/979>`_)
+* fix: cv2.aruco.interpolateCornersCharuco is deprecated (backport `#979 <https://github.com/ros-perception/image_pipeline/issues/979>`_) (`#980 <https://github.com/ros-perception/image_pipeline/issues/980>`_)
   There has been API Changes in the newer releases of opencv2 (from
   4.8.0). The PR addresses this by supporting both the old and new APIs.
   updated Syntax
@@ -68,7 +52,10 @@ Changelog for package camera_calibration
   retval, charuco_corners, charuco_ids = cv2.aruco.interpolateCornersCharuco( marker_corners, marker_ids, image, board)
   ```
   See the changed examples in the main opencv2 repo:
-  https://github.com/opencv/opencv/blob/f9a59f2592993d3dcc080e495f4f5e02dd8ec7ef/samples/python/calibrate.py#L110
+  https://github.com/opencv/opencv/blob/f9a59f2592993d3dcc080e495f4f5e02dd8ec7ef/samples/python/calibrate.py#L110<hr>This
+  is an automatic backport of pull request `#979 <https://github.com/ros-perception/image_pipeline/issues/979>`_ done by
+  [Mergify](https://mergify.com).
+  Co-authored-by: Földi Tamás <tfoldi@xsi.hu>
 * Update for compatibility with image_pipeline 4.1.0 (`#968 <https://github.com/ros-perception/image_pipeline/issues/968>`_)
   This is a PR to fix:
   - `#966 <https://github.com/ros-perception/image_pipeline/issues/966>`_
@@ -99,7 +86,7 @@ Changelog for package camera_calibration
   with `disutils`.
   Please let me know if you have any questions, concerns, or additional
   requested changes.
-* Contributors: Földi Tamás, Scott Monaghan
+* Contributors: Scott Monaghan, mergify[bot]
 
 5.0.1 (2024-03-26)
 ------------------

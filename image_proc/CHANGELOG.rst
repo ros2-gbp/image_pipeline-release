@@ -2,44 +2,37 @@
 Changelog for package image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.0.6 (2024-12-11)
+5.0.6 (2024-12-11)
 ------------------
 
-6.0.5 (2024-10-30)
+5.0.5 (2024-10-31)
 ------------------
-* Use TF2 package for quaternion conversion (`#1031 <https://github.com/ros-perception/image_pipeline/issues/1031>`_)
+* Use TF2 package for quaternion conversion (backport `#1031 <https://github.com/ros-perception/image_pipeline/issues/1031>`_) (`#1041 <https://github.com/ros-perception/image_pipeline/issues/1041>`_)
   The OpenCV quaternion class was not added until OpenCV 4.5.1, so it's
   less widely available than the TF2 conversion. This change allows a
   source build of the ROS 2 "perception" variant on Ubuntu 20.04 without a
   custom source build of OpenCV.
   Addresses issue
-  https://github.com/ros-perception/image_pipeline/issues/1030
-* Contributors: Ted Steiner
+  https://github.com/ros-perception/image_pipeline/issues/1030<hr>This is
+  an automatic backport of pull request `#1031 <https://github.com/ros-perception/image_pipeline/issues/1031>`_ done by
+  [Mergify](https://mergify.com).
+  Co-authored-by: Ted Steiner <tsteiner2@gmail.com>
+* Contributors: mergify[bot]
 
-6.0.4 (2024-10-16)
+5.0.4 (2024-08-20)
 ------------------
-
-6.0.3 (2024-08-20)
-------------------
-* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
-  Prevents doing an extra copy of the data when using intra-process
-  communication.
-* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
+* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
   This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
   - Make sure publishers default to system defaults (reliable)
   - Add QoS overriding where possible (some of the image_transport /
   message_filters stuff doesn't really support that)
   - Use the matching heuristic for subscribers consistently
-* Updated deprecated rcpputils::path (`#1014 <https://github.com/ros-perception/image_pipeline/issues/1014>`_)
-* Contributors: Alejandro Hernández Cordero, Błażej Sowa, Michael Ferguson
+* Contributors: mergify[bot]
 
-6.0.2 (2024-07-23)
+5.0.3 (2024-07-16)
 ------------------
 
-6.0.1 (2024-07-22)
-------------------
-
-6.0.0 (2024-05-27)
+5.0.2 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)
