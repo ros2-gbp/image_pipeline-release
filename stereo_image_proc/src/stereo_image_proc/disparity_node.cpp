@@ -40,11 +40,11 @@
 
 #include "cv_bridge/cv_bridge.hpp"
 #include "image_geometry/stereo_camera_model.hpp"
-#include "message_filters/subscriber.h"
-#include "message_filters/synchronizer.h"
-#include "message_filters/sync_policies/approximate_time.h"
-#include "message_filters/sync_policies/approximate_epsilon_time.h"
-#include "message_filters/sync_policies/exact_time.h"
+#include "message_filters/subscriber.hpp"
+#include "message_filters/synchronizer.hpp"
+#include "message_filters/sync_policies/approximate_time.hpp"
+#include "message_filters/sync_policies/approximate_epsilon_time.hpp"
+#include "message_filters/sync_policies/exact_time.hpp"
 
 #include <stereo_image_proc/stereo_processor.hpp>
 
@@ -73,6 +73,7 @@ private:
     SEMI_GLOBAL_BLOCK_MATCHING
   };
 
+  bool use_image_transport_camera_info;
   // Subscriptions
   image_transport::SubscriberFilter sub_l_image_, sub_r_image_;
   message_filters::Subscriber<sensor_msgs::msg::CameraInfo> sub_l_info_, sub_r_info_;
@@ -170,6 +171,8 @@ DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
   bool approx = this->declare_parameter("approximate_sync", false);
   double approx_sync_epsilon = this->declare_parameter("approximate_sync_tolerance_seconds", 0.0);
   this->declare_parameter("use_system_default_qos", false);
+  use_image_transport_camera_info = this->declare_parameter("use_image_transport_camera_info",
+      true);
 
   // Synchronize callbacks
   if (approx) {
@@ -307,15 +310,23 @@ DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
         std::string right_topic =
           node_base->resolve_topic_or_service_name("right/image_rect", false);
         // Allow also remapping camera_info to something different than default
-        std::string left_info_topic =
-          node_base->resolve_topic_or_service_name(
-          image_transport::getCameraInfoTopic(left_topic), false);
-        std::string right_info_topic =
-          node_base->resolve_topic_or_service_name(
-          image_transport::getCameraInfoTopic(right_topic), false);
+        std::string left_info_topic;
+        std::string right_info_topic;
+
+        if (use_image_transport_camera_info) {
+          // Use image_transport to derive camera_info topics
+          left_info_topic = node_base->resolve_topic_or_service_name(
+            image_transport::getCameraInfoTopic(left_topic), false);
+          right_info_topic = node_base->resolve_topic_or_service_name(
+            image_transport::getCameraInfoTopic(right_topic), false);
+        } else {
+          // Use default camera_info topics
+          left_info_topic = node_base->resolve_topic_or_service_name("left/camera_info", false);
+          right_info_topic = node_base->resolve_topic_or_service_name("right/camera_info", false);
+        }
 
         // REP-2003 specifies that subscriber should be SensorDataQoS
-        const auto sensor_data_qos = rclcpp::SensorDataQoS().get_rmw_qos_profile();
+        const auto sensor_data_qos = rclcpp::SensorDataQoS();
 
         // Support image transport for compression
         image_transport::TransportHints hints(this);
@@ -325,11 +336,13 @@ DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
         sub_opts.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
 
         sub_l_image_.subscribe(
-          this, left_topic, hints.getTransport(), sensor_data_qos, sub_opts);
-        sub_l_info_.subscribe(this, left_info_topic, sensor_data_qos, sub_opts);
+          this, left_topic, hints.getTransport(), sensor_data_qos.get_rmw_qos_profile(), sub_opts);
+        sub_l_info_.subscribe(this, left_info_topic,
+          sensor_data_qos, sub_opts);
         sub_r_image_.subscribe(
-          this, right_topic, hints.getTransport(), sensor_data_qos, sub_opts);
-        sub_r_info_.subscribe(this, right_info_topic, sensor_data_qos, sub_opts);
+          this, right_topic, hints.getTransport(), sensor_data_qos.get_rmw_qos_profile(), sub_opts);
+        sub_r_info_.subscribe(this, right_info_topic,
+          sensor_data_qos, sub_opts);
       }
     };
 
@@ -351,7 +364,7 @@ void DisparityNode::imageCb(
   model_.fromCameraInfo(l_info_msg, r_info_msg);
 
   // Allocate new disparity image message
-  auto disp_msg = std::make_shared<stereo_msgs::msg::DisparityImage>();
+  auto disp_msg = std::make_unique<stereo_msgs::msg::DisparityImage>();
   disp_msg->header = l_info_msg->header;
   disp_msg->image.header = l_info_msg->header;
 
@@ -382,7 +395,7 @@ void DisparityNode::imageCb(
   // Perform block matching to find the disparities
   block_matcher_.processDisparity(l_image, r_image, model_, *disp_msg);
 
-  pub_disparity_->publish(*disp_msg);
+  pub_disparity_->publish(std::move(disp_msg));
 }
 
 rcl_interfaces::msg::SetParametersResult DisparityNode::parameterSetCb(

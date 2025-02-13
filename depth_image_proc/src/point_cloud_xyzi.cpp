@@ -108,7 +108,7 @@ PointCloudXyziNode::PointCloudXyziNode(const rclcpp::NodeOptions & options)
         // intensity uses normal ros transport hints.
         image_transport::TransportHints hints(this, "raw");
         sub_intensity_.subscribe(this, intensity_topic, hints.getTransport());
-        sub_info_.subscribe(this, intensity_info_topic);
+        sub_info_.subscribe(this, intensity_info_topic, rclcpp::QoS(10));
       }
     };
   // Allow overriding QoS settings (history, depth, reliability)
@@ -190,7 +190,7 @@ void PointCloudXyziNode::imageCb(
     }
   }
 
-  auto cloud_msg = std::make_shared<PointCloud>();
+  auto cloud_msg = std::make_unique<PointCloud>();
   cloud_msg->header = depth_msg->header;  // Use depth image time stamp
   cloud_msg->height = depth_msg->height;
   cloud_msg->width = depth_msg->width;
@@ -208,9 +208,9 @@ void PointCloudXyziNode::imageCb(
 
   // Convert Depth Image to Pointcloud
   if (depth_msg->encoding == enc::TYPE_16UC1) {
-    convertDepth<uint16_t>(depth_msg, cloud_msg, model_, invalid_depth_);
+    convertDepth<uint16_t>(depth_msg, *cloud_msg, model_, invalid_depth_);
   } else if (depth_msg->encoding == enc::TYPE_32FC1) {
-    convertDepth<float>(depth_msg, cloud_msg, model_, invalid_depth_);
+    convertDepth<float>(depth_msg, *cloud_msg, model_, invalid_depth_);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
@@ -219,13 +219,13 @@ void PointCloudXyziNode::imageCb(
 
   // Convert Intensity Image to Pointcloud
   if (intensity_msg->encoding == enc::MONO8) {
-    convertIntensity<uint8_t>(intensity_msg, cloud_msg);
+    convertIntensity<uint8_t>(intensity_msg, *cloud_msg);
   } else if (intensity_msg->encoding == enc::MONO16) {
-    convertIntensity<uint16_t>(intensity_msg, cloud_msg);
+    convertIntensity<uint16_t>(intensity_msg, *cloud_msg);
   } else if (intensity_msg->encoding == enc::TYPE_16UC1) {
-    convertIntensity<uint16_t>(intensity_msg, cloud_msg);
+    convertIntensity<uint16_t>(intensity_msg, *cloud_msg);
   } else if (intensity_msg->encoding == enc::TYPE_32FC1) {
-    convertIntensity<float>(intensity_msg, cloud_msg);
+    convertIntensity<float>(intensity_msg, *cloud_msg);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Intensity image has unsupported encoding [%s]",
@@ -233,7 +233,7 @@ void PointCloudXyziNode::imageCb(
     return;
   }
 
-  pub_point_cloud_->publish(*cloud_msg);
+  pub_point_cloud_->publish(std::move(cloud_msg));
 }
 
 
