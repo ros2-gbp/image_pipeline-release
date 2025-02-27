@@ -1,0 +1,13 @@
+Source: ros-jazzy-image-view
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-jazzy-ament-cmake-auto, ros-jazzy-ament-lint-auto <!nocheck>, ros-jazzy-ament-lint-common <!nocheck>, ros-jazzy-camera-calibration-parsers, ros-jazzy-cv-bridge, ros-jazzy-image-transport, ros-jazzy-message-filters, ros-jazzy-rclcpp, ros-jazzy-rclcpp-components, ros-jazzy-sensor-msgs, ros-jazzy-std-srvs, ros-jazzy-stereo-msgs, ros-jazzy-ros-workspace
+Homepage: https://index.ros.org/p/image_view/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-image-view
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-jazzy-camera-calibration-parsers, ros-jazzy-cv-bridge, ros-jazzy-image-transport, ros-jazzy-message-filters, ros-jazzy-rclcpp, ros-jazzy-rclcpp-components, ros-jazzy-rclpy, ros-jazzy-sensor-msgs, ros-jazzy-std-srvs, ros-jazzy-stereo-msgs, ros-jazzy-ros-workspace
+Description: A simple viewer for ROS image topics.
+ Includes a specialized viewer for stereo + disparity images.
