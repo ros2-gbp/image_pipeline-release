@@ -1,3 +1,35 @@
+## image_pipeline (humble) - 3.0.7-1
+
+The packages in the `image_pipeline` repository were released into the `humble` distro by running `/usr/bin/bloom-release --rosdistro humble --track humble image_pipeline` on `Thu, 27 Feb 2025 10:26:54 -0000`
+
+These packages were released:
+- `camera_calibration`
+- `depth_image_proc`
+- `image_pipeline`
+- `image_proc`
+- `image_publisher`
+- `image_rotate`
+- `image_view`
+- `stereo_image_proc`
+- `tracetools_image_pipeline`
+
+Version of package(s) in repository `image_pipeline`:
+
+- upstream repository: https://github.com/ros-perception/image_pipeline.git
+- release repository: https://github.com/ros2-gbp/image_pipeline-release.git
+- rosdistro version: `3.0.6-1`
+- old version: `3.0.6-1`
+- new version: `3.0.7-1`
+
+Versions of tools used:
+
+- bloom version: `0.12.0`
+- catkin_pkg version: `1.0.0`
+- rosdep version: `0.25.1`
+- rosdistro version: `1.0.1`
+- vcstools version: `0.1.42`
+
+
 ## image_pipeline (jazzy) - 5.0.9-1
 
 The packages in the `image_pipeline` repository were released into the `jazzy` distro by running `/usr/bin/bloom-release --rosdistro jazzy --track jazzy image_pipeline` on `Thu, 27 Feb 2025 10:20:09 -0000`
