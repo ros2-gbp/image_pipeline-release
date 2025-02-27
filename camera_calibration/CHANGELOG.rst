@@ -2,6 +2,9 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.7 (2025-02-27)
+------------------
+
 3.0.6 (2024-08-20)
 ------------------
 * [backport] use correct synchronous service call (`#1006 <https://github.com/ros-perception/image_pipeline/issues/1006>`_)
