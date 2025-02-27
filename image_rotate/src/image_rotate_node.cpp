@@ -48,8 +48,8 @@
 #include <vector>
 
 #include "cv_bridge/cv_bridge.hpp"
-#include "tf2/LinearMath/Vector3.hpp"
-#include "tf2/LinearMath/Quaternion.hpp"
+#include "tf2/LinearMath/Vector3.h"
+#include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/transform_broadcaster.h"
@@ -262,10 +262,10 @@ void ImageRotateNode::do_work(
     cv::warpAffine(in_image, out_image, rot_matrix, cv::Size(out_size, out_size));
 
     // Publish the image.
-    auto out_img = std::make_unique<sensor_msgs::msg::Image>();
-    cv_bridge::CvImage(msg->header, msg->encoding, out_image).toImageMsg(*out_img);
+    sensor_msgs::msg::Image::SharedPtr out_img =
+      cv_bridge::CvImage(msg->header, msg->encoding, out_image).toImageMsg();
     out_img->header.frame_id = transform.child_frame_id;
-    img_pub_.publish(std::move(out_img));
+    img_pub_.publish(out_img);
   } catch (const cv::Exception & e) {
     RCLCPP_ERROR(
       get_logger(),
