@@ -2,6 +2,12 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.8 (2025-04-22)
+------------------
+* Replace OpenCV version string comparison with semver. (backport `#1087 <https://github.com/ros-perception/image_pipeline/issues/1087>`_) (`#1089 <https://github.com/ros-perception/image_pipeline/issues/1089>`_)
+* fix: cv2.aruco.interpolateCornersCharuco is deprecated (backport `#979 <https://github.com/ros-perception/image_pipeline/issues/979>`_) (`#1090 <https://github.com/ros-perception/image_pipeline/issues/1090>`_)
+* Contributors: mergify[bot]
+
 3.0.7 (2025-02-27)
 ------------------
 
