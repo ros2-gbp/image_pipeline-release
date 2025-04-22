@@ -12,7 +12,6 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-find_package(Boost REQUIRED)
 find_package(OpenCV REQUIRED)
 
 # Deal with the GUI's
@@ -30,7 +29,6 @@ ament_auto_add_library(${PROJECT_NAME}_nodes SHARED
 )
 target_link_libraries(${PROJECT_NAME}_nodes
   ${OpenCV_LIBRARIES}
-  ${Boost_LIBRARIES}
 )
 target_compile_definitions(${PROJECT_NAME}_nodes
   PRIVATE "COMPOSITION_BUILDING_DLL"
@@ -110,5 +108,10 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+install(
+  PROGRAMS scripts/extract_images_sync
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_auto_package()
