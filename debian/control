@@ -1,0 +1,12 @@
+Source: ros-kilted-camera-calibration
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-opencv, python3-pytest <!nocheck>, python3-requests <!nocheck>, python3-semver, ros-kilted-ament-copyright <!nocheck>, ros-kilted-ament-flake8 <!nocheck>, ros-kilted-ament-pep257 <!nocheck>, ros-kilted-cv-bridge, ros-kilted-image-geometry, ros-kilted-message-filters, ros-kilted-rclpy, ros-kilted-sensor-msgs, ros-kilted-std-srvs, ros-kilted-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: https://index.ros.org/p/camera_calibration/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-kilted-camera-calibration
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, python3-opencv, python3-semver, ros-kilted-cv-bridge, ros-kilted-image-geometry, ros-kilted-message-filters, ros-kilted-rclpy, ros-kilted-sensor-msgs, ros-kilted-std-srvs, ros-kilted-ros-workspace
+Description: camera_calibration allows easy calibration of monocular or stereo cameras using a checkerboard calibration target.
