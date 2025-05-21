@@ -1,0 +1,12 @@
+Source: ros-jazzy-camera-calibration
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-opencv, python3-pytest <!nocheck>, python3-requests <!nocheck>, python3-semver, ros-jazzy-ament-copyright <!nocheck>, ros-jazzy-ament-flake8 <!nocheck>, ros-jazzy-ament-pep257 <!nocheck>, ros-jazzy-cv-bridge, ros-jazzy-image-geometry, ros-jazzy-message-filters, ros-jazzy-rclpy, ros-jazzy-sensor-msgs, ros-jazzy-std-srvs, ros-jazzy-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: https://index.ros.org/p/camera_calibration/github-ros-perception-image_pipeline/
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-camera-calibration
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, python3-opencv, python3-semver, ros-jazzy-cv-bridge, ros-jazzy-image-geometry, ros-jazzy-message-filters, ros-jazzy-rclpy, ros-jazzy-sensor-msgs, ros-jazzy-std-srvs, ros-jazzy-ros-workspace
+Description: camera_calibration allows easy calibration of monocular or stereo cameras using a checkerboard calibration target.
