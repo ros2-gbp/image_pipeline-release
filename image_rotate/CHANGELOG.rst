@@ -2,32 +2,26 @@
 Changelog for package image_rotate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.0.0 (2025-05-19)
-------------------
-
-6.0.10 (2025-02-27)
+5.0.11 (2025-05-21)
 -------------------
-* fix depth_image_proc launch files (`#1077 <https://github.com/ros-perception/image_pipeline/issues/1077>`_)
-* Contributors: Christian Rauch
 
-6.0.9 (2025-02-13)
+5.0.10 (2025-04-22)
+-------------------
+
+5.0.9 (2025-02-27)
+------------------
+* fix depth_image_proc launch files (backport `#1077 <https://github.com/ros-perception/image_pipeline/issues/1077>`_) (`#1080 <https://github.com/ros-perception/image_pipeline/issues/1080>`_)
+* Contributors: mergify[bot]
+
+5.0.8 (2025-02-13)
 ------------------
 
-6.0.8 (2025-02-10)
+5.0.7 (2025-02-10)
 ------------------
 
-6.0.7 (2024-12-27)
+5.0.6 (2024-12-11)
 ------------------
-* Deprecating tf2 C Headers (`#1039 <https://github.com/ros-perception/image_pipeline/issues/1039>`_)
-  Related to this [pull
-  request](https://github.com/ros2/geometry2/pull/720) in `geometry2` in
-  which we deprecated the `.h` style headers in favor of `.hpp`.
-  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* Contributors: Lucas Wendland
-
-6.0.6 (2024-12-11)
-------------------
-* add image_flip node (`#942 <https://github.com/ros-perception/image_pipeline/issues/942>`_)
+* add image_flip node (backport `#942 <https://github.com/ros-perception/image_pipeline/issues/942>`_) (`#1059 <https://github.com/ros-perception/image_pipeline/issues/1059>`_)
   This is a continuation of
   https://github.com/ros-perception/image_pipeline/pull/756:
   * [x] Squashed 16 commits in original PR for ease of rebase/review
@@ -35,38 +29,28 @@ Changelog for package image_rotate
   * [x] Added lazy subscriber
   * [x] Removes QoS parameters - will add proper QoS overrides in a
   different PR (when we do the same for image_rotate)
-  * [x] Adds documentation
-  ---------
-  Co-authored-by: David Conner <robotics@cnu.edu>
-  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* Contributors: Michael Ferguson
+  * [x] Adds documentation<hr>This is an automatic backport of pull
+  request `#942 <https://github.com/ros-perception/image_pipeline/issues/942>`_ done by [Mergify](https://mergify.com).
+  Co-authored-by: Michael Ferguson <mfergs7@gmail.com>
+* Contributors: mergify[bot]
 
-6.0.5 (2024-10-30)
+5.0.5 (2024-10-31)
 ------------------
 
-6.0.4 (2024-10-16)
+5.0.4 (2024-08-20)
 ------------------
-
-6.0.3 (2024-08-20)
-------------------
-* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
-  Prevents doing an extra copy of the data when using intra-process
-  communication.
-* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
+* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
   This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
   - Make sure publishers default to system defaults (reliable)
   - Add QoS overriding where possible (some of the image_transport /
   message_filters stuff doesn't really support that)
   - Use the matching heuristic for subscribers consistently
-* Contributors: Błażej Sowa, Michael Ferguson
+* Contributors: mergify[bot]
 
-6.0.2 (2024-07-23)
+5.0.3 (2024-07-16)
 ------------------
 
-6.0.1 (2024-07-22)
-------------------
-
-6.0.0 (2024-05-27)
+5.0.2 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)

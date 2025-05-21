@@ -2,47 +2,41 @@
 Changelog for package image_pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.0.0 (2025-05-19)
-------------------
-
-6.0.10 (2025-02-27)
+5.0.11 (2025-05-21)
 -------------------
 
-6.0.9 (2025-02-13)
+5.0.10 (2025-04-22)
+-------------------
+
+5.0.9 (2025-02-27)
 ------------------
 
-6.0.8 (2025-02-10)
+5.0.8 (2025-02-13)
 ------------------
 
-6.0.7 (2024-12-27)
+5.0.7 (2025-02-10)
 ------------------
 
-6.0.6 (2024-12-11)
+5.0.6 (2024-12-11)
 ------------------
 
-6.0.5 (2024-10-30)
+5.0.5 (2024-10-31)
 ------------------
 
-6.0.4 (2024-10-16)
+5.0.4 (2024-08-20)
 ------------------
-
-6.0.3 (2024-08-20)
-------------------
-* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
+* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
   This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
   - Make sure publishers default to system defaults (reliable)
   - Add QoS overriding where possible (some of the image_transport /
   message_filters stuff doesn't really support that)
   - Use the matching heuristic for subscribers consistently
-* Contributors: Michael Ferguson
+* Contributors: mergify[bot]
 
-6.0.2 (2024-07-23)
+5.0.3 (2024-07-16)
 ------------------
 
-6.0.1 (2024-07-22)
-------------------
-
-6.0.0 (2024-05-27)
+5.0.2 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)

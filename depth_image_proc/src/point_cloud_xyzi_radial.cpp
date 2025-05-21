@@ -108,7 +108,7 @@ PointCloudXyziRadialNode::PointCloudXyziRadialNode(const rclcpp::NodeOptions & o
         // Create subscriber with QoS matched to subscribed topic publisher
         auto qos_profile = image_proc::getTopicQosProfile(this, intensity_topic);
         sub_intensity_.subscribe(this, intensity_topic, hints.getTransport(), qos_profile);
-        sub_info_.subscribe(this, intensity_info_topic, rclcpp::QoS(10));
+        sub_info_.subscribe(this, intensity_info_topic);
       }
     };
 
@@ -123,7 +123,7 @@ void PointCloudXyziRadialNode::imageCb(
   const Image::ConstSharedPtr & intensity_msg,
   const CameraInfo::ConstSharedPtr & info_msg)
 {
-  auto cloud_msg = std::make_unique<PointCloud>();
+  auto cloud_msg = std::make_shared<PointCloud>();
   cloud_msg->header = depth_msg->header;
   cloud_msg->height = depth_msg->height;
   cloud_msg->width = depth_msg->width;
@@ -151,9 +151,9 @@ void PointCloudXyziRadialNode::imageCb(
 
   // Convert Depth Image to Pointcloud
   if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    convertDepthRadial<uint16_t>(depth_msg, *cloud_msg, transform_);
+    convertDepthRadial<uint16_t>(depth_msg, cloud_msg, transform_);
   } else if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    convertDepthRadial<float>(depth_msg, *cloud_msg, transform_);
+    convertDepthRadial<float>(depth_msg, cloud_msg, transform_);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
@@ -161,13 +161,13 @@ void PointCloudXyziRadialNode::imageCb(
   }
 
   if (intensity_msg->encoding == sensor_msgs::image_encodings::MONO8) {
-    convertIntensity<uint8_t>(intensity_msg, *cloud_msg);
+    convertIntensity<uint8_t>(intensity_msg, cloud_msg);
   } else if (intensity_msg->encoding == sensor_msgs::image_encodings::MONO16) {
-    convertIntensity<uint16_t>(intensity_msg, *cloud_msg);
+    convertIntensity<uint16_t>(intensity_msg, cloud_msg);
   } else if (intensity_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    convertIntensity<uint16_t>(intensity_msg, *cloud_msg);
+    convertIntensity<uint16_t>(intensity_msg, cloud_msg);
   } else if (intensity_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    convertIntensity<float>(intensity_msg, *cloud_msg);
+    convertIntensity<float>(intensity_msg, cloud_msg);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Intensity image has unsupported encoding [%s]",
@@ -175,7 +175,7 @@ void PointCloudXyziRadialNode::imageCb(
     return;
   }
 
-  pub_point_cloud_->publish(std::move(cloud_msg));
+  pub_point_cloud_->publish(*cloud_msg);
 }
 
 }  // namespace depth_image_proc
