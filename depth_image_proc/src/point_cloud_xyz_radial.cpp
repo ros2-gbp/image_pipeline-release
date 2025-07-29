@@ -73,8 +73,8 @@ PointCloudXyzRadialNode::PointCloudXyzRadialNode(const rclcpp::NodeOptions & opt
         // Get transport hints
         image_transport::TransportHints depth_hints(this, "raw", "depth_image_transport");
         // Create subscriber with QoS matched to subscribed topic publisher
-        auto qos_profile = image_proc::getTopicQosProfile(this, topic);
-        qos_profile.depth = queue_size_;
+        auto qos_profile = image_proc::getQosProfile(this, topic);
+        qos_profile.keep_last(queue_size_);
         // Create subscriber
         sub_depth_ = image_transport::create_camera_subscription(
           this,
@@ -97,7 +97,7 @@ void PointCloudXyzRadialNode::depthCb(
   const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
   const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg)
 {
-  auto cloud_msg = std::make_shared<PointCloud>();
+  auto cloud_msg = std::make_unique<PointCloud>();
   cloud_msg->header = depth_msg->header;
   cloud_msg->height = depth_msg->height;
   cloud_msg->width = depth_msg->width;
@@ -119,16 +119,16 @@ void PointCloudXyzRadialNode::depthCb(
 
   // Convert Depth Image to Pointcloud
   if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    convertDepthRadial<uint16_t>(depth_msg, cloud_msg, transform_);
+    convertDepthRadial<uint16_t>(depth_msg, *cloud_msg, transform_);
   } else if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    convertDepthRadial<float>(depth_msg, cloud_msg, transform_);
+    convertDepthRadial<float>(depth_msg, *cloud_msg, transform_);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
     return;
   }
 
-  pub_point_cloud_->publish(*cloud_msg);
+  pub_point_cloud_->publish(std::move(cloud_msg));
 }
 
 }  // namespace depth_image_proc

@@ -30,8 +30,6 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <tf2/LinearMath/Quaternion.h>
-
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -45,6 +43,7 @@
 #include <rclcpp/qos.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2/LinearMath/Quaternion.hpp>
 
 namespace image_proc
 {
@@ -87,7 +86,7 @@ TrackMarkerNode::TrackMarkerNode(const rclcpp::NodeOptions & options)
         sub_camera_.shutdown();
       } else if (!sub_camera_) {
         // Create subscriber with QoS matched to subscribed topic publisher
-        auto qos_profile = getTopicQosProfile(this, image_topic_);
+        auto qos_profile = getQosProfile(this, image_topic_);
         image_transport::TransportHints hints(this);
         sub_camera_ = image_transport::create_camera_subscription(
           this, image_topic_, std::bind(

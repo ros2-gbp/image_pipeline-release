@@ -5,12 +5,12 @@ PACKAGE_NAME = "camera_calibration"
 
 setup(
     name=PACKAGE_NAME,
-    version='5.0.11',
+    version='7.1.0',
     packages=["camera_calibration", "camera_calibration.nodes"],
     data_files=[
-    ('share/ament_index/resource_index/packages',
-      ['resource/' + PACKAGE_NAME]),
-    ('share/' + PACKAGE_NAME, ['package.xml']),
+        ('share/ament_index/resource_index/packages',
+         ['resource/' + PACKAGE_NAME]),
+        ('share/' + PACKAGE_NAME, ['package.xml']),
     ],
     py_modules=[],
     package_dir={'': 'src'},

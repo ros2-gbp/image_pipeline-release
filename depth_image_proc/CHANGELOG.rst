@@ -2,59 +2,78 @@
 Changelog for package depth_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.11 (2025-05-21)
+7.1.0 (2025-07-29)
+------------------
+* Replace deprecated tf2_ros headers (`#1110 <https://github.com/ros-perception/image_pipeline/issues/1110>`_)
+* Replace rmq_qos_profile_t with rclcpp::QoS (`#1106 <https://github.com/ros-perception/image_pipeline/issues/1106>`_)
+* Update index.ros.org package website links (`#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_)
+* Contributors: Alejandro Hernández Cordero, Christophe Bedard
+
+7.0.0 (2025-05-19)
+------------------
+* Fixed compilation error (`#1096 <https://github.com/ros-perception/image_pipeline/issues/1096>`_)
+  Related with this issue
+  https://github.com/ros-perception/image_pipeline/issues/1095
+* Contributors: Alejandro Hernández Cordero
+
+6.0.10 (2025-02-27)
 -------------------
+* fix depth_image_proc launch files (`#1077 <https://github.com/ros-perception/image_pipeline/issues/1077>`_)
+* Contributors: Christian Rauch
 
-5.0.10 (2025-04-22)
--------------------
-
-5.0.9 (2025-02-27)
-------------------
-* fix depth_image_proc launch files (backport `#1077 <https://github.com/ros-perception/image_pipeline/issues/1077>`_) (`#1080 <https://github.com/ros-perception/image_pipeline/issues/1080>`_)
-* Contributors: mergify[bot]
-
-5.0.8 (2025-02-13)
+6.0.9 (2025-02-13)
 ------------------
 
-5.0.7 (2025-02-10)
+6.0.8 (2025-02-10)
 ------------------
 
-5.0.6 (2024-12-11)
+6.0.7 (2024-12-27)
 ------------------
-* Support QoS override parameters in depth_image_proc/register (backport `#1043 <https://github.com/ros-perception/image_pipeline/issues/1043>`_) (`#1044 <https://github.com/ros-perception/image_pipeline/issues/1044>`_)
+
+6.0.6 (2024-12-11)
+------------------
+* Support QoS override parameters in depth_image_proc/register (`#1043 <https://github.com/ros-perception/image_pipeline/issues/1043>`_)
   This PR adds support to the `depth_image_proc` - `register` node for
   setting External QoS Configuration on topic _subscriptions\_.
-  Co-authored-by: Stuart Alldritt <s.k.alldritt@gmail.com>
-  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* Contributors: mergify[bot]
+* Contributors: Stuart Alldritt
 
-5.0.5 (2024-10-31)
+6.0.5 (2024-10-30)
 ------------------
 
-5.0.4 (2024-08-20)
+6.0.4 (2024-10-16)
 ------------------
-* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
+
+6.0.3 (2024-08-20)
+------------------
+* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
+  Prevents doing an extra copy of the data when using intra-process
+  communication.
+* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
   This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
   - Make sure publishers default to system defaults (reliable)
   - Add QoS overriding where possible (some of the image_transport /
   message_filters stuff doesn't really support that)
   - Use the matching heuristic for subscribers consistently
-* fix signature issue from `#943 <https://github.com/ros-perception/image_pipeline/issues/943>`_ (backport `#1018 <https://github.com/ros-perception/image_pipeline/issues/1018>`_) (`#1023 <https://github.com/ros-perception/image_pipeline/issues/1023>`_)
+* fix signature issue from `#943 <https://github.com/ros-perception/image_pipeline/issues/943>`_ (`#1018 <https://github.com/ros-perception/image_pipeline/issues/1018>`_)
   Without this, we get
   ```
   symbol lookup error: /home/ubr/jazzy/install/depth_image_proc/lib/libdepth_image_proc.so: undefined symbol: _ZN16depth_image_proc10convertRgbERKSt10shared_ptrIKN11sensor_msgs3msg6Image_ISaIvEEEES0_INS2_12PointCloud2_IS4_EEEiiii
   c++filt _ZN16depth_image_proc10convertRgbERKSt10shared_ptrIKN11sensor_msgs3msg6Image_ISaIvEEEES0_INS2_12PointCloud2_IS4_EEEiiii
   depth_image_proc::convertRgb(std::shared_ptr<sensor_msgs::msg::Image\_<std::allocator<void> > const> const&, std::shared_ptr<sensor_msgs::msg::PointCloud2\_<std::allocator<void> > >, int, int, int, int)
   ```
-  This is an automatic backport of pull request `#1018 <https://github.com/ros-perception/image_pipeline/issues/1018>`_ done by
-  [Mergify](https://mergify.com).
-  Co-authored-by: Michael Ferguson <mfergs7@gmail.com>
-* Contributors: mergify[bot]
+* Contributors: Błażej Sowa, Michael Ferguson
 
-5.0.3 (2024-07-16)
+6.0.2 (2024-07-23)
 ------------------
+* Removed deprecation warnings (`#1010 <https://github.com/ros-perception/image_pipeline/issues/1010>`_)
+* Contributors: Alejandro Hernández Cordero
 
-5.0.2 (2024-05-27)
+6.0.1 (2024-07-22)
+------------------
+* Updated deprecated message filter headers (`#1012 <https://github.com/ros-perception/image_pipeline/issues/1012>`_)
+* Contributors: Alejandro Hernández Cordero
+
+6.0.0 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)

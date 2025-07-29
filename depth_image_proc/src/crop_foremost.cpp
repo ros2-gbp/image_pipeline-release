@@ -92,7 +92,7 @@ CropForemostNode::CropForemostNode(const rclcpp::NodeOptions & options)
         // Get transport hints
         image_transport::TransportHints hints(this);
         // Create publisher with same QoS as subscribed topic publisher
-        auto qos_profile = image_proc::getTopicQosProfile(this, topic);
+        auto qos_profile = image_proc::getQosProfile(this, topic);
         sub_raw_ = image_transport::create_subscription(
           this, topic,
           std::bind(&CropForemostNode::depthCb, this, std::placeholders::_1),
@@ -107,7 +107,7 @@ CropForemostNode::CropForemostNode(const rclcpp::NodeOptions & options)
 
   // Create publisher - allow overriding QoS settings (history, depth, reliability)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  pub_depth_ = image_transport::create_publisher(this, topic, rmw_qos_profile_default,
+  pub_depth_ = image_transport::create_publisher(this, topic, rclcpp::SystemDefaultsQoS(),
     pub_options);
 }
 
@@ -152,7 +152,9 @@ void CropForemostNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & r
       break;
   }
 
-  pub_depth_.publish(cv_ptr->toImageMsg());
+  auto image_msg = std::make_unique<sensor_msgs::msg::Image>();
+  cv_ptr->toImageMsg(*image_msg);
+  pub_depth_.publish(std::move(image_msg));
 }
 
 }  // namespace depth_image_proc

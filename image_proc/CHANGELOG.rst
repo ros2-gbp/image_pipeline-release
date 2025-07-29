@@ -2,54 +2,70 @@
 Changelog for package image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.11 (2025-05-21)
+7.1.0 (2025-07-29)
+------------------
+* Replace rmq_qos_profile_t with rclcpp::QoS (`#1106 <https://github.com/ros-perception/image_pipeline/issues/1106>`_)
+* fix remapping bug in RectifyNode (`#1108 <https://github.com/ros-perception/image_pipeline/issues/1108>`_)
+* Update index.ros.org package website links (`#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_)
+* Contributors: Alejandro Hernández Cordero, Charles Ellison, Christophe Bedard
+
+7.0.0 (2025-05-19)
+------------------
+
+6.0.10 (2025-02-27)
 -------------------
 
-5.0.10 (2025-04-22)
--------------------
+6.0.9 (2025-02-13)
+------------------
+* Fix new opencv aruco api (`#1072 <https://github.com/ros-perception/image_pipeline/issues/1072>`_)
+* Contributors: Bernd Müller
 
-5.0.9 (2025-02-27)
+6.0.8 (2025-02-10)
+------------------
+* Removed warning (`#1063 <https://github.com/ros-perception/image_pipeline/issues/1063>`_)
+* Contributors: Alejandro Hernández Cordero
+
+6.0.7 (2024-12-27)
 ------------------
 
-5.0.8 (2025-02-13)
-------------------
-* Fix new opencv aruco api (backport `#1072 <https://github.com/ros-perception/image_pipeline/issues/1072>`_) (`#1073 <https://github.com/ros-perception/image_pipeline/issues/1073>`_)
-* Contributors: mergify[bot]
-
-5.0.7 (2025-02-10)
+6.0.6 (2024-12-11)
 ------------------
 
-5.0.6 (2024-12-11)
+6.0.5 (2024-10-30)
 ------------------
-
-5.0.5 (2024-10-31)
-------------------
-* Use TF2 package for quaternion conversion (backport `#1031 <https://github.com/ros-perception/image_pipeline/issues/1031>`_) (`#1041 <https://github.com/ros-perception/image_pipeline/issues/1041>`_)
+* Use TF2 package for quaternion conversion (`#1031 <https://github.com/ros-perception/image_pipeline/issues/1031>`_)
   The OpenCV quaternion class was not added until OpenCV 4.5.1, so it's
   less widely available than the TF2 conversion. This change allows a
   source build of the ROS 2 "perception" variant on Ubuntu 20.04 without a
   custom source build of OpenCV.
   Addresses issue
-  https://github.com/ros-perception/image_pipeline/issues/1030<hr>This is
-  an automatic backport of pull request `#1031 <https://github.com/ros-perception/image_pipeline/issues/1031>`_ done by
-  [Mergify](https://mergify.com).
-  Co-authored-by: Ted Steiner <tsteiner2@gmail.com>
-* Contributors: mergify[bot]
+  https://github.com/ros-perception/image_pipeline/issues/1030
+* Contributors: Ted Steiner
 
-5.0.4 (2024-08-20)
+6.0.4 (2024-10-16)
 ------------------
-* Finish QoS updates (backport `#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_) (`#1024 <https://github.com/ros-perception/image_pipeline/issues/1024>`_)
+
+6.0.3 (2024-08-20)
+------------------
+* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
+  Prevents doing an extra copy of the data when using intra-process
+  communication.
+* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
   This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
   - Make sure publishers default to system defaults (reliable)
   - Add QoS overriding where possible (some of the image_transport /
   message_filters stuff doesn't really support that)
   - Use the matching heuristic for subscribers consistently
-* Contributors: mergify[bot]
+* Updated deprecated rcpputils::path (`#1014 <https://github.com/ros-perception/image_pipeline/issues/1014>`_)
+* Contributors: Alejandro Hernández Cordero, Błażej Sowa, Michael Ferguson
 
-5.0.3 (2024-07-16)
+6.0.2 (2024-07-23)
 ------------------
 
-5.0.2 (2024-05-27)
+6.0.1 (2024-07-22)
+------------------
+
+6.0.0 (2024-05-27)
 ------------------
 
 5.0.1 (2024-03-26)

@@ -78,7 +78,7 @@ ResizeNode::ResizeNode(const rclcpp::NodeOptions & options)
         sub_image_.shutdown();
       } else if (!sub_image_) {
         // Create subscriber with QoS matched to subscribed topic publisher
-        auto qos_profile = getTopicQosProfile(this, image_topic_);
+        auto qos_profile = getQosProfile(this, image_topic_);
         image_transport::TransportHints hints(this);
         sub_image_ = image_transport::create_camera_subscription(
           this, image_topic_,
@@ -92,7 +92,8 @@ ResizeNode::ResizeNode(const rclcpp::NodeOptions & options)
   // Create publisher - allow overriding QoS settings (history, depth, reliability)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
   pub_image_ =
-    image_transport::create_camera_publisher(this, pub_topic, rmw_qos_profile_default, pub_options);
+    image_transport::create_camera_publisher(this, pub_topic, rclcpp::SystemDefaultsQoS(),
+      pub_options);
 }
 
 void ResizeNode::imageCb(
@@ -129,8 +130,7 @@ void ResizeNode::imageCb(
     cv::resize(cv_ptr->image, scaled_cv_.image, cv::Size(width, height), 0, 0, interpolation_);
   }
 
-  sensor_msgs::msg::CameraInfo::SharedPtr dst_info_msg =
-    std::make_shared<sensor_msgs::msg::CameraInfo>(*info_msg);
+  auto dst_info_msg = std::make_unique<sensor_msgs::msg::CameraInfo>(*info_msg);
 
   double scale_y;
   double scale_x;
@@ -163,9 +163,13 @@ void ResizeNode::imageCb(
   dst_info_msg->roi.width = static_cast<int>(dst_info_msg->roi.width * scale_x);
   dst_info_msg->roi.height = static_cast<int>(dst_info_msg->roi.height * scale_y);
 
+  auto dst_image_msg = std::make_unique<sensor_msgs::msg::Image>();
+
   scaled_cv_.header = image_msg->header;
   scaled_cv_.encoding = image_msg->encoding;
-  pub_image_.publish(*scaled_cv_.toImageMsg(), *dst_info_msg);
+  scaled_cv_.toImageMsg(*dst_image_msg);
+
+  pub_image_.publish(std::move(dst_image_msg), std::move(dst_info_msg));
 
   TRACEPOINT(
     image_proc_resize_fini,
