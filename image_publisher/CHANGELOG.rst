@@ -2,81 +2,34 @@
 Changelog for package image_publisher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.1.3 (2025-12-09)
+3.0.9 (2025-12-09)
+------------------
+* Update index.ros.org package website links (backport `#1101 <https://github.com/ros-perception/image_pipeline//issues/1101>`_) (`#1105 <https://github.com/ros-perception/image_pipeline//issues/1105>`_)
+* Contributors: mergify[bot]
+
+3.0.8 (2025-04-22)
 ------------------
 
-7.1.2 (2025-09-16)
-------------------
-* Fixed image_publisher cmd (`#1115 <https://github.com/ros-perception/image_pipeline/issues/1115>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.1 (2025-09-01)
-------------------
-* Support image_transport lifecycle (`#1099 <https://github.com/ros-perception/image_pipeline/issues/1099>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.0 (2025-07-29)
-------------------
-* Replace rmq_qos_profile_t with rclcpp::QoS (`#1106 <https://github.com/ros-perception/image_pipeline/issues/1106>`_)
-* Update index.ros.org package website links (`#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_)
-* Contributors: Alejandro Hernández Cordero, Christophe Bedard
-
-7.0.0 (2025-05-19)
+3.0.7 (2025-02-27)
 ------------------
 
-6.0.10 (2025-02-27)
--------------------
-
-6.0.9 (2025-02-13)
+3.0.6 (2024-08-20)
 ------------------
 
-6.0.8 (2025-02-10)
+3.0.5 (2024-07-24)
 ------------------
-* Fix Windows compilation in image_publisher.cpp (`#1061 <https://github.com/ros-perception/image_pipeline/issues/1061>`_)
-  PR https://github.com/ros-perception/image_pipeline/pull/985 added some
-  code that used `M_PI`, but `M_PI` is not defined in any standard, and
-  before including `cmath` or `math.h` in Windows it is necessary to
-  define `_USE_MATH_DEFINES` to ensure that `M_PI` is defined.
-* Contributors: Silvio Traversaro
-
-6.0.7 (2024-12-27)
-------------------
-
-6.0.6 (2024-12-11)
-------------------
-
-6.0.5 (2024-10-30)
-------------------
-
-6.0.4 (2024-10-16)
-------------------
-
-6.0.3 (2024-08-20)
-------------------
-* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
-  Prevents doing an extra copy of the data when using intra-process
-  communication.
-* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
-  This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
-  - Make sure publishers default to system defaults (reliable)
-  - Add QoS overriding where possible (some of the image_transport /
-  message_filters stuff doesn't really support that)
-  - Use the matching heuristic for subscribers consistently
-* Contributors: Błażej Sowa, Michael Ferguson
-
-6.0.2 (2024-07-23)
-------------------
-
-6.0.1 (2024-07-22)
-------------------
-* [rolling] image_publisher: Fix loading of the camera info parameters on startup (`#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_)
+* [humble] image_publisher: Fix loading of the camera info parameters on startup (backport `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_) (`#996 <https://github.com/ros-perception/image_pipeline/issues/996>`_)
   As described in
   https://github.com/ros-perception/image_pipeline/issues/965 camera info
   is not loaded from the file on node initialization, but only when the
   parameter is reloaded.
   This PR resolves this issue and should be straightforward to port it to
-  `Humble`, `Iron` and `Jazzy`.
-* [rolling] image_publisher: add field of view parameter (`#985 <https://github.com/ros-perception/image_pipeline/issues/985>`_)
+  `Humble`, `Iron` and `Jazzy`.<hr>This is an automatic backport of pull
+  request `#983 <https://github.com/ros-perception/image_pipeline/issues/983>`_ done by [Mergify](https://mergify.com).
+  ---------
+  Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
+  Co-authored-by: Michael Ferguson <mfergs7@gmail.com>
+* image_publisher: add field of view parameter (backport `#985 <https://github.com/ros-perception/image_pipeline/issues/985>`_) (`#993 <https://github.com/ros-perception/image_pipeline/issues/993>`_)
   Currently, the default value for focal length when no camera info is
   provided defaults to `1.0` rendering whole approximate intrinsics and
   projection matrices useless. Based on [this
@@ -88,13 +41,10 @@ Changelog for package image_publisher
   If there is some documentation to fill. please let me know.
   This PR should be straightforward to port it to `Humble`, `Iron` and
   `Jazzy`.
-  ---------
-  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* Contributors: Krzysztof Wojciechowski
-
-6.0.0 (2024-05-27)
-------------------
-* [rolling] image_publisher: Fix image, constantly flipping when static image is published (`#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_)
+  <hr>This is an automatic backport of pull request `#985 <https://github.com/ros-perception/image_pipeline/issues/985>`_ done by
+  [Mergify](https://mergify.com).
+  Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
+* image_publisher: Fix image, constantly flipping when static image is published (backport `#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_) (`#988 <https://github.com/ros-perception/image_pipeline/issues/988>`_)
   Continuation of
   https://github.com/ros-perception/image_pipeline/pull/984.
   When publishing video stream from a camera, the image was flipped
@@ -103,63 +53,26 @@ Changelog for package image_publisher
   resulting in the published image being flipped back and forth all the
   time.
   This PR should be straightforward to port it to `Humble`, `Iron` and
-  `Jazzy`.
-* Contributors: Krzysztof Wojciechowski
+  `Jazzy`.<hr>This is an automatic backport of pull request `#986 <https://github.com/ros-perception/image_pipeline/issues/986>`_ done by
+  [Mergify](https://mergify.com).
+  Co-authored-by: Krzysztof Wojciechowski <49921081+Kotochleb@users.noreply.github.com>
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* Contributors: mergify[bot]
 
-5.0.1 (2024-03-26)
+3.0.4 (2024-03-01)
 ------------------
-* unified changelog, add missing image, deduplicate tutorials (`#938 <https://github.com/ros-perception/image_pipeline/issues/938>`_)
-  Last bit of documentation updates - putting together a single changelog
-  summary for the whole release (rather than scattering among packages).
-  Unified the camera_info tutorial so it isn't duplicated. Added a missing
-  image from image_rotate (was on local disk, but hadn't committed it)
-* add docs for image_rotate/publisher (`#936 <https://github.com/ros-perception/image_pipeline/issues/936>`_)
-* Contributors: Michael Ferguson
 
-5.0.0 (2024-01-24)
+3.0.3 (2022-01-24)
 ------------------
-* Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_)
-  Removed cfg files related with ROS 1 parameters
-* ROS 2: Fixed CMake (`#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_)
-* image_publisher: functional component (`#861 <https://github.com/ros-perception/image_pipeline/issues/861>`_)
-  * filename now functions when using a component
-  * parameter callback gets called at startup when using the component
-  * cleanup a bit of the logging
-  * add launch file to test component more easily
-* properly remap compressed topics (`#851 <https://github.com/ros-perception/image_pipeline/issues/851>`_)
-  ## Before:
-  Pushing into namespace is broken, only image_raw changes (camera_info
-  and transport topics should change):
-  ```
-  ros2 run image_publisher image_publisher_node --ros-args -p filename:=test.png -r image_raw:=foo/image_raw
-  ---
-  ros2 topic list
-  /camera_info
-  /foo/image_raw
-  /image_raw/compressed
-  /image_raw/compressedDepth
-  /image_raw/theora
-  ```
-  ## After:
-  Pushing into namespace now works:
-  ```
-  ros2 run image_publisher image_publisher_node --ros-args -p filename:=test.png -r image_raw:=foo/image_raw
-  ---
-  ros2 topic list
-  /foo/camera_info
-  /foo/image_raw
-  /foo/image_raw/compressed
-  /foo/image_raw/compressedDepth
-  /foo/image_raw/theora
-  ```
-* add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
-* Contributors: Alejandro Hernández Cordero, Michael Ferguson
+* [backport Humble] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#913 <https://github.com/ros-perception/image_pipeline/issues/913>`_)
+  Removed cfg files related with ROS 1 parameters. Backport
+  https://github.com/ros-perception/image_pipeline/pull/911
+* ROS 2: Fixed CMake (`#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_) (`#901 <https://github.com/ros-perception/image_pipeline/issues/901>`_)
+  backport `#899 <https://github.com/ros-perception/image_pipeline/issues/899>`_
+* Contributors: Alejandro Hernández Cordero
 
-3.0.1 (2022-12-04)
+3.0.2 (2022-01-17)
 ------------------
-* Replace deprecated headers
-  Fixing compiler warnings.
-* Contributors: Jacob Perron
 
 3.0.0 (2022-04-29)
 ------------------

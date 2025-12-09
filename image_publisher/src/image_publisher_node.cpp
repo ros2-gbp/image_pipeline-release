@@ -44,12 +44,13 @@ int main(int argc, char ** argv)
   if (argc <= 1) {
     RCUTILS_LOG_ERROR(
       "image_publisher requires filename. Typical command-line usage:\n"
-      "\t$ ros2 run image_publisher image_publisher_node <filename>");
+      "\t$ ros2 run image_publisher image_publisher <filename>");
     return 1;
   }
 
   rclcpp::NodeOptions options;
-  auto publisher = std::make_shared<image_publisher::ImagePublisher>(options, argv[1]);
+  auto publisher = std::make_shared<image_publisher::ImagePublisher>(options);
+  publisher->declare_parameter("filename", argv[1]);
 
   rclcpp::spin(publisher);
   rclcpp::shutdown();

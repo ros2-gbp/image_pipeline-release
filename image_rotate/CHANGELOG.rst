@@ -2,128 +2,37 @@
 Changelog for package image_rotate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.1.3 (2025-12-09)
+3.0.9 (2025-12-09)
+------------------
+* Update index.ros.org package website links (backport `#1101 <https://github.com/ros-perception/image_pipeline//issues/1101>`_) (`#1105 <https://github.com/ros-perception/image_pipeline//issues/1105>`_)
+* Contributors: mergify[bot]
+
+3.0.8 (2025-04-22)
 ------------------
 
-7.1.2 (2025-09-16)
+3.0.7 (2025-02-27)
 ------------------
 
-7.1.1 (2025-09-01)
-------------------
-* Support image_transport lifecycle (`#1099 <https://github.com/ros-perception/image_pipeline/issues/1099>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.0 (2025-07-29)
-------------------
-* Replace deprecated tf2_ros headers (`#1110 <https://github.com/ros-perception/image_pipeline/issues/1110>`_)
-* Replace rmq_qos_profile_t with rclcpp::QoS (`#1106 <https://github.com/ros-perception/image_pipeline/issues/1106>`_)
-* Update index.ros.org package website links (`#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_)
-* Contributors: Alejandro Hernández Cordero, Christophe Bedard
-
-7.0.0 (2025-05-19)
+3.0.6 (2024-08-20)
 ------------------
 
-6.0.10 (2025-02-27)
--------------------
-* fix depth_image_proc launch files (`#1077 <https://github.com/ros-perception/image_pipeline/issues/1077>`_)
-* Contributors: Christian Rauch
-
-6.0.9 (2025-02-13)
+3.0.5 (2024-07-24)
 ------------------
 
-6.0.8 (2025-02-10)
+3.0.4 (2024-03-01)
 ------------------
 
-6.0.7 (2024-12-27)
+3.0.3 (2022-01-24)
 ------------------
-* Deprecating tf2 C Headers (`#1039 <https://github.com/ros-perception/image_pipeline/issues/1039>`_)
-  Related to this [pull
-  request](https://github.com/ros2/geometry2/pull/720) in `geometry2` in
-  which we deprecated the `.h` style headers in favor of `.hpp`.
-  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* Contributors: Lucas Wendland
-
-6.0.6 (2024-12-11)
-------------------
-* add image_flip node (`#942 <https://github.com/ros-perception/image_pipeline/issues/942>`_)
-  This is a continuation of
-  https://github.com/ros-perception/image_pipeline/pull/756:
-  * [x] Squashed 16 commits in original PR for ease of rebase/review
-  * [x] Moved node into image_rotate package
-  * [x] Added lazy subscriber
-  * [x] Removes QoS parameters - will add proper QoS overrides in a
-  different PR (when we do the same for image_rotate)
-  * [x] Adds documentation
-  ---------
-  Co-authored-by: David Conner <robotics@cnu.edu>
-  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
-* Contributors: Michael Ferguson
-
-6.0.5 (2024-10-30)
-------------------
-
-6.0.4 (2024-10-16)
-------------------
-
-6.0.3 (2024-08-20)
-------------------
-* Publish using unique ptr (`#1016 <https://github.com/ros-perception/image_pipeline/issues/1016>`_)
-  Prevents doing an extra copy of the data when using intra-process
-  communication.
-* Finish QoS updates (`#1019 <https://github.com/ros-perception/image_pipeline/issues/1019>`_)
-  This implements the remainder of `#847 <https://github.com/ros-perception/image_pipeline/issues/847>`_:
-  - Make sure publishers default to system defaults (reliable)
-  - Add QoS overriding where possible (some of the image_transport /
-  message_filters stuff doesn't really support that)
-  - Use the matching heuristic for subscribers consistently
-* Contributors: Błażej Sowa, Michael Ferguson
-
-6.0.2 (2024-07-23)
-------------------
-
-6.0.1 (2024-07-22)
-------------------
-
-6.0.0 (2024-05-27)
-------------------
-
-5.0.1 (2024-03-26)
-------------------
-* fix image publisher remapping (`#941 <https://github.com/ros-perception/image_pipeline/issues/941>`_)
-  Addresses `#940 <https://github.com/ros-perception/image_pipeline/issues/940>`_ - fixes the compressed/etc topic remapping for publishers
-* unified changelog, add missing image, deduplicate tutorials (`#938 <https://github.com/ros-perception/image_pipeline/issues/938>`_)
-  Last bit of documentation updates - putting together a single changelog
-  summary for the whole release (rather than scattering among packages).
-  Unified the camera_info tutorial so it isn't duplicated. Added a missing
-  image from image_rotate (was on local disk, but hadn't committed it)
-* add docs for image_rotate/publisher (`#936 <https://github.com/ros-perception/image_pipeline/issues/936>`_)
-* Contributors: Michael Ferguson
-
-5.0.0 (2024-01-24)
-------------------
-* Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_)
-  Removed cfg files related with ROS 1 parameters
-* image_rotate: clean up (`#862 <https://github.com/ros-perception/image_pipeline/issues/862>`_)
-  This is the first component/node with a cleanup pass to be fully
-  implemented:
-  * Fix `#740 <https://github.com/ros-perception/image_pipeline/issues/740>`_ by initializing vectors. Do this by declaring parameters
-  AFTER we define the callback
-  * Implement lazy subscribers (I missed this in the earlier PRs)
-  * Add image_transport parameter so we can specify that desired transport
-  of our subscriptions
-  * Update how we test for connectivity (and update the debug message -
-  has nothing to do with whether we are remapped, it's really about
-  whether we are connected)
-* load image_rotate::ImageRotateNode as component (`#855 <https://github.com/ros-perception/image_pipeline/issues/855>`_)
-  This is a fixed version of `#820 <https://github.com/ros-perception/image_pipeline/issues/820>`_ - targeting rolling
-* add myself as a maintainer (`#846 <https://github.com/ros-perception/image_pipeline/issues/846>`_)
+* [backport Humble] Removed cfg files related with ROS 1 parameters (`#911 <https://github.com/ros-perception/image_pipeline/issues/911>`_) (`#913 <https://github.com/ros-perception/image_pipeline/issues/913>`_)
+  Removed cfg files related with ROS 1 parameters. Backport
+  https://github.com/ros-perception/image_pipeline/pull/911
+* load image_rotate::ImageRotateNode as component (`#857 <https://github.com/ros-perception/image_pipeline/issues/857>`_)
+  This is a fixed version of `#820 <https://github.com/ros-perception/image_pipeline/issues/820>`_ - targeting humble
 * Contributors: Alejandro Hernández Cordero, Michael Ferguson
 
-3.0.1 (2022-12-04)
+3.0.2 (2022-01-17)
 ------------------
-* Replace deprecated headers
-  Fixing compiler warnings.
-* Contributors: Jacob Perron
 
 3.0.0 (2022-04-29)
 ------------------
