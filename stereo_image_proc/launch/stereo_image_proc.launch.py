@@ -1,33 +1,30 @@
 # Copyright (c) 2019, Open Source Robotics Foundation, Inc.
 # All rights reserved.
 #
-# Software License Agreement (BSD License 2.0)
-#
 # Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
+# modification, are permitted provided that the following conditions are met:
 #
-#  * Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above
-#    copyright notice, this list of conditions and the following
-#    disclaimer in the documentation and/or other materials provided
-#    with the distribution.
-#  * Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#
+#    * Neither the name of the copyright holder nor the names of its
+#      contributors may be used to endorse or promote products derived from
+#      this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
 from launch import LaunchDescription
@@ -53,9 +50,9 @@ def generate_launch_description():
         ComposableNode(
             package='stereo_image_proc',
             plugin='stereo_image_proc::DisparityNode',
+            namespace=LaunchConfiguration('namespace'),
             parameters=[{
                 'approximate_sync': LaunchConfiguration('approximate_sync'),
-                'use_system_default_qos': LaunchConfiguration('use_system_default_qos'),
                 'stereo_algorithm': LaunchConfiguration('stereo_algorithm'),
                 'prefilter_size': LaunchConfiguration('prefilter_size'),
                 'prefilter_cap': LaunchConfiguration('prefilter_cap'),
@@ -69,7 +66,7 @@ def generate_launch_description():
                 'uniqueness_ratio': LaunchConfiguration('uniqueness_ratio'),
                 'P1': LaunchConfiguration('P1'),
                 'P2': LaunchConfiguration('P2'),
-                'full_dp': LaunchConfiguration('full_dp'),
+                'sgbm_mode': LaunchConfiguration('sgbm_mode'),
             }],
             remappings=[
                 ('left/image_rect', [LaunchConfiguration('left_namespace'), '/image_rect']),
@@ -81,11 +78,11 @@ def generate_launch_description():
         ComposableNode(
             package='stereo_image_proc',
             plugin='stereo_image_proc::PointCloudNode',
+            namespace=LaunchConfiguration('namespace'),
             parameters=[{
                 'approximate_sync': LaunchConfiguration('approximate_sync'),
                 'avoid_point_cloud_padding': LaunchConfiguration('avoid_point_cloud_padding'),
                 'use_color': LaunchConfiguration('use_color'),
-                'use_system_default_qos': LaunchConfiguration('use_system_default_qos'),
             }],
             remappings=[
                 ('left/camera_info', [LaunchConfiguration('left_namespace'), '/camera_info']),
@@ -93,6 +90,10 @@ def generate_launch_description():
                 (
                     'left/image_rect_color',
                     [LaunchConfiguration('left_namespace'), '/image_rect_color']
+                ),
+                (
+                    'right/image_rect_color',
+                    [LaunchConfiguration('right_namespace'), '/image_rect_color']
                 ),
             ]
         ),
@@ -116,12 +117,12 @@ def generate_launch_description():
             description='Generate point cloud with rgb data.'
         ),
         DeclareLaunchArgument(
-            name='use_system_default_qos', default_value='False',
-            description='Use the RMW QoS settings for the image and camera info subscriptions.'
-        ),
-        DeclareLaunchArgument(
             name='launch_image_proc', default_value='True',
             description='Whether to launch debayer and rectify nodes from image_proc.'
+        ),
+        DeclareLaunchArgument(
+            name='namespace', default_value='',
+            description='Namespace for all components loaded'
         ),
         DeclareLaunchArgument(
             name='left_namespace', default_value='left',
@@ -195,8 +196,8 @@ def generate_launch_description():
                         '(Semi-Global Block Matching only)'
         ),
         DeclareLaunchArgument(
-            name='full_dp', default_value='False',
-            description='Run the full variant of the algorithm (Semi-Global Block Matching only)'
+            name='sgbm_mode', default_value='0',
+            description='The mode of the SGBM matcher to be used'
         ),
         ComposableNodeContainer(
             condition=LaunchConfigurationEquals('container', ''),
@@ -225,24 +226,26 @@ def generate_launch_description():
         ),
         GroupAction(
             [
-                PushRosNamespace(LaunchConfiguration('left_namespace')),
+                PushRosNamespace(LaunchConfiguration('namespace')),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource([
                         FindPackageShare('image_proc'), '/launch/image_proc.launch.py'
                     ]),
-                    launch_arguments={'container': LaunchConfiguration('container')}.items()
+                    launch_arguments={'container': LaunchConfiguration('container'),
+                                      'namespace': LaunchConfiguration('left_namespace')}.items()
                 ),
             ],
             condition=IfCondition(LaunchConfiguration('launch_image_proc')),
         ),
         GroupAction(
             [
-                PushRosNamespace(LaunchConfiguration('right_namespace')),
+                PushRosNamespace(LaunchConfiguration('namespace')),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource([
                         FindPackageShare('image_proc'), '/launch/image_proc.launch.py'
                     ]),
-                    launch_arguments={'container': LaunchConfiguration('container')}.items()
+                    launch_arguments={'container': LaunchConfiguration('container'),
+                                      'namespace': LaunchConfiguration('right_namespace')}.items()
                 ),
             ],
             condition=IfCondition(LaunchConfiguration('launch_image_proc')),

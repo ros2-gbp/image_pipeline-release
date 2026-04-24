@@ -1,39 +1,37 @@
 // Copyright 2008, 2019 Willow Garage, Inc., Andreas Klintberg, Joshua Whitley
 // All rights reserved.
 //
-// Software License Agreement (BSD License 2.0)
-//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
+// modification, are permitted provided that the following conditions are met:
 //
-// * Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
-// * Redistributions in binary form must reproduce the above
-//   copyright notice, this list of conditions and the following
-//   disclaimer in the documentation and/or other materials provided
-//   with the distribution.
-// * Neither the name of {copyright_holder} nor the names of its
-//   contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
+//    * Redistributions of source code must retain the above copyright
+//      notice, this list of conditions and the following disclaimer.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//    * Redistributions in binary form must reproduce the above copyright
+//      notice, this list of conditions and the following disclaimer in the
+//      documentation and/or other materials provided with the distribution.
+//
+//    * Neither the name of the copyright holder nor the names of its
+//      contributors may be used to endorse or promote products derived from
+//      this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <functional>
 #include <mutex>
+#include <string>
 
-#include "cv_bridge/cv_bridge.h"
+#include "cv_bridge/cv_bridge.hpp"
 #include "tracetools_image_pipeline/tracetools.h"
 
 #include <image_proc/rectify.hpp>
@@ -51,31 +49,42 @@ namespace image_proc
 RectifyNode::RectifyNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("RectifyNode", options)
 {
-  auto qos_profile = getTopicQosProfile(this, "image");
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("image_transport", "raw");
+
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  image_topic_ = node_base->resolve_topic_or_service_name("image", false);
+  std::string rect_topic =
+    node_base->resolve_topic_or_service_name("image_rect", false);
+
+
   queue_size_ = this->declare_parameter("queue_size", 5);
-  interpolation = this->declare_parameter("interpolation", 1);
-  pub_rect_ = image_transport::create_publisher(this, "image_rect");
-  subscribeToCamera(qos_profile);
-}
+  interpolation_ = this->declare_parameter("interpolation", 1);
 
-// Handles (un)subscribing when clients (un)subscribe
-void RectifyNode::subscribeToCamera(const rmw_qos_profile_t & qos_profile)
-{
-  std::lock_guard<std::mutex> lock(connect_mutex_);
+  // Setup lazy subscriber using publisher connection callback
+  rclcpp::PublisherOptions pub_options;
+  pub_options.event_callbacks.matched_callback =
+    [this](rclcpp::MatchedInfo &)
+    {
+      if (pub_rect_.getNumSubscribers() == 0) {
+        sub_camera_.shutdown();
+      } else if (!sub_camera_) {
+        // Create subscriber with QoS matched to subscribed topic publisher
+        auto qos_profile = getQosProfile(this, image_topic_);
+        image_transport::TransportHints hints(*this);
+        sub_camera_ = image_transport::create_camera_subscription(
+          *this, image_topic_, std::bind(
+            &RectifyNode::imageCb,
+            this, std::placeholders::_1, std::placeholders::_2), hints.getTransport(), qos_profile);
+      }
+    };
 
-  /*
-  *  SubscriberStatusCallback not yet implemented
-  *
-  if (pub_rect_.getNumSubscribers() == 0)
-    sub_camera_.shutdown();
-  else if (!sub_camera_)
-  {
-  */
-  sub_camera_ = image_transport::create_camera_subscription(
-    this, "image", std::bind(
-      &RectifyNode::imageCb,
-      this, std::placeholders::_1, std::placeholders::_2), "raw", qos_profile);
-  // }
+  // Create publisher - allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  pub_rect_ = image_transport::create_publisher(*this, rect_topic, rclcpp::SystemDefaultsQoS(),
+      pub_options);
 }
 
 void RectifyNode::imageCb(
@@ -140,12 +149,12 @@ void RectifyNode::imageCb(
   cv::Mat rect;
 
   // Rectify and publish
-  model_.rectifyImage(image, rect, interpolation);
+  model_.rectifyImage(image, rect, interpolation_);
 
   // Allocate new rectified image message
-  sensor_msgs::msg::Image::SharedPtr rect_msg =
-    cv_bridge::CvImage(image_msg->header, image_msg->encoding, rect).toImageMsg();
-  pub_rect_.publish(rect_msg);
+  auto rect_msg = std::make_unique<sensor_msgs::msg::Image>();
+  cv_bridge::CvImage(image_msg->header, image_msg->encoding, rect).toImageMsg(*rect_msg);
+  pub_rect_.publish(std::move(rect_msg));
 
   TRACEPOINT(
     image_proc_rectify_fini,

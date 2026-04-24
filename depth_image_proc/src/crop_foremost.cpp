@@ -1,42 +1,41 @@
 // Copyright (c) 2008, Willow Garage, Inc.
 // All rights reserved.
 //
-// Software License Agreement (BSD License 2.0)
-//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
+// modification, are permitted provided that the following conditions are met:
 //
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above
-//    copyright notice, this list of conditions and the following
-//    disclaimer in the documentation and/or other materials provided
-//    with the distribution.
-//  * Neither the name of the Willow Garage nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
+//    * Redistributions of source code must retain the above copyright
+//      notice, this list of conditions and the following disclaimer.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//    * Redistributions in binary form must reproduce the above copyright
+//      notice, this list of conditions and the following disclaimer in the
+//      documentation and/or other materials provided with the distribution.
+//
+//    * Neither the name of the copyright holder nor the names of its
+//      contributors may be used to endorse or promote products derived from
+//      this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <functional>
 #include <mutex>
+#include <string>
 
-#include "cv_bridge/cv_bridge.h"
+#include "cv_bridge/cv_bridge.hpp"
 #include "depth_image_proc/visibility.h"
 
 #include <rclcpp/rclcpp.hpp>
+#include <image_proc/utils.hpp>
 #include <image_transport/image_transport.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -58,8 +57,6 @@ private:
   std::mutex connect_mutex_;
   image_transport::Publisher pub_depth_;
 
-  void connectCb();
-
   void depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg);
 
   double distance_;
@@ -70,35 +67,46 @@ private:
 CropForemostNode::CropForemostNode(const rclcpp::NodeOptions & options)
 : Node("CropForemostNode", options)
 {
+  // TransportHints does not actually declare the parameter
+  this->declare_parameter<std::string>("image_transport", "raw");
+
   distance_ = this->declare_parameter("distance", 0.0);
 
-  // Monitor whether anyone is subscribed to the output
-  // TODO(ros2) Implement when SubscriberStatusCallback is available
-  // image_transport::SubscriberStatusCallback connect_cb =
-  //   std::bind(&CropForemostNode::connectCb, this);
-  connectCb();
-  // Make sure we don't enter connectCb() between advertising and assigning to pub_depth_
-  std::lock_guard<std::mutex> lock(connect_mutex_);
-  // TODO(ros2) Implement when SubscriberStatusCallback is available
-  // pub_depth_ = it_->advertise("image", 1, connect_cb, connect_cb);
-  pub_depth_ = image_transport::create_publisher(this, "image");
-}
 
-// Handles (un)subscribing when clients (un)subscribe
-void CropForemostNode::connectCb()
-{
-  std::lock_guard<std::mutex> lock(connect_mutex_);
-  // TODO(ros2) Implement getNumSubscribers when rcl/rmw support it
-  // if (pub_depth_.getNumSubscribers() == 0)
-  if (0) {
-    sub_raw_.shutdown();
-  } else if (!sub_raw_) {
-    image_transport::TransportHints hints(this, "raw");
-    sub_raw_ = image_transport::create_subscription(
-      this, "image_raw",
-      std::bind(&CropForemostNode::depthCb, this, std::placeholders::_1),
-      hints.getTransport());
-  }
+  // Setup lazy subscriber using publisher connection callback
+  rclcpp::PublisherOptions pub_options;
+  pub_options.event_callbacks.matched_callback =
+    [this](rclcpp::MatchedInfo &)
+    {
+      std::lock_guard<std::mutex> lock(connect_mutex_);
+      if (pub_depth_.getNumSubscribers() == 0) {
+        sub_raw_.shutdown();
+      } else if (!sub_raw_) {
+        // For compressed topics to remap appropriately, we need to pass a
+        // fully expanded and remapped topic name to image_transport
+        auto node_base = this->get_node_base_interface();
+        std::string topic = node_base->resolve_topic_or_service_name("image_raw", false);
+        // Get transport hints
+        image_transport::TransportHints hints{*this};
+        // Create publisher with same QoS as subscribed topic publisher
+        auto qos_profile = image_proc::getQosProfile(this, topic);
+        sub_raw_ = image_transport::create_subscription(
+          *this,
+          topic,
+          std::bind(&CropForemostNode::depthCb, this, std::placeholders::_1),
+          hints.getTransport(),
+          qos_profile);
+      }
+    };
+  // For compressed topics to remap appropriately, we need to pass a
+  // fully expanded and remapped topic name to image_transport
+  auto node_base = this->get_node_base_interface();
+  std::string topic = node_base->resolve_topic_or_service_name("image", false);
+
+  // Create publisher - allow overriding QoS settings (history, depth, reliability)
+  pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+  pub_depth_ = image_transport::create_publisher(*this, topic, rclcpp::SystemDefaultsQoS(),
+    pub_options);
 }
 
 void CropForemostNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg)
@@ -142,7 +150,9 @@ void CropForemostNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & r
       break;
   }
 
-  pub_depth_.publish(cv_ptr->toImageMsg());
+  auto image_msg = std::make_unique<sensor_msgs::msg::Image>();
+  cv_ptr->toImageMsg(*image_msg);
+  pub_depth_.publish(std::move(image_msg));
 }
 
 }  // namespace depth_image_proc

@@ -70,7 +70,7 @@ rclcpp_components_register_node(${PROJECT_NAME}
   EXECUTABLE point_cloud_xyzi_radial_node
 )
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "depth_image_proc::PointCloudXyziRadialNode"
+  PLUGIN "depth_image_proc::PointCloudXyzrgbRadialNode"
   EXECUTABLE point_cloud_xyzrgb_radial_node
 )
 rclcpp_components_register_node(${PROJECT_NAME}
@@ -83,6 +83,13 @@ target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES})
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_auto_add_gtest(test_convert_metric test/test_convert_metric.cpp)
+  target_link_libraries(test_convert_metric ${PROJECT_NAME})
+
+  ament_auto_add_gtest(test_point_cloud_xyz test/test_point_cloud_xyz.cpp)
+  target_link_libraries(test_point_cloud_xyz ${PROJECT_NAME})
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE launch)
