@@ -41,7 +41,7 @@ int main(int argc, char ** argv)
   if (argc <= 1) {
     RCUTILS_LOG_ERROR(
       "image_publisher requires filename. Typical command-line usage:\n"
-      "\t$ ros2 run image_publisher image_publisher_node <filename>");
+      "\t$ ros2 run image_publisher image_publisher <filename>");
     return 1;
   }
 

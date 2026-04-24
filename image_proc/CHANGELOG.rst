@@ -2,39 +2,15 @@
 Changelog for package image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.1.5 (2026-04-24)
-------------------
-* Segmentation fault (Null Pointer Dereference) in CropNonZeroNode when processing all-black images (`#1134 <https://github.com/ros-perception/image_pipeline/issues/1134>`_)
-* Contributors: Alejandro Hernández Cordero
+6.0.12 (2026-04-24)
+-------------------
+* Segmentation fault (Null Pointer Dereference) in CropNonZeroNode when processing all-black images (backport `#1134 <https://github.com/ros-perception/image_pipeline/issues/1134>`_) (`#1137 <https://github.com/ros-perception/image_pipeline/issues/1137>`_)
+* Cleanup bsd 3 clause license usage (backport `#1125 <https://github.com/ros-perception/image_pipeline/issues/1125>`_) (`#1140 <https://github.com/ros-perception/image_pipeline/issues/1140>`_)
+* Update index.ros.org package website links (backport `#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_) (`#1103 <https://github.com/ros-perception/image_pipeline/issues/1103>`_)
+* Contributors: mergify[bot]
 
-7.1.4 (2026-01-20)
-------------------
-* Cleanup bsd 3 clause license usage (`#1125 <https://github.com/ros-perception/image_pipeline/issues/1125>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.3 (2025-12-09)
-------------------
-
-7.1.2 (2025-09-16)
-------------------
-* Removed unused attribute (`#1117 <https://github.com/ros-perception/image_pipeline/issues/1117>`_)
-* Removed deprecation warning rclcpp::spin_some (`#1118 <https://github.com/ros-perception/image_pipeline/issues/1118>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.1 (2025-09-01)
-------------------
-* Support image_transport lifecycle (`#1099 <https://github.com/ros-perception/image_pipeline/issues/1099>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.0 (2025-07-29)
-------------------
-* Replace rmq_qos_profile_t with rclcpp::QoS (`#1106 <https://github.com/ros-perception/image_pipeline/issues/1106>`_)
-* fix remapping bug in RectifyNode (`#1108 <https://github.com/ros-perception/image_pipeline/issues/1108>`_)
-* Update index.ros.org package website links (`#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_)
-* Contributors: Alejandro Hernández Cordero, Charles Ellison, Christophe Bedard
-
-7.0.0 (2025-05-19)
-------------------
+6.0.11 (2025-05-19)
+-------------------
 
 6.0.10 (2025-02-27)
 -------------------

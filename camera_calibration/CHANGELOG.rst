@@ -2,29 +2,18 @@
 Changelog for package camera_calibration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.1.5 (2026-04-24)
-------------------
+6.0.12 (2026-04-24)
+-------------------
+* Update index.ros.org package website links (backport `#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_) (`#1103 <https://github.com/ros-perception/image_pipeline/issues/1103>`_)
+* Contributors: mergify[bot]
 
-7.1.4 (2026-01-20)
-------------------
-
-7.1.3 (2025-12-09)
-------------------
-
-7.1.2 (2025-09-16)
-------------------
-
-7.1.1 (2025-09-01)
-------------------
-
-7.1.0 (2025-07-29)
-------------------
-* Update index.ros.org package website links (`#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_)
-* Contributors: Christophe Bedard
-
-7.0.0 (2025-05-19)
-------------------
+6.0.11 (2025-05-19)
+-------------------
 * Replace OpenCV version string comparison with semver. (`#1087 <https://github.com/ros-perception/image_pipeline/issues/1087>`_)
+  When using the ChArUco markers with `cameracalibrator`, I found out that
+  there's an issue with the last versions of OpenCV due to the fact that
+  versions are compared as strings and the thing goes wrong for versions
+  4.10 and above.
 * Contributors: Filip Grčar
 
 6.0.10 (2025-02-27)
