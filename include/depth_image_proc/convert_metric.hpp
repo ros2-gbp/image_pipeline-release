@@ -27,66 +27,36 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DEPTH_IMAGE_PROC__POINT_CLOUD_XYZRGB_HPP_
-#define DEPTH_IMAGE_PROC__POINT_CLOUD_XYZRGB_HPP_
+#ifndef DEPTH_IMAGE_PROC__CONVERT_METRIC_HPP_
+#define DEPTH_IMAGE_PROC__CONVERT_METRIC_HPP_
 
-#include <memory>
 #include <mutex>
 
 #include "depth_image_proc/visibility.h"
-#include "image_geometry/pinhole_camera_model.hpp"
-#include "message_filters/subscriber.h"
-#include "message_filters/synchronizer.h"
-#include "message_filters/sync_policies/exact_time.h"
-#include "message_filters/sync_policies/approximate_time.h"
 
-#include <image_transport/image_transport.hpp>
-#include <image_transport/subscriber_filter.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/camera_info.hpp>
+#include <image_transport/image_transport.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
 
 namespace depth_image_proc
 {
 
-class PointCloudXyzrgbNode : public rclcpp::Node
+class ConvertMetricNode : public rclcpp::Node
 {
 public:
-  DEPTH_IMAGE_PROC_PUBLIC PointCloudXyzrgbNode(const rclcpp::NodeOptions & options);
+  DEPTH_IMAGE_PROC_PUBLIC explicit ConvertMetricNode(const rclcpp::NodeOptions & options);
 
 private:
-  using PointCloud2 = sensor_msgs::msg::PointCloud2;
-  using Image = sensor_msgs::msg::Image;
-  using CameraInfo = sensor_msgs::msg::CameraInfo;
-
   // Subscriptions
-  image_transport::SubscriberFilter sub_depth_, sub_rgb_;
-  message_filters::Subscriber<CameraInfo> sub_info_;
-  using SyncPolicy =
-    message_filters::sync_policies::ApproximateTime<Image, Image, CameraInfo>;
-  using ExactSyncPolicy =
-    message_filters::sync_policies::ExactTime<Image, Image, CameraInfo>;
-  using Synchronizer = message_filters::Synchronizer<SyncPolicy>;
-  using ExactSynchronizer = message_filters::Synchronizer<ExactSyncPolicy>;
-  std::shared_ptr<Synchronizer> sync_;
-  std::shared_ptr<ExactSynchronizer> exact_sync_;
-
-  // parameters
-  float invalid_depth_;
+  image_transport::Subscriber sub_raw_;
 
   // Publications
   std::mutex connect_mutex_;
-  rclcpp::Publisher<PointCloud2>::SharedPtr pub_point_cloud_;
+  image_transport::Publisher pub_depth_;
 
-  image_geometry::PinholeCameraModel model_;
-
-  void imageCb(
-    const Image::ConstSharedPtr & depth_msg,
-    const Image::ConstSharedPtr & rgb_msg,
-    const CameraInfo::ConstSharedPtr & info_msg);
+  void depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg);
 };
 
 }  // namespace depth_image_proc
 
-#endif  // DEPTH_IMAGE_PROC__POINT_CLOUD_XYZRGB_HPP_
+#endif  // DEPTH_IMAGE_PROC__CONVERT_METRIC_HPP_
