@@ -1,30 +1,33 @@
 // Copyright (c) 2008, Willow Garage, Inc.
 // All rights reserved.
 //
+// Software License Agreement (BSD License 2.0)
+//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
+// modification, are permitted provided that the following conditions
+// are met:
 //
-//    * Redistributions of source code must retain the above copyright
-//      notice, this list of conditions and the following disclaimer.
+//  * Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above
+//    copyright notice, this list of conditions and the following
+//    disclaimer in the documentation and/or other materials provided
+//    with the distribution.
+//  * Neither the name of the Willow Garage nor the names of its
+//    contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
 //
-//    * Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimer in the
-//      documentation and/or other materials provided with the distribution.
-//
-//    * Neither the name of the copyright holder nor the names of its
-//      contributors may be used to endorse or promote products derived from
-//      this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <functional>
@@ -34,8 +37,8 @@
 #include <string>
 
 #include "depth_image_proc/visibility.h"
-#include "message_filters/subscriber.h"
-#include "message_filters/time_synchronizer.h"
+#include "message_filters/subscriber.hpp"
+#include "message_filters/time_synchronizer.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 #include <image_transport/image_transport.hpp>
@@ -74,7 +77,7 @@ private:
   template<typename T>
   void convert(
     const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
-    stereo_msgs::msg::DisparityImage::SharedPtr & disp_msg);
+    stereo_msgs::msg::DisparityImage & disp_msg);
 };
 
 DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
@@ -92,7 +95,7 @@ DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
   delta_d_ = this->declare_parameter<double>("delta_d", 0.125);
 
   // Synchronize inputs. Topic subscriptions happen on demand in the connection callback.
-  sync_ = std::make_shared<Sync>(sub_depth_image_, sub_info_, queue_size);
+  sync_ = std::make_shared<Sync>(queue_size, sub_depth_image_, sub_info_);
   sync_->registerCallback(
     std::bind(
       &DisparityNode::depthCb, this, std::placeholders::_1, std::placeholders::_2));
@@ -111,9 +114,9 @@ DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
         // fully expanded and remapped topic name to image_transport
         auto node_base = this->get_node_base_interface();
         std::string topic = node_base->resolve_topic_or_service_name("left/image_rect", false);
-        image_transport::TransportHints hints(this);
-        sub_depth_image_.subscribe(this, topic, hints.getTransport());
-        sub_info_.subscribe(this, "right/camera_info");
+        image_transport::TransportHints hints(*this);
+        sub_depth_image_.subscribe(*this, topic, hints.getTransport(), rclcpp::SystemDefaultsQoS());
+        sub_info_.subscribe(this, "right/camera_info", rclcpp::QoS(10));
       }
     };
   // Allow overriding QoS settings (history, depth, reliability)
@@ -126,7 +129,7 @@ void DisparityNode::depthCb(
   const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
   const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg)
 {
-  auto disp_msg = std::make_shared<DisparityImage>();
+  auto disp_msg = std::make_unique<DisparityImage>();
   disp_msg->header = depth_msg->header;
   disp_msg->image.header = disp_msg->header;
   disp_msg->image.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
@@ -143,30 +146,30 @@ void DisparityNode::depthCb(
   disp_msg->delta_d = delta_d_;
 
   if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    convert<uint16_t>(depth_msg, disp_msg);
+    convert<uint16_t>(depth_msg, *disp_msg);
   } else if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    convert<float>(depth_msg, disp_msg);
+    convert<float>(depth_msg, *disp_msg);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
     return;
   }
 
-  pub_disparity_->publish(*disp_msg);
+  pub_disparity_->publish(std::move(disp_msg));
 }
 
 template<typename T>
 void DisparityNode::convert(
   const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
-  stereo_msgs::msg::DisparityImage::SharedPtr & disp_msg)
+  stereo_msgs::msg::DisparityImage & disp_msg)
 {
   // For each depth Z, disparity d = fT / Z
   float unit_scaling = DepthTraits<T>::toMeters(T(1) );
-  float constant = disp_msg->f * disp_msg->t / unit_scaling;
+  float constant = disp_msg.f * disp_msg.t / unit_scaling;
 
   const T * depth_row = reinterpret_cast<const T *>(&depth_msg->data[0]);
   int row_step = depth_msg->step / sizeof(T);
-  float * disp_data = reinterpret_cast<float *>(&disp_msg->image.data[0]);
+  float * disp_data = reinterpret_cast<float *>(&disp_msg.image.data[0]);
   for (int v = 0; v < static_cast<int>(depth_msg->height); ++v) {
     for (int u = 0; u < static_cast<int>(depth_msg->width); ++u) {
       T depth = depth_row[u];

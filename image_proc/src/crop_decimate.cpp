@@ -1,30 +1,33 @@
 // Copyright 2008, 2019 Willow Garage, Inc., Steve Macenski, Joshua Whitley
 // All rights reserved.
 //
+// Software License Agreement (BSD License 2.0)
+//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
+// modification, are permitted provided that the following conditions
+// are met:
 //
-//    * Redistributions of source code must retain the above copyright
-//      notice, this list of conditions and the following disclaimer.
+// * Redistributions of source code must retain the above copyright
+//   notice, this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above
+//   copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided
+//   with the distribution.
+// * Neither the name of {copyright_holder} nor the names of its
+//   contributors may be used to endorse or promote products derived
+//   from this software without specific prior written permission.
 //
-//    * Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimer in the
-//      documentation and/or other materials provided with the distribution.
-//
-//    * Neither the name of the copyright holder nor the names of its
-//      contributors may be used to endorse or promote products derived from
-//      this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <algorithm>
@@ -140,10 +143,10 @@ CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
         sub_.shutdown();
       } else if (!sub_) {
         // Create subscriber with QoS matched to subscribed topic publisher
-        auto qos_profile = getTopicQosProfile(this, image_topic_);
-        image_transport::TransportHints hints(this);
+        auto qos_profile = getQosProfile(this, image_topic_);
+        image_transport::TransportHints hints(*this);
         sub_ = image_transport::create_camera_subscription(
-          this, image_topic_, std::bind(
+          *this, image_topic_, std::bind(
             &CropDecimateNode::imageCb, this,
             std::placeholders::_1, std::placeholders::_2), hints.getTransport(), qos_profile);
       }
@@ -151,7 +154,7 @@ CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
 
   // Create publisher - allow overriding QoS settings (history, depth, reliability)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  pub_ = image_transport::create_camera_publisher(this, pub_topic, rmw_qos_profile_default,
+  pub_ = image_transport::create_camera_publisher(*this, pub_topic, rclcpp::SystemDefaultsQoS(),
       pub_options);
 }
 
@@ -322,11 +325,11 @@ void CropDecimateNode::imageCb(
 
   // Create output Image message
   /// @todo Could save copies by allocating this above and having output.image alias it
-  sensor_msgs::msg::Image::SharedPtr out_image = output.toImageMsg();
+  auto out_image = std::make_unique<sensor_msgs::msg::Image>();
+  output.toImageMsg(*out_image);
 
   // Create updated CameraInfo message
-  sensor_msgs::msg::CameraInfo::SharedPtr out_info =
-    std::make_shared<sensor_msgs::msg::CameraInfo>(*info_msg);
+  auto out_info = std::make_unique<sensor_msgs::msg::CameraInfo>(*info_msg);
   int binning_x = std::max(static_cast<int>(info_msg->binning_x), 1);
   int binning_y = std::max(static_cast<int>(info_msg->binning_y), 1);
   out_info->binning_x = binning_x * decimation_x_;
@@ -348,7 +351,7 @@ void CropDecimateNode::imageCb(
     out_info->header.frame_id = target_frame_id_;
   }
 
-  pub_.publish(out_image, out_info);
+  pub_.publish(std::move(out_image), std::move(out_info));
 }
 
 }  // namespace image_proc

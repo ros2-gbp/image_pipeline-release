@@ -1,30 +1,33 @@
 // Copyright (c) 2008, Willow Garage, Inc.
 // All rights reserved.
 //
+// Software License Agreement (BSD License 2.0)
+//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
+// modification, are permitted provided that the following conditions
+// are met:
 //
-//    * Redistributions of source code must retain the above copyright
-//      notice, this list of conditions and the following disclaimer.
+//  * Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above
+//    copyright notice, this list of conditions and the following
+//    disclaimer in the documentation and/or other materials provided
+//    with the distribution.
+//  * Neither the name of the Willow Garage nor the names of its
+//    contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
 //
-//    * Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimer in the
-//      documentation and/or other materials provided with the distribution.
-//
-//    * Neither the name of the copyright holder nor the names of its
-//      contributors may be used to endorse or promote products derived from
-//      this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <chrono>
@@ -35,11 +38,11 @@
 #include "Eigen/Geometry"
 #include "depth_image_proc/visibility.h"
 #include "image_geometry/pinhole_camera_model.hpp"
-#include "message_filters/subscriber.h"
-#include "message_filters/synchronizer.h"
-#include "message_filters/sync_policies/approximate_time.h"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
+#include "message_filters/subscriber.hpp"
+#include "message_filters/synchronizer.hpp"
+#include "message_filters/sync_policies/approximate_time.hpp"
+#include "tf2_ros/buffer.hpp"
+#include "tf2_ros/transform_listener.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 #include <image_transport/image_transport.hpp>
@@ -89,7 +92,7 @@ private:
   template<typename T>
   void convert(
     const Image::ConstSharedPtr & depth_msg,
-    const Image::SharedPtr & registered_msg,
+    Image & registered_msg,
     const Eigen::Affine3d & depth_to_rgb);
 };
 
@@ -138,13 +141,11 @@ RegisterNode::RegisterNode(const rclcpp::NodeOptions & options)
         // fully expanded and remapped topic name to image_transport
         auto node_base = this->get_node_base_interface();
         std::string topic = node_base->resolve_topic_or_service_name("depth/image_rect", false);
-        image_transport::TransportHints hints(this, "raw", "depth_image_transport");
-        sub_depth_image_.subscribe(this, topic, hints.getTransport(), rmw_qos_profile_default,
+        image_transport::TransportHints hints(*this, "raw", "depth_image_transport");
+        sub_depth_image_.subscribe(*this, topic, hints.getTransport(), rclcpp::SystemDefaultsQoS(),
           sub_options);
-        auto qos = rmw_qos_profile_default;
-        qos.depth = 10;
-        sub_depth_info_.subscribe(this, "depth/camera_info", qos, sub_options);
-        sub_rgb_info_.subscribe(this, "rgb/camera_info", qos, sub_options);
+        sub_depth_info_.subscribe(this, "depth/camera_info", rclcpp::QoS(10), sub_options);
+        sub_rgb_info_.subscribe(this, "rgb/camera_info", rclcpp::QoS(10), sub_options);
       }
     };
   // For compressed topics to remap appropriately, we need to pass a
@@ -157,8 +158,8 @@ RegisterNode::RegisterNode(const rclcpp::NodeOptions & options)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
   pub_registered_ =
     image_transport::create_camera_publisher(
-    this, topic,
-    rmw_qos_profile_default, pub_options);
+    *this, topic,
+    rclcpp::SystemDefaultsQoS(), pub_options);
 }
 
 void RegisterNode::imageCb(
@@ -189,7 +190,7 @@ void RegisterNode::imageCb(
     /// don't call publish() in this cb. What's going on roscpp?
   }
 
-  auto registered_msg = std::make_shared<Image>();
+  auto registered_msg = std::make_unique<Image>();
   registered_msg->header.stamp =
     use_rgb_timestamp_ ? rgb_info_msg->header.stamp : depth_image_msg->header.stamp;
   registered_msg->header.frame_id = rgb_info_msg->header.frame_id;
@@ -201,9 +202,9 @@ void RegisterNode::imageCb(
   // step and data set in convert(), depend on depth data type
 
   if (depth_image_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    convert<uint16_t>(depth_image_msg, registered_msg, depth_to_rgb);
+    convert<uint16_t>(depth_image_msg, *registered_msg, depth_to_rgb);
   } else if (depth_image_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    convert<float>(depth_image_msg, registered_msg, depth_to_rgb);
+    convert<float>(depth_image_msg, *registered_msg, depth_to_rgb);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Depth image has unsupported encoding [%s]",
@@ -212,24 +213,24 @@ void RegisterNode::imageCb(
   }
 
   // Registered camera info is the same as the RGB info, but uses the depth timestamp
-  auto registered_info_msg = std::make_shared<CameraInfo>(*rgb_info_msg);
+  auto registered_info_msg = std::make_unique<CameraInfo>(*rgb_info_msg);
   registered_info_msg->header.stamp = registered_msg->header.stamp;
 
-  pub_registered_.publish(registered_msg, registered_info_msg);
+  pub_registered_.publish(std::move(registered_msg), std::move(registered_info_msg));
 }
 
 template<typename T>
 void RegisterNode::convert(
   const Image::ConstSharedPtr & depth_msg,
-  const Image::SharedPtr & registered_msg,
+  Image & registered_msg,
   const Eigen::Affine3d & depth_to_rgb)
 {
   // Allocate memory for registered depth image
-  registered_msg->step = registered_msg->width * sizeof(T);
-  registered_msg->data.resize(registered_msg->height * registered_msg->step);
+  registered_msg.step = registered_msg.width * sizeof(T);
+  registered_msg.data.resize(registered_msg.height * registered_msg.step);
   // data is already zero-filled in the uint16 case,
   //   but for floats we want to initialize everything to NaN.
-  DepthTraits<T>::initializeBuffer(registered_msg->data);
+  DepthTraits<T>::initializeBuffer(registered_msg.data);
 
   // Extract all the parameters we need
   double inv_depth_fx = 1.0 / depth_model_.fx();
@@ -245,7 +246,7 @@ void RegisterNode::convert(
   //   registered image
   const T * depth_row = reinterpret_cast<const T *>(&depth_msg->data[0]);
   int row_step = depth_msg->step / sizeof(T);
-  T * registered_data = reinterpret_cast<T *>(&registered_msg->data[0]);
+  T * registered_data = reinterpret_cast<T *>(&registered_msg.data[0]);
   int raw_index = 0;
   for (unsigned v = 0; v < depth_msg->height; ++v, depth_row += row_step) {
     for (unsigned u = 0; u < depth_msg->width; ++u, ++raw_index) {
@@ -273,13 +274,13 @@ void RegisterNode::convert(
         int u_rgb = (rgb_fx * xyz_rgb.x() + rgb_Tx) * inv_Z + rgb_cx + 0.5;
         int v_rgb = (rgb_fy * xyz_rgb.y() + rgb_Ty) * inv_Z + rgb_cy + 0.5;
 
-        if (u_rgb < 0 || u_rgb >= static_cast<int>(registered_msg->width) ||
-          v_rgb < 0 || v_rgb >= static_cast<int>(registered_msg->height))
+        if (u_rgb < 0 || u_rgb >= static_cast<int>(registered_msg.width) ||
+          v_rgb < 0 || v_rgb >= static_cast<int>(registered_msg.height))
         {
           continue;
         }
 
-        T & reg_depth = registered_data[v_rgb * registered_msg->width + u_rgb];
+        T & reg_depth = registered_data[v_rgb * registered_msg.width + u_rgb];
         T new_depth = DepthTraits<T>::fromMeters(xyz_rgb.z());
         // Validity and Z-buffer checks
         if (!DepthTraits<T>::valid(reg_depth) || reg_depth > new_depth) {
@@ -309,15 +310,15 @@ void RegisterNode::convert(
         int u_rgb_2 = (rgb_fx * xyz_rgb_2.x() + rgb_Tx) * inv_Z + rgb_cx + 0.5;
         int v_rgb_2 = (rgb_fy * xyz_rgb_2.y() + rgb_Ty) * inv_Z + rgb_cy + 0.5;
 
-        if (u_rgb_1 < 0 || u_rgb_2 >= static_cast<int>(registered_msg->width) ||
-          v_rgb_1 < 0 || v_rgb_2 >= static_cast<int>(registered_msg->height))
+        if (u_rgb_1 < 0 || u_rgb_2 >= static_cast<int>(registered_msg.width) ||
+          v_rgb_1 < 0 || v_rgb_2 >= static_cast<int>(registered_msg.height))
         {
           continue;
         }
 
         for (int nv = v_rgb_1; nv <= v_rgb_2; ++nv) {
           for (int nu = u_rgb_1; nu <= u_rgb_2; ++nu) {
-            T & reg_depth = registered_data[nv * registered_msg->width + nu];
+            T & reg_depth = registered_data[nv * registered_msg.width + nu];
             T new_depth = DepthTraits<T>::fromMeters(0.5 * (xyz_rgb_1.z() + xyz_rgb_2.z()));
             // Validity and Z-buffer checks
             if (!DepthTraits<T>::valid(reg_depth) || reg_depth > new_depth) {

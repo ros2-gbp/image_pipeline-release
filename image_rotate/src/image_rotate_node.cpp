@@ -2,30 +2,33 @@
 // Copyright (c) 2008, Willow Garage, Inc.
 // All rights reserved.
 //
+// Software License Agreement (BSD License 2.0)
+//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
+// modification, are permitted provided that the following conditions
+// are met:
 //
-//    * Redistributions of source code must retain the above copyright
-//      notice, this list of conditions and the following disclaimer.
+//  * Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above
+//    copyright notice, this list of conditions and the following
+//    disclaimer in the documentation and/or other materials provided
+//    with the distribution.
+//  * Neither the name of the Willow Garage nor the names of its
+//    contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
 //
-//    * Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimer in the
-//      documentation and/or other materials provided with the distribution.
-//
-//    * Neither the name of the copyright holder nor the names of its
-//      contributors may be used to endorse or promote products derived from
-//      this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 /********************************************************************
@@ -45,11 +48,11 @@
 #include <vector>
 
 #include "cv_bridge/cv_bridge.hpp"
-#include "tf2/LinearMath/Vector3.h"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
-#include "tf2_ros/transform_broadcaster.h"
+#include "tf2/LinearMath/Vector3.hpp"
+#include "tf2/LinearMath/Quaternion.hpp"
+#include "tf2_ros/buffer.hpp"
+#include "tf2_ros/transform_listener.hpp"
+#include "tf2_ros/transform_broadcaster.hpp"
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
@@ -259,10 +262,10 @@ void ImageRotateNode::do_work(
     cv::warpAffine(in_image, out_image, rot_matrix, cv::Size(out_size, out_size));
 
     // Publish the image.
-    sensor_msgs::msg::Image::SharedPtr out_img =
-      cv_bridge::CvImage(msg->header, msg->encoding, out_image).toImageMsg();
+    auto out_img = std::make_unique<sensor_msgs::msg::Image>();
+    cv_bridge::CvImage(msg->header, msg->encoding, out_image).toImageMsg(*out_img);
     out_img->header.frame_id = transform.child_frame_id;
-    img_pub_.publish(out_img);
+    img_pub_.publish(std::move(out_img));
   } catch (const cv::Exception & e) {
     RCLCPP_ERROR(
       get_logger(),
@@ -309,13 +312,14 @@ void ImageRotateNode::onInit()
         }
 
         // This will check image_transport parameter to get proper transport
-        image_transport::TransportHints transport_hint(this, "raw");
+        image_transport::TransportHints transport_hint(*this,
+          "raw");
 
         if (config_.use_camera_info && config_.input_frame_id.empty()) {
-          auto custom_qos = rmw_qos_profile_system_default;
-          custom_qos.depth = 3;
+          auto custom_qos = rclcpp::SystemDefaultsQoS();
+          custom_qos.keep_last(3);
           cam_sub_ = image_transport::create_camera_subscription(
-            this,
+            *this,
             topic_name,
             std::bind(
               &ImageRotateNode::imageCallbackWithInfo, this,
@@ -323,10 +327,10 @@ void ImageRotateNode::onInit()
             transport_hint.getTransport(),
             custom_qos);
         } else {
-          auto custom_qos = rmw_qos_profile_system_default;
-          custom_qos.depth = 3;
+          auto custom_qos = rclcpp::SystemDefaultsQoS();
+          custom_qos.keep_last(3);
           img_sub_ = image_transport::create_subscription(
-            this,
+            *this,
             topic_name,
             std::bind(&ImageRotateNode::imageCallback, this, std::placeholders::_1),
             transport_hint.getTransport(),
@@ -342,7 +346,8 @@ void ImageRotateNode::onInit()
 
   // Allow overriding QoS settings (history, depth, reliability)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  img_pub_ = image_transport::create_publisher(this, topic, rmw_qos_profile_default, pub_options);
+  img_pub_ = image_transport::create_publisher(*this, topic, rclcpp::SystemDefaultsQoS(),
+    pub_options);
 }
 
 }  // namespace image_rotate

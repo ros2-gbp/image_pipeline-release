@@ -1,34 +1,38 @@
 // Copyright 2008, 2019 Willow Garage, Inc., Steve Macenski, Joshua Whitley
 // All rights reserved.
 //
+// Software License Agreement (BSD License 2.0)
+//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
+// modification, are permitted provided that the following conditions
+// are met:
 //
-//    * Redistributions of source code must retain the above copyright
-//      notice, this list of conditions and the following disclaimer.
+// * Redistributions of source code must retain the above copyright
+//   notice, this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above
+//   copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided
+//   with the distribution.
+// * Neither the name of {copyright_holder} nor the names of its
+//   contributors may be used to endorse or promote products derived
+//   from this software without specific prior written permission.
 //
-//    * Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimer in the
-//      documentation and/or other materials provided with the distribution.
-//
-//    * Neither the name of the copyright holder nor the names of its
-//      contributors may be used to endorse or promote products derived from
-//      this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <gtest/gtest.h>
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -62,9 +66,9 @@ protected:
     topic_color = camera_ns + "image_color";
     topic_rect_color = camera_ns + "image_rect_color";
 
-    const rcpputils::fs::path base{_SRC_RESOURCES_DIR_PATH};
-    const rcpputils::fs::path raw_image_file = base / "logo.png";
-    const rcpputils::fs::path cam_info_file = base / "calibration_file.ini";
+    const std::filesystem::path base{_SRC_RESOURCES_DIR_PATH};
+    const std::filesystem::path raw_image_file = base / "logo.png";
+    const std::filesystem::path cam_info_file = base / "calibration_file.ini";
 
     /// @todo Test variety of encodings for raw image (bayer, mono, color)
     cv::Mat img = cv::imread(raw_image_file.string(), 0);
@@ -76,7 +80,7 @@ protected:
     }
 
     // Create raw camera publisher
-    image_transport::ImageTransport it(this->node);
+    image_transport::ImageTransport it{*node};
     cam_pub = it.advertiseCamera(topic_raw, 1);
 
     while (true) {
@@ -124,9 +128,11 @@ TEST_F(ImageProcTest, monoSubscription)
   RCLCPP_INFO(node->get_logger(), "Publishing");
 
   RCLCPP_INFO(node->get_logger(), "Spinning");
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(node);
   while (!has_new_image_) {
     publishRaw();
-    rclcpp::spin_some(node);
+    executor.spin_some();
   }
   rclcpp::shutdown();
   RCLCPP_INFO(node->get_logger(), "Done");

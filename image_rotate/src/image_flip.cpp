@@ -3,30 +3,33 @@
 // Copyright (c) 2008, Willow Garage, Inc.
 // All rights reserved.
 //
+// Software License Agreement (BSD License 2.0)
+//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
+// modification, are permitted provided that the following conditions
+// are met:
 //
-//    * Redistributions of source code must retain the above copyright
-//      notice, this list of conditions and the following disclaimer.
+//  * Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above
+//    copyright notice, this list of conditions and the following
+//    disclaimer in the documentation and/or other materials provided
+//    with the distribution.
+//  * Neither the name of the Willow Garage nor the names of its
+//    contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
 //
-//    * Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimer in the
-//      documentation and/or other materials provided with the distribution.
-//
-//    * Neither the name of the copyright holder nor the names of its
-//      contributors may be used to endorse or promote products derived from
-//      this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "image_rotate/image_flip.hpp"
@@ -210,13 +213,14 @@ void ImageFlipNode::onInit()
         }
 
         // This will check image_transport parameter to get proper transport
-        image_transport::TransportHints transport_hint(this, "raw");
+        image_transport::TransportHints transport_hint(*this,
+          "raw");
 
         if (config_.use_camera_info) {
-          auto custom_qos = rmw_qos_profile_system_default;
-          custom_qos.depth = 3;
+          auto custom_qos = rclcpp::SystemDefaultsQoS();
+          custom_qos.keep_last(3);
           cam_sub_ = image_transport::create_camera_subscription(
-            this,
+            *this,
             topic_name,
             std::bind(
               &ImageFlipNode::imageCallbackWithInfo, this,
@@ -224,10 +228,10 @@ void ImageFlipNode::onInit()
             transport_hint.getTransport(),
             custom_qos);
         } else {
-          auto custom_qos = rmw_qos_profile_system_default;
-          custom_qos.depth = 3;
+          auto custom_qos = rclcpp::SystemDefaultsQoS();
+          custom_qos.keep_last(3);
           img_sub_ = image_transport::create_subscription(
-            this,
+            *this,
             topic_name,
             std::bind(&ImageFlipNode::imageCallback, this, std::placeholders::_1),
             transport_hint.getTransport(),
@@ -241,11 +245,13 @@ void ImageFlipNode::onInit()
   auto node_base = this->get_node_base_interface();
   std::string topic = node_base->resolve_topic_or_service_name("rotated/image", false);
 
-  auto custom_qos = rmw_qos_profile_default;
+  auto custom_qos = rclcpp::SystemDefaultsQoS();
   if (config_.use_camera_info) {
-    cam_pub_ = image_transport::create_camera_publisher(this, topic, custom_qos, pub_options);
+    cam_pub_ = image_transport::create_camera_publisher(*this,
+        topic, custom_qos, pub_options);
   } else {
-    img_pub_ = image_transport::create_publisher(this, topic, custom_qos, pub_options);
+    img_pub_ = image_transport::create_publisher(*this, topic,
+        custom_qos, pub_options);
   }
 
   tf_pub_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(*this);

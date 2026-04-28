@@ -2,30 +2,33 @@
 // Copyright (c) 2008, Willow Garage, Inc.
 // All rights reserved.
 //
+// Software License Agreement (BSD License 2.0)
+//
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
+// modification, are permitted provided that the following conditions
+// are met:
 //
-//    * Redistributions of source code must retain the above copyright
-//      notice, this list of conditions and the following disclaimer.
+//  * Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above
+//    copyright notice, this list of conditions and the following
+//    disclaimer in the documentation and/or other materials provided
+//    with the distribution.
+//  * Neither the name of the Willow Garage nor the names of its
+//    contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
 //
-//    * Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimer in the
-//      documentation and/or other materials provided with the distribution.
-//
-//    * Neither the name of the copyright holder nor the names of its
-//      contributors may be used to endorse or promote products derived from
-//      this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
 // This define is added to support M_PI on Windows
@@ -63,7 +66,7 @@ ImagePublisher::ImagePublisher(
   std::string topic_name = node_base->resolve_topic_or_service_name("image_raw", false);
   rclcpp::PublisherOptions pub_options;
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  pub_ = image_transport::create_camera_publisher(this, topic_name, rmw_qos_profile_default,
+  pub_ = image_transport::create_camera_publisher(*this, topic_name, rclcpp::SystemDefaultsQoS(),
       pub_options);
 
   field_of_view_ = this->declare_parameter("field_of_view", static_cast<double>(0));
@@ -134,7 +137,14 @@ void ImagePublisher::reconfigureCallback()
     std::chrono::milliseconds(static_cast<int>(1000 / publish_rate_)),
     std::bind(&ImagePublisher::doWork, this));
 
-  camera_info_manager::CameraInfoManager c(this);
+  camera_info_manager::CameraInfoManager c(
+    this->get_node_base_interface(),
+    this->get_node_services_interface(),
+    this->get_node_logging_interface(),
+    "camera",
+    "",
+    rclcpp::SystemDefaultsQoS(),
+    "");
   if (!camera_info_url_.empty()) {
     RCLCPP_INFO(get_logger(), "camera_info_url: %s", camera_info_url_.c_str());
     try {
@@ -170,14 +180,16 @@ void ImagePublisher::doWork()
       image_flipped_ = true;
     }
 
-    sensor_msgs::msg::Image::SharedPtr out_img =
-      cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_).toImageMsg();
+    auto out_img = std::make_unique<sensor_msgs::msg::Image>();
+    cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_).toImageMsg(*out_img);
     out_img->header.frame_id = frame_id_;
     out_img->header.stamp = this->now();
-    camera_info_.header.frame_id = out_img->header.frame_id;
-    camera_info_.header.stamp = out_img->header.stamp;
 
-    pub_.publish(*out_img, camera_info_);
+    auto cam_info = std::make_unique<sensor_msgs::msg::CameraInfo>(camera_info_);
+    cam_info->header.frame_id = out_img->header.frame_id;
+    cam_info->header.stamp = out_img->header.stamp;
+
+    pub_.publish(std::move(out_img), std::move(cam_info));
   } catch (cv::Exception & e) {
     RCLCPP_ERROR(
       this->get_logger(), "Image processing error: %s %s %s %i",
