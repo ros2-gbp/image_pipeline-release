@@ -24,7 +24,7 @@
 # define CONDITIONAL_TP(...)
 #endif
 
-bool ros_trace_compile_status(void)
+bool ros_trace_compile_status()
 {
 #ifdef TRACETOOLS_LTTNG_ENABLED
   return true;
