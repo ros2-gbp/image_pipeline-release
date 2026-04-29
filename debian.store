@@ -1,1 +1,1 @@
-{"base": "4370bec1bdf5", "parent": "debian/rolling/image_proc", "previous": "26cef2b7ff48", "trim": "", "trimbase": ""}
+{"base": "34be0f52", "parent": "debian/lyrical/image_proc", "previous": "eef955b1", "trim": "", "trimbase": ""}
