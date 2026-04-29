@@ -1,0 +1,12 @@
+Source: ros-lyrical-image-publisher
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-lyrical-ament-cmake-auto, ros-lyrical-ament-lint-auto <!nocheck>, ros-lyrical-ament-lint-common <!nocheck>, ros-lyrical-camera-info-manager, ros-lyrical-cv-bridge, ros-lyrical-image-transport, ros-lyrical-rcl-interfaces, ros-lyrical-rclcpp, ros-lyrical-rclcpp-components, ros-lyrical-ros-workspace
+Homepage: https://index.ros.org/p/image_publisher/
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-image-publisher
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-lyrical-camera-info-manager, ros-lyrical-cv-bridge, ros-lyrical-image-transport, ros-lyrical-rcl-interfaces, ros-lyrical-rclcpp, ros-lyrical-rclcpp-components, ros-lyrical-ros-workspace
+Description: Contains a node publish an image stream from single image file or avi motion file.
