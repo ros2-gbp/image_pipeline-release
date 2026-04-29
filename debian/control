@@ -1,0 +1,12 @@
+Source: ros-lyrical-camera-calibration
+Section: misc
+Priority: optional
+Maintainer: Vincent Rabaud <vincent.rabaud@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-opencv, python3-pytest <!nocheck>, python3-requests <!nocheck>, python3-semver, ros-lyrical-ament-copyright <!nocheck>, ros-lyrical-ament-flake8 <!nocheck>, ros-lyrical-ament-pep257 <!nocheck>, ros-lyrical-cv-bridge, ros-lyrical-image-geometry, ros-lyrical-message-filters, ros-lyrical-rclpy, ros-lyrical-sensor-msgs, ros-lyrical-std-srvs, ros-lyrical-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: https://index.ros.org/p/camera_calibration/
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-camera-calibration
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, python3-opencv, python3-semver, ros-lyrical-cv-bridge, ros-lyrical-image-geometry, ros-lyrical-message-filters, ros-lyrical-rclpy, ros-lyrical-sensor-msgs, ros-lyrical-std-srvs, ros-lyrical-ros-workspace
+Description: camera_calibration allows easy calibration of monocular or stereo cameras using a checkerboard calibration target.
