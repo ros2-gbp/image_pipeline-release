@@ -227,7 +227,7 @@ tracks:
     - git-bloom-generate -y rosdynrpm --prefix release/:{ros_distro} :{ros_distro}
       -i :{release_inc} --require-os fedora rhel
     devel_branch: lyrical
-    last_version: 7.1.5
+    last_version: 7.1.6
     name: upstream
     patches: null
     release_inc: '1'
