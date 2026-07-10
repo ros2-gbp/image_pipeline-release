@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.5)
 project(depth_image_proc)
 
 # Default to C++14
@@ -95,4 +95,4 @@ if(BUILD_TESTING)
   target_link_libraries(test_point_cloud_xyzrgb ${PROJECT_NAME})
 endif()
 
-ament_auto_package(INSTALL_TO_SHARE launch)
+ament_auto_package(INSTALL_TO_SHARE launch USE_SCOPED_HEADER_INSTALL_DIR)
