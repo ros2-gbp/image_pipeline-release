@@ -2,55 +2,26 @@
 Changelog for package depth_image_proc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.1.7 (2026-07-10)
-------------------
-* Updated CMake minimum version (backport `#1181 <https://github.com/ros-perception/image_pipeline/issues/1181>`_) (`#1190 <https://github.com/ros-perception/image_pipeline/issues/1190>`_)
+6.0.13 (2026-07-10)
+-------------------
+* Updated CMake minimum version (backport `#1181 <https://github.com/ros-perception/image_pipeline/issues/1181>`_) (`#1191 <https://github.com/ros-perception/image_pipeline/issues/1191>`_)
 * Remove Inactive Maintainer
-* Fix issue 1149 (backport `#1152 <https://github.com/ros-perception/image_pipeline/issues/1152>`_) (`#1163 <https://github.com/ros-perception/image_pipeline/issues/1163>`_)
-* PointCloudXyzrgbNode can trigger a heap-buffer-overflow read in convertDepth() when image metadata and payload size diverge during a topology-transition mismatch (backport `#1154 <https://github.com/ros-perception/image_pipeline/issues/1154>`_) (`#1162 <https://github.com/ros-perception/image_pipeline/issues/1162>`_)
-* switch to C++20 (backport `#1165 <https://github.com/ros-perception/image_pipeline/issues/1165>`_) (`#1169 <https://github.com/ros-perception/image_pipeline/issues/1169>`_)
-* Contributors: Josh Whitley, mergify[bot]
+* PointCloudXyzrgbNode can trigger a heap-buffer-overflow read in convertDepth() when image metadata and payload size diverge during a topology-transition mismatch (backport `#1154 <https://github.com/ros-perception/image_pipeline/issues/1154>`_) (`#1156 <https://github.com/ros-perception/image_pipeline/issues/1156>`_)
+* Fix issue 1149 (backport `#1152 <https://github.com/ros-perception/image_pipeline/issues/1152>`_) (`#1159 <https://github.com/ros-perception/image_pipeline/issues/1159>`_)
+* Updated kilted CI (`#1161 <https://github.com/ros-perception/image_pipeline/issues/1161>`_)
+* PointCloudXyzrgbNode throws if resoluitions differ (backport `#1148 <https://github.com/ros-perception/image_pipeline/issues/1148>`_) (`#1150 <https://github.com/ros-perception/image_pipeline/issues/1150>`_)
+* Contributors: Alejandro Hernández Cordero, Josh Whitley, mergify[bot]
 
-7.1.6 (2026-05-08)
-------------------
-* PointCloudXyzrgbNode throws if resoluitions differ (`#1148 <https://github.com/ros-perception/image_pipeline/issues/1148>`_)
-* Contributors: Alejandro Hernández Cordero
+6.0.12 (2026-04-24)
+-------------------
+* heap-buffer-overflow write in PointCloudXyzNode / convertDepth<unsigned short>() with oversized depth Image dimensions (backport `#1136 <https://github.com/ros-perception/image_pipeline/issues/1136>`_) (`#1145 <https://github.com/ros-perception/image_pipeline/issues/1145>`_)
+* ConvertMetricNode crashes on malformed Image with empty data (backport `#1135 <https://github.com/ros-perception/image_pipeline/issues/1135>`_) (`#1143 <https://github.com/ros-perception/image_pipeline/issues/1143>`_)
+* Cleanup bsd 3 clause license usage (backport `#1125 <https://github.com/ros-perception/image_pipeline/issues/1125>`_) (`#1140 <https://github.com/ros-perception/image_pipeline/issues/1140>`_)
+* Update index.ros.org package website links (backport `#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_) (`#1103 <https://github.com/ros-perception/image_pipeline/issues/1103>`_)
+* Contributors: mergify[bot]
 
-7.1.5 (2026-04-24)
-------------------
-* heap-buffer-overflow write in PointCloudXyzNode / convertDepth<unsigned short>() with oversized depth Image dimensions (`#1136 <https://github.com/ros-perception/image_pipeline/issues/1136>`_)
-* ConvertMetricNode crashes on malformed Image with empty data (`#1135 <https://github.com/ros-perception/image_pipeline/issues/1135>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.4 (2026-01-20)
-------------------
-* Cleanup bsd 3 clause license usage (`#1125 <https://github.com/ros-perception/image_pipeline/issues/1125>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.3 (2025-12-09)
-------------------
-* Fix incorrect plugin name for PointCloudXyzrgbRadialNode (`#1120 <https://github.com/ros-perception/image_pipeline//issues/1120>`_)
-* Contributors: mini-1235
-
-7.1.2 (2025-09-16)
-------------------
-* Removed warnings in depth_image_proc (`#1116 <https://github.com/ros-perception/image_pipeline/issues/1116>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.1 (2025-09-01)
-------------------
-* Support image_transport lifecycle (`#1099 <https://github.com/ros-perception/image_pipeline/issues/1099>`_)
-* Contributors: Alejandro Hernández Cordero
-
-7.1.0 (2025-07-29)
-------------------
-* Replace deprecated tf2_ros headers (`#1110 <https://github.com/ros-perception/image_pipeline/issues/1110>`_)
-* Replace rmq_qos_profile_t with rclcpp::QoS (`#1106 <https://github.com/ros-perception/image_pipeline/issues/1106>`_)
-* Update index.ros.org package website links (`#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_)
-* Contributors: Alejandro Hernández Cordero, Christophe Bedard
-
-7.0.0 (2025-05-19)
-------------------
+6.0.11 (2025-05-19)
+-------------------
 * Fixed compilation error (`#1096 <https://github.com/ros-perception/image_pipeline/issues/1096>`_)
   Related with this issue
   https://github.com/ros-perception/image_pipeline/issues/1095

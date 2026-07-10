@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 project(depth_image_proc)
 
-# Default to C++20
+# Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD 14)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -70,7 +70,7 @@ rclcpp_components_register_node(${PROJECT_NAME}
   EXECUTABLE point_cloud_xyzi_radial_node
 )
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "depth_image_proc::PointCloudXyzrgbRadialNode"
+  PLUGIN "depth_image_proc::PointCloudXyziRadialNode"
   EXECUTABLE point_cloud_xyzrgb_radial_node
 )
 rclcpp_components_register_node(${PROJECT_NAME}

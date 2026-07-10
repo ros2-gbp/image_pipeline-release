@@ -2,38 +2,19 @@
 Changelog for package image_pipeline
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.1.7 (2026-07-10)
-------------------
-* Updated CMake minimum version (backport `#1181 <https://github.com/ros-perception/image_pipeline/issues/1181>`_) (`#1190 <https://github.com/ros-perception/image_pipeline/issues/1190>`_)
+6.0.13 (2026-07-10)
+-------------------
+* Updated CMake minimum version (backport `#1181 <https://github.com/ros-perception/image_pipeline/issues/1181>`_) (`#1191 <https://github.com/ros-perception/image_pipeline/issues/1191>`_)
 * Remove Inactive Maintainer
-* switch to C++20 (backport `#1165 <https://github.com/ros-perception/image_pipeline/issues/1165>`_) (`#1169 <https://github.com/ros-perception/image_pipeline/issues/1169>`_)
 * Contributors: Josh Whitley, mergify[bot]
 
-7.1.6 (2026-05-08)
-------------------
+6.0.12 (2026-04-24)
+-------------------
+* Update index.ros.org package website links (backport `#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_) (`#1103 <https://github.com/ros-perception/image_pipeline/issues/1103>`_)
+* Contributors: mergify[bot]
 
-7.1.5 (2026-04-24)
-------------------
-
-7.1.4 (2026-01-20)
-------------------
-
-7.1.3 (2025-12-09)
-------------------
-
-7.1.2 (2025-09-16)
-------------------
-
-7.1.1 (2025-09-01)
-------------------
-
-7.1.0 (2025-07-29)
-------------------
-* Update index.ros.org package website links (`#1101 <https://github.com/ros-perception/image_pipeline/issues/1101>`_)
-* Contributors: Christophe Bedard
-
-7.0.0 (2025-05-19)
-------------------
+6.0.11 (2025-05-19)
+-------------------
 
 6.0.10 (2025-02-27)
 -------------------

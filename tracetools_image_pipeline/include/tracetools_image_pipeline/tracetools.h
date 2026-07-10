@@ -57,7 +57,7 @@ extern "C"
 /**
  * \return `true` if tracing is enabled, `false` otherwise
  */
-TRACETOOLS_PUBLIC bool ros_trace_compile_status(void);
+TRACETOOLS_PUBLIC bool ros_trace_compile_status();
 
 /// `image_proc_resize_init`
 /**

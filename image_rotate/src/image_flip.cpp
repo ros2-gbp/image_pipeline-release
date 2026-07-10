@@ -210,14 +210,13 @@ void ImageFlipNode::onInit()
         }
 
         // This will check image_transport parameter to get proper transport
-        image_transport::TransportHints transport_hint(*this,
-          "raw");
+        image_transport::TransportHints transport_hint(this, "raw");
 
         if (config_.use_camera_info) {
-          auto custom_qos = rclcpp::SystemDefaultsQoS();
-          custom_qos.keep_last(3);
+          auto custom_qos = rmw_qos_profile_system_default;
+          custom_qos.depth = 3;
           cam_sub_ = image_transport::create_camera_subscription(
-            *this,
+            this,
             topic_name,
             std::bind(
               &ImageFlipNode::imageCallbackWithInfo, this,
@@ -225,10 +224,10 @@ void ImageFlipNode::onInit()
             transport_hint.getTransport(),
             custom_qos);
         } else {
-          auto custom_qos = rclcpp::SystemDefaultsQoS();
-          custom_qos.keep_last(3);
+          auto custom_qos = rmw_qos_profile_system_default;
+          custom_qos.depth = 3;
           img_sub_ = image_transport::create_subscription(
-            *this,
+            this,
             topic_name,
             std::bind(&ImageFlipNode::imageCallback, this, std::placeholders::_1),
             transport_hint.getTransport(),
@@ -242,13 +241,11 @@ void ImageFlipNode::onInit()
   auto node_base = this->get_node_base_interface();
   std::string topic = node_base->resolve_topic_or_service_name("rotated/image", false);
 
-  auto custom_qos = rclcpp::SystemDefaultsQoS();
+  auto custom_qos = rmw_qos_profile_default;
   if (config_.use_camera_info) {
-    cam_pub_ = image_transport::create_camera_publisher(*this,
-        topic, custom_qos, pub_options);
+    cam_pub_ = image_transport::create_camera_publisher(this, topic, custom_qos, pub_options);
   } else {
-    img_pub_ = image_transport::create_publisher(*this, topic,
-        custom_qos, pub_options);
+    img_pub_ = image_transport::create_publisher(this, topic, custom_qos, pub_options);
   }
 
   tf_pub_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(*this);
