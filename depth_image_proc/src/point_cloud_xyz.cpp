@@ -89,9 +89,9 @@ PointCloudXyzNode::PointCloudXyzNode(const rclcpp::NodeOptions & options)
         sub_depth_ = image_transport::create_camera_subscription(
           *this,
           topic,
-          [this](
-            const Image::ConstSharedPtr & depth_msg,
-            const CameraInfo::ConstSharedPtr & info_msg) {depthCb(depth_msg, info_msg);},
+          std::bind(
+            &PointCloudXyzNode::depthCb, this, std::placeholders::_1,
+            std::placeholders::_2),
           depth_hints.getTransport(),
           qos_profile);
       }

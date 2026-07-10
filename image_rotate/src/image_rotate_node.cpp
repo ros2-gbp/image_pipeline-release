@@ -38,7 +38,6 @@
 
 #include "image_rotate/image_rotate_node.hpp"
 
-#include <numbers>
 #include <cmath>
 #include <functional>
 #include <memory>
@@ -194,11 +193,11 @@ void ImageRotateNode::do_work(
     if (config_.max_angular_rate == 0) {
       angle_ = angle;
     } else {
-      double delta = fmod(angle - angle_, 2.0 * std::numbers::pi);
-      if (delta > std::numbers::pi) {
-        delta -= 2.0 * std::numbers::pi;
-      } else if (delta < -std::numbers::pi) {
-        delta += 2.0 * std::numbers::pi;
+      double delta = fmod(angle - angle_, 2.0 * M_PI);
+      if (delta > M_PI) {
+        delta -= 2.0 * M_PI;
+      } else if (delta < -M_PI) {
+        delta += 2.0 * M_PI;
       }
 
       double max_delta = config_.max_angular_rate *
@@ -211,7 +210,7 @@ void ImageRotateNode::do_work(
 
       angle_ += delta;
     }
-    angle_ = fmod(angle_, 2.0 * std::numbers::pi);
+    angle_ = fmod(angle_, 2.0 * M_PI);
   } catch (const tf2::TransformException & e) {
     RCLCPP_ERROR(get_logger(), "Transform error: %s", e.what());
   }
@@ -250,7 +249,7 @@ void ImageRotateNode::do_work(
 
     // Compute the rotation matrix.
     cv::Mat rot_matrix = cv::getRotationMatrix2D(
-      cv::Point2f(in_image.cols / 2.0, in_image.rows / 2.0), 180 * angle_ / std::numbers::pi, 1);
+      cv::Point2f(in_image.cols / 2.0, in_image.rows / 2.0), 180 * angle_ / M_PI, 1);
     cv::Mat translation = rot_matrix.col(2);
     rot_matrix.at<double>(0, 2) += (out_size - in_image.cols) / 2.0;
     rot_matrix.at<double>(1, 2) += (out_size - in_image.rows) / 2.0;
@@ -319,11 +318,9 @@ void ImageRotateNode::onInit()
           cam_sub_ = image_transport::create_camera_subscription(
             *this,
             topic_name,
-            [this](
-              const sensor_msgs::msg::Image::ConstSharedPtr & msg,
-              const sensor_msgs::msg::CameraInfo::ConstSharedPtr & cam_info) {
-              imageCallbackWithInfo(msg, cam_info);
-            },
+            std::bind(
+              &ImageRotateNode::imageCallbackWithInfo, this,
+              std::placeholders::_1, std::placeholders::_2),
             transport_hint.getTransport(),
             custom_qos);
         } else {
@@ -332,7 +329,7 @@ void ImageRotateNode::onInit()
           img_sub_ = image_transport::create_subscription(
             *this,
             topic_name,
-            [this](const sensor_msgs::msg::Image::ConstSharedPtr & msg) {imageCallback(msg);},
+            std::bind(&ImageRotateNode::imageCallback, this, std::placeholders::_1),
             transport_hint.getTransport(),
             custom_qos);
         }

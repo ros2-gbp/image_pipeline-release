@@ -45,9 +45,9 @@ struct DepthTraits {};
 template<>
 struct DepthTraits<uint16_t>
 {
-  [[nodiscard]] static constexpr bool valid(uint16_t depth) {return depth != 0;}
-  static constexpr float toMeters(uint16_t depth) {return depth * 0.001f;}   // originally mm
-  static constexpr uint16_t fromMeters(float depth) {return (depth * 1000.0f) + 0.5f;}
+  static inline bool valid(uint16_t depth) {return depth != 0;}
+  static inline float toMeters(uint16_t depth) {return depth * 0.001f;}   // originally mm
+  static inline uint16_t fromMeters(float depth) {return (depth * 1000.0f) + 0.5f;}
   // Do nothing - already zero-filled
   static inline void initializeBuffer(std::vector<uint8_t> & buffer) {(void) buffer;}
 };
@@ -55,10 +55,9 @@ struct DepthTraits<uint16_t>
 template<>
 struct DepthTraits<float>
 {
-  // Not constexpr: std::isfinite only becomes constexpr in C++23 (P0533).
-  [[nodiscard]] static inline bool valid(float depth) {return std::isfinite(depth);}
-  static constexpr float toMeters(float depth) {return depth;}
-  static constexpr float fromMeters(float depth) {return depth;}
+  static inline bool valid(float depth) {return std::isfinite(depth);}
+  static inline float toMeters(float depth) {return depth;}
+  static inline float fromMeters(float depth) {return depth;}
 
   static inline void initializeBuffer(std::vector<uint8_t> & buffer)
   {

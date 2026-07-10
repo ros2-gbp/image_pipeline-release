@@ -64,12 +64,12 @@ PointCloudXyziRadialNode::PointCloudXyziRadialNode(const rclcpp::NodeOptions & o
     sub_intensity_,
     sub_info_);
   sync_->registerCallback(
-    [this](
-      const Image::ConstSharedPtr & depth_msg,
-      const Image::ConstSharedPtr & intensity_msg,
-      const CameraInfo::ConstSharedPtr & info_msg) {
-      imageCb(depth_msg, intensity_msg, info_msg);
-    });
+    std::bind(
+      &PointCloudXyziRadialNode::imageCb,
+      this,
+      std::placeholders::_1,
+      std::placeholders::_2,
+      std::placeholders::_3));
 
   // Setup lazy subscriber using publisher connection callback
   rclcpp::PublisherOptions pub_options;

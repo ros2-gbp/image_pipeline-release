@@ -93,7 +93,7 @@ CropForemostNode::CropForemostNode(const rclcpp::NodeOptions & options)
         sub_raw_ = image_transport::create_subscription(
           *this,
           topic,
-          [this](const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg) {depthCb(raw_msg);},
+          std::bind(&CropForemostNode::depthCb, this, std::placeholders::_1),
           hints.getTransport(),
           qos_profile);
       }

@@ -39,7 +39,7 @@ TRACETOOLS_PUBLIC const char * _get_symbol_funcptr(void * funcptr);
 template<typename T, typename ... U>
 const char * get_symbol(std::function<T(U...)> f)
 {
-  using fnType = T (U...);
+  typedef T (fnType)(U...);
   fnType ** fnPointer = f.template target<fnType *>();
   // If we get an actual address
   if (fnPointer != nullptr) {

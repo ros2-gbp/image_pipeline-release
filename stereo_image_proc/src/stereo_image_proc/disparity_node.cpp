@@ -158,6 +158,8 @@ static void add_param_to_map(
 DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("disparity_node", options)
 {
+  using namespace std::placeholders;
+
   // TransportHints does not actually declare the parameter
   this->declare_parameter<std::string>("image_transport", "raw");
 
@@ -172,53 +174,36 @@ DisparityNode::DisparityNode(const rclcpp::NodeOptions & options)
   // Synchronize callbacks
   if (approx) {
     if (0.0 == approx_sync_epsilon) {
-      approximate_sync_ = std::make_shared<ApproximateSync>(
-        ApproximatePolicy(queue_size),
-        sub_l_image_, sub_l_info_,
-        sub_r_image_, sub_r_info_);
+      approximate_sync_.reset(
+        new ApproximateSync(
+          ApproximatePolicy(queue_size),
+          sub_l_image_, sub_l_info_,
+          sub_r_image_, sub_r_info_));
       approximate_sync_->registerCallback(
-        [this](
-          const sensor_msgs::msg::Image::ConstSharedPtr & l_image_msg,
-          const sensor_msgs::msg::CameraInfo::ConstSharedPtr & l_info_msg,
-          const sensor_msgs::msg::Image::ConstSharedPtr & r_image_msg,
-          const sensor_msgs::msg::CameraInfo::ConstSharedPtr & r_info_msg) {
-          imageCb(l_image_msg, l_info_msg, r_image_msg, r_info_msg);
-        });
+        std::bind(&DisparityNode::imageCb, this, _1, _2, _3, _4));
     } else {
-      approximate_epsilon_sync_ = std::make_shared<ApproximateEpsilonSync>(
-        ApproximateEpsilonPolicy(
-          queue_size, rclcpp::Duration::from_seconds(approx_sync_epsilon)),
-        sub_l_image_, sub_l_info_,
-        sub_r_image_, sub_r_info_);
+      approximate_epsilon_sync_.reset(
+        new ApproximateEpsilonSync(
+          ApproximateEpsilonPolicy(
+            queue_size, rclcpp::Duration::from_seconds(approx_sync_epsilon)),
+          sub_l_image_, sub_l_info_,
+          sub_r_image_, sub_r_info_));
       approximate_epsilon_sync_->registerCallback(
-        [this](
-          const sensor_msgs::msg::Image::ConstSharedPtr & l_image_msg,
-          const sensor_msgs::msg::CameraInfo::ConstSharedPtr & l_info_msg,
-          const sensor_msgs::msg::Image::ConstSharedPtr & r_image_msg,
-          const sensor_msgs::msg::CameraInfo::ConstSharedPtr & r_info_msg) {
-          imageCb(l_image_msg, l_info_msg, r_image_msg, r_info_msg);
-        });
+        std::bind(&DisparityNode::imageCb, this, _1, _2, _3, _4));
     }
   } else {
-    exact_sync_ = std::make_shared<ExactSync>(
-      ExactPolicy(queue_size),
-      sub_l_image_, sub_l_info_,
-      sub_r_image_, sub_r_info_);
+    exact_sync_.reset(
+      new ExactSync(
+        ExactPolicy(queue_size),
+        sub_l_image_, sub_l_info_,
+        sub_r_image_, sub_r_info_));
     exact_sync_->registerCallback(
-      [this](
-        const sensor_msgs::msg::Image::ConstSharedPtr & l_image_msg,
-        const sensor_msgs::msg::CameraInfo::ConstSharedPtr & l_info_msg,
-        const sensor_msgs::msg::Image::ConstSharedPtr & r_image_msg,
-        const sensor_msgs::msg::CameraInfo::ConstSharedPtr & r_info_msg) {
-        imageCb(l_image_msg, l_info_msg, r_image_msg, r_info_msg);
-      });
+      std::bind(&DisparityNode::imageCb, this, _1, _2, _3, _4));
   }
 
   // Register a callback for when parameters are set
   on_set_parameters_callback_handle_ = this->add_on_set_parameters_callback(
-    [this](const std::vector<rclcpp::Parameter> & parameters) {
-      return parameterSetCb(parameters);
-    });
+    std::bind(&DisparityNode::parameterSetCb, this, _1));
 
   // Describe int parameters
   std::map<std::string, std::pair<int, rcl_interfaces::msg::ParameterDescriptor>> int_params;
