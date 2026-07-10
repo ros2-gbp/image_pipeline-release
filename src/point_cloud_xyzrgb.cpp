@@ -55,6 +55,11 @@ PointCloudXyzrgbNode::PointCloudXyzrgbNode(const rclcpp::NodeOptions & options)
   // value used for invalid points for pcd conversion
   invalid_depth_ = this->declare_parameter<double>("invalid_depth", 0.0);
 
+  // Upper bound on depth image pixel count; guards against oversized
+  // width/height that would overflow internal size computations.
+  // 100 MP is well above any realistic sensor.
+  max_pixels_ = this->declare_parameter<int64_t>("max_pixels", 100LL * 1000LL * 1000LL);
+
   // Read parameters
   int queue_size = this->declare_parameter<int>("queue_size", 5);
   bool use_exact_sync = this->declare_parameter<bool>("exact_sync", false);
@@ -140,11 +145,39 @@ PointCloudXyzrgbNode::PointCloudXyzrgbNode(const rclcpp::NodeOptions & options)
       pub_options);
 }
 
+PointCloudXyzrgbNode::~PointCloudXyzrgbNode()
+{
+  // Disconnect inputs so the synchronizer stops receiving new messages.
+  // This must happen before the implicit member teardown, otherwise a
+  // late imageCb() on another executor thread could touch members
+  // (e.g. pub_point_cloud_) that have already been destroyed.
+  {
+    std::lock_guard<std::mutex> lock(connect_mutex_);
+    sub_depth_.unsubscribe();
+    sub_rgb_.unsubscribe();
+    sub_info_.unsubscribe();
+  }
+  // Drop the synchronizers so any pending dispatch can no longer call
+  // back into this object.
+  sync_.reset();
+  exact_sync_.reset();
+  // Wait for any imageCb() that started before the unsubscribe above
+  // to finish before we let members be destroyed.
+  std::lock_guard<std::mutex> lock(callback_mutex_);
+}
+
 void PointCloudXyzrgbNode::imageCb(
   const Image::ConstSharedPtr & depth_msg,
   const Image::ConstSharedPtr & rgb_msg_in,
   const CameraInfo::ConstSharedPtr & info_msg)
 {
+  // Hold callback_mutex_ for the lifetime of this callback so the
+  // destructor can wait for an in-flight callback to complete before
+  // member teardown begins.
+  std::lock_guard<std::mutex> lock(callback_mutex_);
+  if (!pub_point_cloud_) {
+    return;
+  }
   // Check for bad inputs
   if (depth_msg->header.frame_id != rgb_msg_in->header.frame_id) {
     RCLCPP_WARN_THROTTLE(
@@ -155,12 +188,78 @@ void PointCloudXyzrgbNode::imageCb(
       depth_msg->header.frame_id.c_str(), rgb_msg_in->header.frame_id.c_str());
   }
 
+  // Reject unreasonable or inconsistent depth dimensions before doing any
+  // work that depends on the buffer size. Without this guard, oversized
+  // width/height (or a payload smaller than declared) lets convertDepth()
+  // iterate past the end of depth_msg->data and read out of bounds.
+  const uint64_t depth_pixels =
+    static_cast<uint64_t>(depth_msg->height) * static_cast<uint64_t>(depth_msg->width);
+  if (depth_pixels == 0 || depth_pixels > static_cast<uint64_t>(max_pixels_)) {
+    RCLCPP_ERROR(
+      get_logger(),
+      "Depth image dimensions are unreasonable (width=%u, height=%u); skipping.",
+      depth_msg->width, depth_msg->height);
+    return;
+  }
+
+  size_t depth_bytes_per_pixel = 0;
+  if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
+    depth_bytes_per_pixel = sizeof(uint16_t);
+  } else if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
+    depth_bytes_per_pixel = sizeof(float);
+  } else {
+    RCLCPP_ERROR(
+      get_logger(), "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
+    return;
+  }
+
+  const size_t expected_depth_bytes =
+    static_cast<size_t>(depth_pixels) * depth_bytes_per_pixel;
+  if (depth_msg->data.size() < expected_depth_bytes ||
+    depth_msg->step < static_cast<uint32_t>(depth_msg->width * depth_bytes_per_pixel))
+  {
+    RCLCPP_ERROR(
+      get_logger(),
+      "Depth image buffer is inconsistent with declared dimensions "
+      "(width=%u, height=%u, step=%u, data size=%zu, expected >=%zu); skipping.",
+      depth_msg->width, depth_msg->height, depth_msg->step,
+      depth_msg->data.size(), expected_depth_bytes);
+    return;
+  }
+
   // Update camera model
   model_.fromCameraInfo(info_msg);
 
   // Check if the input image has to be resized
   Image::ConstSharedPtr rgb_msg = rgb_msg_in;
   if (depth_msg->width != rgb_msg->width || depth_msg->height != rgb_msg->height) {
+    if (depth_msg->width == 0 || rgb_msg->width == 0 ||
+      depth_msg->height == 0 || rgb_msg->height == 0)
+    {
+      RCLCPP_ERROR(
+        get_logger(),
+        "Invalid image dimensions: depth (%ux%u), rgb (%ux%u)",
+        depth_msg->width, depth_msg->height, rgb_msg->width, rgb_msg->height);
+      return;
+    }
+
+    // Validate that a width-based scale also yields a valid in-bounds row crop
+    // on the RGB image. Otherwise rowRange(...) below would throw cv::Exception
+    // and abort the process. Use integer math equivalent of
+    // (depth_height / ratio) where ratio = depth_width / rgb_width.
+    const uint64_t crop_rows =
+      (static_cast<uint64_t>(depth_msg->height) *
+      static_cast<uint64_t>(rgb_msg->width)) /
+      static_cast<uint64_t>(depth_msg->width);
+    if (crop_rows == 0 || crop_rows > static_cast<uint64_t>(rgb_msg->height)) {
+      RCLCPP_ERROR(
+        get_logger(),
+        "Depth (%ux%u) and RGB (%ux%u) have incompatible aspect ratios; "
+        "cannot derive a valid resize crop. Skipping frame.",
+        depth_msg->width, depth_msg->height, rgb_msg->width, rgb_msg->height);
+      return;
+    }
+
     CameraInfo info_msg_tmp = *info_msg;
     info_msg_tmp.width = depth_msg->width;
     info_msg_tmp.height = depth_msg->height;
@@ -185,9 +284,14 @@ void PointCloudXyzrgbNode::imageCb(
     cv_bridge::CvImage cv_rsz;
     cv_rsz.header = cv_ptr->header;
     cv_rsz.encoding = cv_ptr->encoding;
-    cv::resize(
-      cv_ptr->image.rowRange(0, depth_msg->height / ratio), cv_rsz.image,
-      cv::Size(depth_msg->width, depth_msg->height));
+    try {
+      cv::resize(
+        cv_ptr->image.rowRange(0, static_cast<int>(crop_rows)), cv_rsz.image,
+        cv::Size(depth_msg->width, depth_msg->height));
+    } catch (const cv::Exception & e) {
+      RCLCPP_ERROR(get_logger(), "OpenCV exception while resizing RGB: %s", e.what());
+      return;
+    }
     if ((rgb_msg->encoding == sensor_msgs::image_encodings::RGB8) ||
       (rgb_msg->encoding == sensor_msgs::image_encodings::BGR8) ||
       (rgb_msg->encoding == sensor_msgs::image_encodings::MONO8))
@@ -256,6 +360,19 @@ void PointCloudXyzrgbNode::imageCb(
 
   sensor_msgs::PointCloud2Modifier pcd_modifier(*cloud_msg);
   pcd_modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
+
+  // Cross-check that the modifier actually allocated enough storage for
+  // height*width points. If not (e.g. arithmetic overflow), bail out
+  // before convertDepth/convertRgb write past the cloud buffer.
+  const size_t expected_cloud_bytes =
+    static_cast<size_t>(depth_pixels) * cloud_msg->point_step;
+  if (cloud_msg->data.size() < expected_cloud_bytes) {
+    RCLCPP_ERROR(
+      get_logger(),
+      "PointCloud2 storage (%zu bytes) is smaller than required (%zu); skipping.",
+      cloud_msg->data.size(), expected_cloud_bytes);
+    return;
+  }
 
   // Convert Depth Image to Pointcloud
   if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
