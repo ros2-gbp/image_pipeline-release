@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.20)
 project(depth_image_proc)
 
 # Default to C++14
@@ -90,6 +90,9 @@ if(BUILD_TESTING)
 
   ament_auto_add_gtest(test_point_cloud_xyz test/test_point_cloud_xyz.cpp)
   target_link_libraries(test_point_cloud_xyz ${PROJECT_NAME})
+
+  ament_auto_add_gtest(test_point_cloud_xyzrgb test/test_point_cloud_xyzrgb.cpp)
+  target_link_libraries(test_point_cloud_xyzrgb ${PROJECT_NAME})
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE launch)
