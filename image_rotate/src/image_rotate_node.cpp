@@ -38,6 +38,7 @@
 
 #include "image_rotate/image_rotate_node.hpp"
 
+#include <numbers>
 #include <cmath>
 #include <functional>
 #include <memory>
@@ -45,11 +46,11 @@
 #include <vector>
 
 #include "cv_bridge/cv_bridge.hpp"
-#include "tf2/LinearMath/Vector3.h"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
-#include "tf2_ros/transform_broadcaster.h"
+#include "tf2/LinearMath/Vector3.hpp"
+#include "tf2/LinearMath/Quaternion.hpp"
+#include "tf2_ros/buffer.hpp"
+#include "tf2_ros/transform_listener.hpp"
+#include "tf2_ros/transform_broadcaster.hpp"
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
@@ -193,11 +194,11 @@ void ImageRotateNode::do_work(
     if (config_.max_angular_rate == 0) {
       angle_ = angle;
     } else {
-      double delta = fmod(angle - angle_, 2.0 * M_PI);
-      if (delta > M_PI) {
-        delta -= 2.0 * M_PI;
-      } else if (delta < -M_PI) {
-        delta += 2.0 * M_PI;
+      double delta = fmod(angle - angle_, 2.0 * std::numbers::pi);
+      if (delta > std::numbers::pi) {
+        delta -= 2.0 * std::numbers::pi;
+      } else if (delta < -std::numbers::pi) {
+        delta += 2.0 * std::numbers::pi;
       }
 
       double max_delta = config_.max_angular_rate *
@@ -210,7 +211,7 @@ void ImageRotateNode::do_work(
 
       angle_ += delta;
     }
-    angle_ = fmod(angle_, 2.0 * M_PI);
+    angle_ = fmod(angle_, 2.0 * std::numbers::pi);
   } catch (const tf2::TransformException & e) {
     RCLCPP_ERROR(get_logger(), "Transform error: %s", e.what());
   }
@@ -249,7 +250,7 @@ void ImageRotateNode::do_work(
 
     // Compute the rotation matrix.
     cv::Mat rot_matrix = cv::getRotationMatrix2D(
-      cv::Point2f(in_image.cols / 2.0, in_image.rows / 2.0), 180 * angle_ / M_PI, 1);
+      cv::Point2f(in_image.cols / 2.0, in_image.rows / 2.0), 180 * angle_ / std::numbers::pi, 1);
     cv::Mat translation = rot_matrix.col(2);
     rot_matrix.at<double>(0, 2) += (out_size - in_image.cols) / 2.0;
     rot_matrix.at<double>(1, 2) += (out_size - in_image.rows) / 2.0;
@@ -259,10 +260,10 @@ void ImageRotateNode::do_work(
     cv::warpAffine(in_image, out_image, rot_matrix, cv::Size(out_size, out_size));
 
     // Publish the image.
-    sensor_msgs::msg::Image::SharedPtr out_img =
-      cv_bridge::CvImage(msg->header, msg->encoding, out_image).toImageMsg();
+    auto out_img = std::make_unique<sensor_msgs::msg::Image>();
+    cv_bridge::CvImage(msg->header, msg->encoding, out_image).toImageMsg(*out_img);
     out_img->header.frame_id = transform.child_frame_id;
-    img_pub_.publish(out_img);
+    img_pub_.publish(std::move(out_img));
   } catch (const cv::Exception & e) {
     RCLCPP_ERROR(
       get_logger(),
@@ -309,26 +310,29 @@ void ImageRotateNode::onInit()
         }
 
         // This will check image_transport parameter to get proper transport
-        image_transport::TransportHints transport_hint(this, "raw");
+        image_transport::TransportHints transport_hint(*this,
+          "raw");
 
         if (config_.use_camera_info && config_.input_frame_id.empty()) {
-          auto custom_qos = rmw_qos_profile_system_default;
-          custom_qos.depth = 3;
+          auto custom_qos = rclcpp::SystemDefaultsQoS();
+          custom_qos.keep_last(3);
           cam_sub_ = image_transport::create_camera_subscription(
-            this,
+            *this,
             topic_name,
-            std::bind(
-              &ImageRotateNode::imageCallbackWithInfo, this,
-              std::placeholders::_1, std::placeholders::_2),
+            [this](
+              const sensor_msgs::msg::Image::ConstSharedPtr & msg,
+              const sensor_msgs::msg::CameraInfo::ConstSharedPtr & cam_info) {
+              imageCallbackWithInfo(msg, cam_info);
+            },
             transport_hint.getTransport(),
             custom_qos);
         } else {
-          auto custom_qos = rmw_qos_profile_system_default;
-          custom_qos.depth = 3;
+          auto custom_qos = rclcpp::SystemDefaultsQoS();
+          custom_qos.keep_last(3);
           img_sub_ = image_transport::create_subscription(
-            this,
+            *this,
             topic_name,
-            std::bind(&ImageRotateNode::imageCallback, this, std::placeholders::_1),
+            [this](const sensor_msgs::msg::Image::ConstSharedPtr & msg) {imageCallback(msg);},
             transport_hint.getTransport(),
             custom_qos);
         }
@@ -342,7 +346,8 @@ void ImageRotateNode::onInit()
 
   // Allow overriding QoS settings (history, depth, reliability)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  img_pub_ = image_transport::create_publisher(this, topic, rmw_qos_profile_default, pub_options);
+  img_pub_ = image_transport::create_publisher(*this, topic, rclcpp::SystemDefaultsQoS(),
+    pub_options);
 }
 
 }  // namespace image_rotate

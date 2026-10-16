@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.20)
 project(depth_image_proc)
 
-# Default to C++14
+# Default to C++20
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 20)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -13,12 +13,7 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-find_package(Eigen3 QUIET)
-if(NOT EIGEN3_FOUND)
-  find_package(Eigen REQUIRED)
-  set(EIGEN3_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
-  include_directories(include ${EIGEN3_INCLUDE_DIRS})
-endif()
+find_package(Eigen3 REQUIRED)
 
 find_package(OpenCV REQUIRED)
 
@@ -70,7 +65,7 @@ rclcpp_components_register_node(${PROJECT_NAME}
   EXECUTABLE point_cloud_xyzi_radial_node
 )
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "depth_image_proc::PointCloudXyziRadialNode"
+  PLUGIN "depth_image_proc::PointCloudXyzrgbRadialNode"
   EXECUTABLE point_cloud_xyzrgb_radial_node
 )
 rclcpp_components_register_node(${PROJECT_NAME}
@@ -95,4 +90,4 @@ if(BUILD_TESTING)
   target_link_libraries(test_point_cloud_xyzrgb ${PROJECT_NAME})
 endif()
 
-ament_auto_package(INSTALL_TO_SHARE launch USE_SCOPED_HEADER_INSTALL_DIR)
+ament_auto_package(INSTALL_TO_SHARE launch)

@@ -28,10 +28,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-// This define is added to support M_PI on Windows
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES
-#endif
+#include <numbers>
 #include <cmath>
 #include <chrono>
 #include <limits>
@@ -63,7 +60,7 @@ ImagePublisher::ImagePublisher(
   std::string topic_name = node_base->resolve_topic_or_service_name("image_raw", false);
   rclcpp::PublisherOptions pub_options;
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  pub_ = image_transport::create_camera_publisher(this, topic_name, rmw_qos_profile_default,
+  pub_ = image_transport::create_camera_publisher(*this, topic_name, rclcpp::SystemDefaultsQoS(),
       pub_options);
 
   field_of_view_ = this->declare_parameter("field_of_view", static_cast<double>(0));
@@ -132,9 +129,16 @@ void ImagePublisher::reconfigureCallback()
 {
   timer_ = this->create_wall_timer(
     std::chrono::milliseconds(static_cast<int>(1000 / publish_rate_)),
-    std::bind(&ImagePublisher::doWork, this));
+    [this]() {doWork();});
 
-  camera_info_manager::CameraInfoManager c(this);
+  camera_info_manager::CameraInfoManager c(
+    this->get_node_base_interface(),
+    this->get_node_services_interface(),
+    this->get_node_logging_interface(),
+    "camera",
+    "",
+    rclcpp::SystemDefaultsQoS(),
+    "");
   if (!camera_info_url_.empty()) {
     RCLCPP_INFO(get_logger(), "camera_info_url: %s", camera_info_url_.c_str());
     try {
@@ -170,14 +174,16 @@ void ImagePublisher::doWork()
       image_flipped_ = true;
     }
 
-    sensor_msgs::msg::Image::SharedPtr out_img =
-      cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_).toImageMsg();
+    auto out_img = std::make_unique<sensor_msgs::msg::Image>();
+    cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image_).toImageMsg(*out_img);
     out_img->header.frame_id = frame_id_;
     out_img->header.stamp = this->now();
-    camera_info_.header.frame_id = out_img->header.frame_id;
-    camera_info_.header.stamp = out_img->header.stamp;
 
-    pub_.publish(*out_img, camera_info_);
+    auto cam_info = std::make_unique<sensor_msgs::msg::CameraInfo>(camera_info_);
+    cam_info->header.frame_id = out_img->header.frame_id;
+    cam_info->header.stamp = out_img->header.stamp;
+
+    pub_.publish(std::move(out_img), std::move(cam_info));
   } catch (cv::Exception & e) {
     RCLCPP_ERROR(
       this->get_logger(), "Image processing error: %s %s %s %i",
@@ -244,7 +250,7 @@ void ImagePublisher::onInit()
   double f_approx = 1.0;  // FOV equal to 0 disables the approximation
   if (std::abs(field_of_view_) > std::numeric_limits<double>::epsilon()) {
     // Based on https://learnopencv.com/approximate-focal-length-for-webcams-and-cell-phone-cameras/
-    f_approx = (camera_info_.width / 2) / std::tan((field_of_view_ * M_PI / 180) / 2);
+    f_approx = (camera_info_.width / 2) / std::tan((field_of_view_ * std::numbers::pi / 180) / 2);
   }
   camera_info_.k = {f_approx, 0, static_cast<float>(camera_info_.width / 2), 0, f_approx,
     static_cast<float>(camera_info_.height / 2), 0, 0, 1};

@@ -49,7 +49,7 @@ void debayer2x2toBGR(
   const cv::Mat & src, cv::Mat & dst,
   int R, int G1, int G2, int B)
 {
-  typedef cv::Vec<T, 3> DstPixel;  // 8- or 16-bit BGR
+  using DstPixel = cv::Vec<T, 3>;  // 8- or 16-bit BGR
 #if CV_VERSION_MAJOR >= 4 || (CV_MAJOR_VERSION == 3 && CV_MINOR_VERSION > 2)
   dst.create(src.rows / 2, src.cols / 2, cv::traits::Type<DstPixel>::value);
 #else
@@ -140,18 +140,21 @@ CropDecimateNode::CropDecimateNode(const rclcpp::NodeOptions & options)
         sub_.shutdown();
       } else if (!sub_) {
         // Create subscriber with QoS matched to subscribed topic publisher
-        auto qos_profile = getTopicQosProfile(this, image_topic_);
-        image_transport::TransportHints hints(this);
+        auto qos_profile = getQosProfile(this, image_topic_);
+        image_transport::TransportHints hints(*this);
         sub_ = image_transport::create_camera_subscription(
-          this, image_topic_, std::bind(
-            &CropDecimateNode::imageCb, this,
-            std::placeholders::_1, std::placeholders::_2), hints.getTransport(), qos_profile);
+          *this, image_topic_,
+          [this](
+            const sensor_msgs::msg::Image::ConstSharedPtr & image_msg,
+            const sensor_msgs::msg::CameraInfo::ConstSharedPtr & info_msg) {
+            imageCb(image_msg, info_msg);
+          }, hints.getTransport(), qos_profile);
       }
     };
 
   // Create publisher - allow overriding QoS settings (history, depth, reliability)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  pub_ = image_transport::create_camera_publisher(this, pub_topic, rmw_qos_profile_default,
+  pub_ = image_transport::create_camera_publisher(*this, pub_topic, rclcpp::SystemDefaultsQoS(),
       pub_options);
 }
 
@@ -322,11 +325,11 @@ void CropDecimateNode::imageCb(
 
   // Create output Image message
   /// @todo Could save copies by allocating this above and having output.image alias it
-  sensor_msgs::msg::Image::SharedPtr out_image = output.toImageMsg();
+  auto out_image = std::make_unique<sensor_msgs::msg::Image>();
+  output.toImageMsg(*out_image);
 
   // Create updated CameraInfo message
-  sensor_msgs::msg::CameraInfo::SharedPtr out_info =
-    std::make_shared<sensor_msgs::msg::CameraInfo>(*info_msg);
+  auto out_info = std::make_unique<sensor_msgs::msg::CameraInfo>(*info_msg);
   int binning_x = std::max(static_cast<int>(info_msg->binning_x), 1);
   int binning_y = std::max(static_cast<int>(info_msg->binning_y), 1);
   out_info->binning_x = binning_x * decimation_x_;
@@ -348,7 +351,7 @@ void CropDecimateNode::imageCb(
     out_info->header.frame_id = target_frame_id_;
   }
 
-  pub_.publish(out_image, out_info);
+  pub_.publish(std::move(out_image), std::move(out_info));
 }
 
 }  // namespace image_proc

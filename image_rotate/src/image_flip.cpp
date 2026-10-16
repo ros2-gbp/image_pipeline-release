@@ -31,6 +31,7 @@
 
 #include "image_rotate/image_flip.hpp"
 
+#include <numbers>
 #include <vector>
 #include <string>
 #include <memory>
@@ -60,7 +61,7 @@ ImageFlipNode::ImageFlipNode(rclcpp::NodeOptions options)
           RCLCPP_INFO(get_logger(), "Reset output_frame_id '%s'", config_.output_frame_id.c_str());
         } else if (parameter.get_name() == "rotation_steps") {
           config_.rotation_steps = parameter.as_int();
-          angle_ = config_.rotation_steps * M_PI / 2.0;
+          angle_ = config_.rotation_steps * std::numbers::pi / 2.0;
           RCLCPP_INFO(get_logger(), "Reset rotation_steps as '%d'", config_.rotation_steps);
           transform_.transform.rotation =
             tf2::toMsg(tf2::Quaternion(tf2::Vector3(0.0, 0.0, 1.0), angle_));
@@ -71,7 +72,7 @@ ImageFlipNode::ImageFlipNode(rclcpp::NodeOptions options)
     };
   on_set_parameters_callback_handle_ = this->add_on_set_parameters_callback(reconfigureCallback);
   onInit();
-  angle_ = config_.rotation_steps * M_PI / 2.0;
+  angle_ = config_.rotation_steps * std::numbers::pi / 2.0;
   transform_.transform.translation.x = 0;
   transform_.transform.translation.y = 0;
   transform_.transform.translation.z = 0;
@@ -210,26 +211,29 @@ void ImageFlipNode::onInit()
         }
 
         // This will check image_transport parameter to get proper transport
-        image_transport::TransportHints transport_hint(this, "raw");
+        image_transport::TransportHints transport_hint(*this,
+          "raw");
 
         if (config_.use_camera_info) {
-          auto custom_qos = rmw_qos_profile_system_default;
-          custom_qos.depth = 3;
+          auto custom_qos = rclcpp::SystemDefaultsQoS();
+          custom_qos.keep_last(3);
           cam_sub_ = image_transport::create_camera_subscription(
-            this,
+            *this,
             topic_name,
-            std::bind(
-              &ImageFlipNode::imageCallbackWithInfo, this,
-              std::placeholders::_1, std::placeholders::_2),
+            [this](
+              const sensor_msgs::msg::Image::ConstSharedPtr & msg,
+              const sensor_msgs::msg::CameraInfo::ConstSharedPtr & cam_info) {
+              imageCallbackWithInfo(msg, cam_info);
+            },
             transport_hint.getTransport(),
             custom_qos);
         } else {
-          auto custom_qos = rmw_qos_profile_system_default;
-          custom_qos.depth = 3;
+          auto custom_qos = rclcpp::SystemDefaultsQoS();
+          custom_qos.keep_last(3);
           img_sub_ = image_transport::create_subscription(
-            this,
+            *this,
             topic_name,
-            std::bind(&ImageFlipNode::imageCallback, this, std::placeholders::_1),
+            [this](const sensor_msgs::msg::Image::ConstSharedPtr & msg) {imageCallback(msg);},
             transport_hint.getTransport(),
             custom_qos);
         }
@@ -241,11 +245,13 @@ void ImageFlipNode::onInit()
   auto node_base = this->get_node_base_interface();
   std::string topic = node_base->resolve_topic_or_service_name("rotated/image", false);
 
-  auto custom_qos = rmw_qos_profile_default;
+  auto custom_qos = rclcpp::SystemDefaultsQoS();
   if (config_.use_camera_info) {
-    cam_pub_ = image_transport::create_camera_publisher(this, topic, custom_qos, pub_options);
+    cam_pub_ = image_transport::create_camera_publisher(*this,
+        topic, custom_qos, pub_options);
   } else {
-    img_pub_ = image_transport::create_publisher(this, topic, custom_qos, pub_options);
+    img_pub_ = image_transport::create_publisher(*this, topic,
+        custom_qos, pub_options);
   }
 
   tf_pub_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(*this);

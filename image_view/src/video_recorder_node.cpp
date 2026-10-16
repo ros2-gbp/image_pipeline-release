@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -52,12 +53,9 @@ VideoRecorderNode::VideoRecorderNode(const rclcpp::NodeOptions & options)
   colormap = this->declare_parameter("colormap", -1);
 
   if (stamped_filename) {
-    std::size_t found = filename.find_last_of("/\\");
-    std::string path = filename.substr(0, found + 1);
-    std::string basename = filename.substr(found + 1);
-    std::stringstream ss;
-    ss << this->now().nanoseconds() << basename;
-    filename = path + ss.str();
+    const std::filesystem::path p{filename};
+    filename = (p.parent_path() /
+      (std::to_string(this->now().nanoseconds()) + p.filename().string())).string();
     RCLCPP_INFO(this->get_logger(), "Video recording to %s", filename.c_str());
   }
 
@@ -68,7 +66,7 @@ VideoRecorderNode::VideoRecorderNode(const rclcpp::NodeOptions & options)
 
   // TransportHints does not actually declare the parameter
   this->declare_parameter<std::string>("image_transport", "raw");
-  image_transport::TransportHints hints(this);
+  image_transport::TransportHints hints{*this};
 
   // For compressed topics to remap appropriately, we need to pass a
   // fully expanded and remapped topic name to image_transport
@@ -76,9 +74,10 @@ VideoRecorderNode::VideoRecorderNode(const rclcpp::NodeOptions & options)
   std::string topic = node_base->resolve_topic_or_service_name("image", false);
 
   sub_image = image_transport::create_subscription(
-    this, topic, std::bind(
-      &VideoRecorderNode::callback, this,
-      std::placeholders::_1), hints.getTransport());
+    *this, topic,
+    [this](const sensor_msgs::msg::Image::ConstSharedPtr & image_msg) {callback(image_msg);},
+    hints.getTransport(),
+      rclcpp::SystemDefaultsQoS());
 
   RCLCPP_INFO(this->get_logger(), "Waiting for topic %s...", topic.c_str());
 }

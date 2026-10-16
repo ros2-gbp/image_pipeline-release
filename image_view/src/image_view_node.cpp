@@ -107,7 +107,7 @@ ImageViewNode::ImageViewNode(const rclcpp::NodeOptions & options)
 {
   // TransportHints does not actually declare the parameter
   this->declare_parameter<std::string>("image_transport", "raw");
-  image_transport::TransportHints hints(this);
+  image_transport::TransportHints hints{*this};
   RCLCPP_INFO(this->get_logger(), "Using transport \"%s\"", hints.getTransport().c_str());
 
   // For compressed topics to remap appropriately, we need to pass a
@@ -117,8 +117,9 @@ ImageViewNode::ImageViewNode(const rclcpp::NodeOptions & options)
 
   pub_ = this->create_publisher<sensor_msgs::msg::Image>("output", 1);
   sub_ = image_transport::create_subscription(
-    this, topic, std::bind(&ImageViewNode::imageCb, this, std::placeholders::_1),
-    hints.getTransport(), rmw_qos_profile_sensor_data);
+    *this, topic,
+    [this](const sensor_msgs::msg::Image::ConstSharedPtr & msg) {imageCb(msg);},
+    hints.getTransport(), rclcpp::SensorDataQoS());
 
   auto topics = this->get_topic_names_and_types();
 
@@ -137,7 +138,7 @@ ImageViewNode::ImageViewNode(const rclcpp::NodeOptions & options)
   window_height_ = this->declare_parameter("height", -1);
   window_width_ = this->declare_parameter("width", -1);
   filename_format_ =
-    this->declare_parameter("filename_format", std::string("frame%04i.jpg"));
+    this->declare_parameter("filename_format", std::string("frame{:04}.jpg"));
 
   rcl_interfaces::msg::ParameterDescriptor colormap_paramDescriptor;
   colormap_paramDescriptor.name = "colormap";
@@ -172,7 +173,9 @@ ImageViewNode::ImageViewNode(const rclcpp::NodeOptions & options)
   }
 
   on_set_parameters_callback_handle_ = this->add_on_set_parameters_callback(
-    std::bind(&ImageViewNode::paramCallback, this, std::placeholders::_1));
+    [this](const std::vector<rclcpp::Parameter> & parameters) {
+      return paramCallback(parameters);
+    });
 }
 
 ImageViewNode::~ImageViewNode()

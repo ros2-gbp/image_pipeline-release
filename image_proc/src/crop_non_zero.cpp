@@ -68,25 +68,26 @@ CropNonZeroNode::CropNonZeroNode(const rclcpp::NodeOptions & options)
         sub_raw_.shutdown();
       } else if (!sub_raw_) {
         // Create subscriber with QoS matched to subscribed topic publisher
-        auto qos_profile = getTopicQosProfile(this, image_topic_);
-        image_transport::TransportHints hints(this);
+        auto qos_profile = getQosProfile(this, image_topic_);
+        image_transport::TransportHints hints(*this);
         sub_raw_ = image_transport::create_subscription(
-          this, image_topic_, std::bind(
-            &CropNonZeroNode::imageCb, this,
-            std::placeholders::_1), hints.getTransport(), qos_profile);
+          *this, image_topic_,
+          [this](const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg) {imageCb(raw_msg);},
+          hints.getTransport(), qos_profile);
       }
     };
 
   // Create publisher - allow overriding QoS settings (history, depth, reliability)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  pub_ = image_transport::create_publisher(this, pub_topic, rmw_qos_profile_default, pub_options);
+  pub_ = image_transport::create_publisher(*this, pub_topic, rclcpp::SystemDefaultsQoS(),
+    pub_options);
 }
 
 void CropNonZeroNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg)
 {
-  cv_bridge::CvImagePtr cv_ptr;
+  cv_bridge::CvImageConstPtr cv_ptr;
   try {
-    cv_ptr = cv_bridge::toCvCopy(raw_msg);
+    cv_ptr = cv_bridge::toCvShare(raw_msg);
   } catch (cv_bridge::Exception & e) {
     RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
     return;
@@ -136,7 +137,10 @@ void CropNonZeroNode::imageCb(const sensor_msgs::msg::Image::ConstSharedPtr & ra
   out_msg.encoding = raw_msg->encoding;
   out_msg.image = cv_ptr->image(r);
 
-  pub_.publish(out_msg.toImageMsg());
+  auto out_image = std::make_unique<sensor_msgs::msg::Image>();
+  out_msg.toImageMsg(*out_image);
+
+  pub_.publish(std::move(out_image));
 }
 
 }  // namespace image_proc

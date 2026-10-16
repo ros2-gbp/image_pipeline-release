@@ -79,18 +79,19 @@ PointCloudXyzNode::PointCloudXyzNode(const rclcpp::NodeOptions & options)
         std::string topic = node_base->resolve_topic_or_service_name("image_rect", false);
 
         // Get transport hints
-        image_transport::TransportHints depth_hints(this, "raw", "depth_image_transport");
+        image_transport::TransportHints depth_hints(*this,
+          "raw", "depth_image_transport");
 
         // Create subscriber with QoS matched to subscribed topic publisher
-        auto qos_profile = image_proc::getTopicQosProfile(this, topic);
-        qos_profile.depth = queue_size_;
+        auto qos_profile = image_proc::getQosProfile(this, topic);
+        qos_profile.keep_last(queue_size_);
 
         sub_depth_ = image_transport::create_camera_subscription(
-          this,
+          *this,
           topic,
-          std::bind(
-            &PointCloudXyzNode::depthCb, this, std::placeholders::_1,
-            std::placeholders::_2),
+          [this](
+            const Image::ConstSharedPtr & depth_msg,
+            const CameraInfo::ConstSharedPtr & info_msg) {depthCb(depth_msg, info_msg);},
           depth_hints.getTransport(),
           qos_profile);
       }
@@ -144,7 +145,7 @@ void PointCloudXyzNode::depthCb(
     return;
   }
 
-  auto cloud_msg = std::make_shared<PointCloud2>();
+  auto cloud_msg = std::make_unique<PointCloud2>();
   cloud_msg->header = depth_msg->header;
   cloud_msg->height = depth_msg->height;
   cloud_msg->width = depth_msg->width;
@@ -171,12 +172,12 @@ void PointCloudXyzNode::depthCb(
 
   // Convert Depth Image to Pointcloud
   if (depth_msg->encoding == enc::TYPE_16UC1 || depth_msg->encoding == enc::MONO16) {
-    convertDepth<uint16_t>(depth_msg, cloud_msg, model_, invalid_depth_);
+    convertDepth<uint16_t>(depth_msg, *cloud_msg, model_, invalid_depth_);
   } else if (depth_msg->encoding == enc::TYPE_32FC1) {
-    convertDepth<float>(depth_msg, cloud_msg, model_, invalid_depth_);
+    convertDepth<float>(depth_msg, *cloud_msg, model_, invalid_depth_);
   }
 
-  pub_point_cloud_->publish(*cloud_msg);
+  pub_point_cloud_->publish(std::move(cloud_msg));
 }
 
 }  // namespace depth_image_proc

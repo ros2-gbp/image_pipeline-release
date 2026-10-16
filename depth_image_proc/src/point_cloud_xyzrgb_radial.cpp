@@ -67,22 +67,22 @@ PointCloudXyzrgbRadialNode::PointCloudXyzrgbRadialNode(const rclcpp::NodeOptions
       sub_rgb_,
       sub_info_);
     exact_sync_->registerCallback(
-      std::bind(
-        &PointCloudXyzrgbRadialNode::imageCb,
-        this,
-        std::placeholders::_1,
-        std::placeholders::_2,
-        std::placeholders::_3));
+      [this](
+        const Image::ConstSharedPtr & depth_msg,
+        const Image::ConstSharedPtr & rgb_msg,
+        const CameraInfo::ConstSharedPtr & info_msg) {
+        imageCb(depth_msg, rgb_msg, info_msg);
+      });
   } else {
     sync_ =
       std::make_unique<Synchronizer>(SyncPolicy(queue_size), sub_depth_, sub_rgb_, sub_info_);
     sync_->registerCallback(
-      std::bind(
-        &PointCloudXyzrgbRadialNode::imageCb,
-        this,
-        std::placeholders::_1,
-        std::placeholders::_2,
-        std::placeholders::_3));
+      [this](
+        const Image::ConstSharedPtr & depth_msg,
+        const Image::ConstSharedPtr & rgb_msg,
+        const CameraInfo::ConstSharedPtr & info_msg) {
+        imageCb(depth_msg, rgb_msg, info_msg);
+      });
   }
 
   // Create publisher with connect callback
@@ -109,13 +109,14 @@ PointCloudXyzrgbRadialNode::PointCloudXyzrgbRadialNode(const rclcpp::NodeOptions
           image_transport::getCameraInfoTopic(rgb_topic), false);
 
         // depth image can use different transport.(e.g. compressedDepth)
-        image_transport::TransportHints depth_hints(this, "raw", "depth_image_transport");
-        sub_depth_.subscribe(this, depth_topic, depth_hints.getTransport());
+        image_transport::TransportHints depth_hints(*this, "raw", "depth_image_transport");
+        sub_depth_.subscribe(*this, depth_topic, depth_hints.getTransport(),
+          rclcpp::SystemDefaultsQoS());
 
         // rgb uses normal ros transport hints.
-        image_transport::TransportHints hints(this, "raw");
-        sub_rgb_.subscribe(this, rgb_topic, hints.getTransport());
-        sub_info_.subscribe(this, rgb_info_topic);
+        image_transport::TransportHints hints(*this, "raw");
+        sub_rgb_.subscribe(*this, rgb_topic, hints.getTransport(), rclcpp::SystemDefaultsQoS());
+        sub_info_.subscribe(this, rgb_info_topic, rclcpp::QoS(10));
       }
     };
   // Allow overriding QoS settings (history, depth, reliability)
@@ -271,7 +272,7 @@ void PointCloudXyzrgbRadialNode::imageCb(
     color_step = 3;
   }
 
-  auto cloud_msg = std::make_shared<PointCloud2>();
+  auto cloud_msg = std::make_unique<PointCloud2>();
   cloud_msg->header = depth_msg->header;  // Use depth image time stamp
   cloud_msg->height = depth_msg->height;
   cloud_msg->width = depth_msg->width;
@@ -283,9 +284,9 @@ void PointCloudXyzrgbRadialNode::imageCb(
 
   // Convert Depth Image to Pointcloud
   if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    convertDepthRadial<uint16_t>(depth_msg, cloud_msg, transform_);
+    convertDepthRadial<uint16_t>(depth_msg, *cloud_msg, transform_);
   } else if (depth_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    convertDepthRadial<float>(depth_msg, cloud_msg, transform_);
+    convertDepthRadial<float>(depth_msg, *cloud_msg, transform_);
   } else {
     RCLCPP_ERROR(
       get_logger(), "Depth image has unsupported encoding [%s]", depth_msg->encoding.c_str());
@@ -294,22 +295,22 @@ void PointCloudXyzrgbRadialNode::imageCb(
 
   // Convert RGB
   if (rgb_msg->encoding == sensor_msgs::image_encodings::RGB8) {
-    convertRgb(rgb_msg, cloud_msg, red_offset, green_offset, blue_offset, color_step);
+    convertRgb(rgb_msg, *cloud_msg, red_offset, green_offset, blue_offset, color_step);
   } else if (rgb_msg->encoding == sensor_msgs::image_encodings::BGR8) {
-    convertRgb(rgb_msg, cloud_msg, red_offset, green_offset, blue_offset, color_step);
+    convertRgb(rgb_msg, *cloud_msg, red_offset, green_offset, blue_offset, color_step);
   } else if (rgb_msg->encoding == sensor_msgs::image_encodings::BGRA8) {
-    convertRgb(rgb_msg, cloud_msg, red_offset, green_offset, blue_offset, color_step);
+    convertRgb(rgb_msg, *cloud_msg, red_offset, green_offset, blue_offset, color_step);
   } else if (rgb_msg->encoding == sensor_msgs::image_encodings::RGBA8) {
-    convertRgb(rgb_msg, cloud_msg, red_offset, green_offset, blue_offset, color_step);
+    convertRgb(rgb_msg, *cloud_msg, red_offset, green_offset, blue_offset, color_step);
   } else if (rgb_msg->encoding == sensor_msgs::image_encodings::MONO8) {
-    convertRgb(rgb_msg, cloud_msg, red_offset, green_offset, blue_offset, color_step);
+    convertRgb(rgb_msg, *cloud_msg, red_offset, green_offset, blue_offset, color_step);
   } else {
     RCLCPP_ERROR(
       get_logger(), "RGB image has unsupported encoding [%s]", rgb_msg->encoding.c_str());
     return;
   }
 
-  pub_point_cloud_->publish(*cloud_msg);
+  pub_point_cloud_->publish(std::move(cloud_msg));
 }
 
 }  // namespace depth_image_proc

@@ -32,11 +32,11 @@
 #include <string>
 
 #include "image_geometry/stereo_camera_model.hpp"
-#include "message_filters/subscriber.h"
-#include "message_filters/synchronizer.h"
-#include "message_filters/sync_policies/approximate_time.h"
-#include "message_filters/sync_policies/approximate_epsilon_time.h"
-#include "message_filters/sync_policies/exact_time.h"
+#include "message_filters/subscriber.hpp"
+#include "message_filters/synchronizer.hpp"
+#include "message_filters/sync_policies/approximate_time.hpp"
+#include "message_filters/sync_policies/approximate_epsilon_time.hpp"
+#include "message_filters/sync_policies/exact_time.hpp"
 #include "rcutils/logging_macros.h"
 
 #include <image_transport/camera_common.hpp>
@@ -101,8 +101,6 @@ private:
 PointCloudNode::PointCloudNode(const rclcpp::NodeOptions & options)
 : rclcpp::Node("point_cloud_node", options)
 {
-  using namespace std::placeholders;
-
   // TransportHints does not actually declare the parameter
   this->declare_parameter<std::string>("image_transport", "raw");
 
@@ -123,31 +121,46 @@ PointCloudNode::PointCloudNode(const rclcpp::NodeOptions & options)
   // Synchronize callbacks
   if (approx) {
     if (0.0 == approx_sync_epsilon) {
-      approximate_sync_.reset(
-        new ApproximateSync(
-          ApproximatePolicy(queue_size),
-          sub_l_image_, sub_l_info_,
-          sub_r_info_, sub_disparity_));
+      approximate_sync_ = std::make_shared<ApproximateSync>(
+        ApproximatePolicy(queue_size),
+        sub_l_image_, sub_l_info_,
+        sub_r_info_, sub_disparity_);
       approximate_sync_->registerCallback(
-        std::bind(&PointCloudNode::imageCb, this, _1, _2, _3, _4));
+        [this](
+          const sensor_msgs::msg::Image::ConstSharedPtr & l_image_msg,
+          const sensor_msgs::msg::CameraInfo::ConstSharedPtr & l_info_msg,
+          const sensor_msgs::msg::CameraInfo::ConstSharedPtr & r_info_msg,
+          const stereo_msgs::msg::DisparityImage::ConstSharedPtr & disp_msg) {
+          imageCb(l_image_msg, l_info_msg, r_info_msg, disp_msg);
+        });
     } else {
-      approximate_epsilon_sync_.reset(
-        new ApproximateEpsilonSync(
-          ApproximateEpsilonPolicy(
-            queue_size, rclcpp::Duration::from_seconds(approx_sync_epsilon)),
-          sub_l_image_, sub_l_info_,
-          sub_r_info_, sub_disparity_));
+      approximate_epsilon_sync_ = std::make_shared<ApproximateEpsilonSync>(
+        ApproximateEpsilonPolicy(
+          queue_size, rclcpp::Duration::from_seconds(approx_sync_epsilon)),
+        sub_l_image_, sub_l_info_,
+        sub_r_info_, sub_disparity_);
       approximate_epsilon_sync_->registerCallback(
-        std::bind(&PointCloudNode::imageCb, this, _1, _2, _3, _4));
+        [this](
+          const sensor_msgs::msg::Image::ConstSharedPtr & l_image_msg,
+          const sensor_msgs::msg::CameraInfo::ConstSharedPtr & l_info_msg,
+          const sensor_msgs::msg::CameraInfo::ConstSharedPtr & r_info_msg,
+          const stereo_msgs::msg::DisparityImage::ConstSharedPtr & disp_msg) {
+          imageCb(l_image_msg, l_info_msg, r_info_msg, disp_msg);
+        });
     }
   } else {
-    exact_sync_.reset(
-      new ExactSync(
-        ExactPolicy(queue_size),
-        sub_l_image_, sub_l_info_,
-        sub_r_info_, sub_disparity_));
+    exact_sync_ = std::make_shared<ExactSync>(
+      ExactPolicy(queue_size),
+      sub_l_image_, sub_l_info_,
+      sub_r_info_, sub_disparity_);
     exact_sync_->registerCallback(
-      std::bind(&PointCloudNode::imageCb, this, _1, _2, _3, _4));
+      [this](
+        const sensor_msgs::msg::Image::ConstSharedPtr & l_image_msg,
+        const sensor_msgs::msg::CameraInfo::ConstSharedPtr & l_info_msg,
+        const sensor_msgs::msg::CameraInfo::ConstSharedPtr & r_info_msg,
+        const stereo_msgs::msg::DisparityImage::ConstSharedPtr & disp_msg) {
+        imageCb(l_image_msg, l_info_msg, r_info_msg, disp_msg);
+      });
   }
 
   // Publisher options to allow reconfigurable qos settings and connect callback
@@ -177,20 +190,23 @@ PointCloudNode::PointCloudNode(const rclcpp::NodeOptions & options)
           image_transport::getCameraInfoTopic(left_topic), false);
 
         // REP-2003 specifies that subscriber should be SensorDataQoS
-        const auto sensor_data_qos = rclcpp::SensorDataQoS().get_rmw_qos_profile();
+        const auto sensor_data_qos = rclcpp::SensorDataQoS();
 
         // Support image transport for compression
-        image_transport::TransportHints hints(this);
+        image_transport::TransportHints hints{*this};
 
         // Allow overriding QoS settings (history, depth, reliability)
         auto sub_opts = rclcpp::SubscriptionOptions();
         sub_opts.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
 
         sub_l_image_.subscribe(
-          this, left_topic, hints.getTransport(), sensor_data_qos, sub_opts);
-        sub_l_info_.subscribe(this, left_info_topic, sensor_data_qos, sub_opts);
-        sub_r_info_.subscribe(this, right_topic, sensor_data_qos, sub_opts);
-        sub_disparity_.subscribe(this, disparity_topic, sensor_data_qos, sub_opts);
+          *this, left_topic, hints.getTransport(), sensor_data_qos, sub_opts);
+        sub_l_info_.subscribe(this, left_info_topic,
+          sensor_data_qos, sub_opts);
+        sub_r_info_.subscribe(this, right_topic,
+          sensor_data_qos, sub_opts);
+        sub_disparity_.subscribe(this, disparity_topic,
+          sensor_data_qos, sub_opts);
       }
     };
   pub_points2_ = create_publisher<sensor_msgs::msg::PointCloud2>("points2", 1, pub_opts);
@@ -229,7 +245,7 @@ void PointCloudNode::imageCb(
   cv::Mat_<cv::Vec3f> mat = points_mat_;
 
   // Fill in new PointCloud2 message (2D image-like layout)
-  auto points_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+  auto points_msg = std::make_unique<sensor_msgs::msg::PointCloud2>();
   points_msg->header = disp_msg->header;
   points_msg->height = mat.rows;
   points_msg->width = mat.cols;
@@ -345,7 +361,7 @@ void PointCloudNode::imageCb(
     }
   }
 
-  pub_points2_->publish(*points_msg);
+  pub_points2_->publish(std::move(points_msg));
 }
 
 }  // namespace stereo_image_proc

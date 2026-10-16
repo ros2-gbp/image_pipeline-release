@@ -29,6 +29,7 @@
 
 #include <gtest/gtest.h>
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -39,7 +40,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <image_transport/image_transport.hpp>
 
-using std::placeholders::_1;
 
 class ImageProcTest
   : public testing::Test
@@ -62,9 +62,9 @@ protected:
     topic_color = camera_ns + "image_color";
     topic_rect_color = camera_ns + "image_rect_color";
 
-    const rcpputils::fs::path base{_SRC_RESOURCES_DIR_PATH};
-    const rcpputils::fs::path raw_image_file = base / "logo.png";
-    const rcpputils::fs::path cam_info_file = base / "calibration_file.ini";
+    const std::filesystem::path base{_SRC_RESOURCES_DIR_PATH};
+    const std::filesystem::path raw_image_file = base / "logo.png";
+    const std::filesystem::path cam_info_file = base / "calibration_file.ini";
 
     /// @todo Test variety of encodings for raw image (bayer, mono, color)
     cv::Mat img = cv::imread(raw_image_file.string(), 0);
@@ -76,7 +76,7 @@ protected:
     }
 
     // Create raw camera publisher
-    image_transport::ImageTransport it(this->node);
+    image_transport::ImageTransport it{*node};
     cam_pub = it.advertiseCamera(topic_raw, 1);
 
     while (true) {
@@ -119,14 +119,17 @@ TEST_F(ImageProcTest, monoSubscription)
 {
   RCLCPP_INFO(node->get_logger(), "In test. Subscribing.");
   auto mono_sub = node->create_subscription<sensor_msgs::msg::Image>(
-    topic_raw, 1, std::bind(&ImageProcTest::callback, this, _1));
+    topic_raw, 1,
+    [this](const sensor_msgs::msg::Image::ConstSharedPtr & msg) {callback(msg);});
 
   RCLCPP_INFO(node->get_logger(), "Publishing");
 
   RCLCPP_INFO(node->get_logger(), "Spinning");
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(node);
   while (!has_new_image_) {
     publishRaw();
-    rclcpp::spin_some(node);
+    executor.spin_some();
   }
   rclcpp::shutdown();
   RCLCPP_INFO(node->get_logger(), "Done");

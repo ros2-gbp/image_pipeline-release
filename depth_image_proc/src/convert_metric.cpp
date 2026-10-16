@@ -65,12 +65,13 @@ ConvertMetricNode::ConvertMetricNode(const rclcpp::NodeOptions & options)
         auto node_base = this->get_node_base_interface();
         std::string topic = node_base->resolve_topic_or_service_name("image_raw", false);
         // Get transport hints
-        image_transport::TransportHints hints(this);
+        image_transport::TransportHints hints{*this};
         // Create subscriber with QoS matched to subscribed topic publisher
-        auto qos_profile = image_proc::getTopicQosProfile(this, topic);
+        rclcpp::QoS qos_profile = image_proc::getQosProfile(this, topic);
         sub_raw_ = image_transport::create_subscription(
-          this, topic,
-          std::bind(&ConvertMetricNode::depthCb, this, std::placeholders::_1),
+          *this,
+          topic,
+          [this](const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg) {depthCb(raw_msg);},
           hints.getTransport(),
           qos_profile);
       }
@@ -82,13 +83,13 @@ ConvertMetricNode::ConvertMetricNode(const rclcpp::NodeOptions & options)
 
   // Create publisher - allow overriding QoS settings (history, depth, reliability)
   pub_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
-  pub_depth_ = image_transport::create_publisher(this, topic, rmw_qos_profile_default,
+  pub_depth_ = image_transport::create_publisher(*this, topic, rclcpp::SystemDefaultsQoS(),
       pub_options);
 }
 
 void ConvertMetricNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & raw_msg)
 {
-  auto depth_msg = std::make_shared<sensor_msgs::msg::Image>();
+  auto depth_msg = std::make_unique<sensor_msgs::msg::Image>();
   depth_msg->header = raw_msg->header;
   depth_msg->height = raw_msg->height;
   depth_msg->width = raw_msg->width;
@@ -147,7 +148,7 @@ void ConvertMetricNode::depthCb(const sensor_msgs::msg::Image::ConstSharedPtr & 
     return;
   }
 
-  pub_depth_.publish(depth_msg);
+  pub_depth_.publish(std::move(depth_msg));
 }
 
 }  // namespace depth_image_proc

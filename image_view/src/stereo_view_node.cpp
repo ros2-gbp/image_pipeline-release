@@ -53,10 +53,10 @@
 #include <string>
 
 #include "cv_bridge/cv_bridge.hpp"
-#include "message_filters/subscriber.h"
-#include "message_filters/sync_policies/approximate_time.h"
-#include "message_filters/sync_policies/exact_time.h"
-#include "message_filters/synchronizer.h"
+#include "message_filters/subscriber.hpp"
+#include "message_filters/sync_policies/approximate_time.hpp"
+#include "message_filters/sync_policies/exact_time.hpp"
+#include "message_filters/synchronizer.hpp"
 
 #include "image_view/stereo_view_node.hpp"
 
@@ -80,9 +80,6 @@ using sensor_msgs::msg::Image;
 using stereo_msgs::msg::DisparityImage;
 using message_filters::sync_policies::ExactTime;
 using message_filters::sync_policies::ApproximateTime;
-using std::placeholders::_1;
-using std::placeholders::_2;
-using std::placeholders::_3;
 
 constexpr unsigned char StereoViewNode::colormap[768];
 
@@ -94,12 +91,13 @@ StereoViewNode::StereoViewNode(const rclcpp::NodeOptions & options)
   // Read local parameters
   bool autosize = this->declare_parameter("autosize", true);
 
-  this->declare_parameter<std::string>("filename_format", std::string("frame%04i.jpg"));
+  // {} is the image prefix ("left"/"right"/"disp"), {:04} the zero-padded count.
+  this->declare_parameter<std::string>("filename_format", std::string("{}{:04}.jpg"));
   filename_format_ = this->get_parameter("filename_format").as_string();
 
   // TransportHints does not actually declare the parameter
   this->declare_parameter<std::string>("image_transport", std::string("raw"));
-  image_transport::TransportHints hints(this);
+  image_transport::TransportHints hints{*this};
 
   // Do GUI window setup
   int flags = autosize ? (cv::WINDOW_AUTOSIZE | cv::WINDOW_KEEPRATIO | cv::WINDOW_GUI_EXPANDED) : 0;
@@ -128,9 +126,9 @@ StereoViewNode::StereoViewNode(const rclcpp::NodeOptions & options)
     stereo_ns + "/disparity", this->get_name(), this->get_namespace());
 
   // Subscribe to three input topics.
-  left_sub_.subscribe(this, left_topic, hints.getTransport());
-  right_sub_.subscribe(this, right_topic, hints.getTransport());
-  disparity_sub_.subscribe(this, disparity_topic);
+  left_sub_.subscribe(*this, left_topic, hints.getTransport(), rclcpp::SystemDefaultsQoS());
+  right_sub_.subscribe(*this, right_topic, hints.getTransport(), rclcpp::SystemDefaultsQoS());
+  disparity_sub_.subscribe(this, disparity_topic, rclcpp::QoS(10));
 
   RCLCPP_INFO(
     this->get_logger(),
@@ -141,30 +139,41 @@ StereoViewNode::StereoViewNode(const rclcpp::NodeOptions & options)
   auto topics = this->get_topic_names_and_types();
 
   // Complain every 30s if the topics appear unsynchronized
-  left_sub_.registerCallback(std::bind(increment, &left_received_));
-  right_sub_.registerCallback(std::bind(increment, &right_received_));
-  disparity_sub_.registerCallback(std::bind(increment, &disp_received_));
+  left_sub_.registerCallback(
+    [this](const Image::ConstSharedPtr &) {increment(&left_received_);});
+  right_sub_.registerCallback(
+    [this](const Image::ConstSharedPtr &) {increment(&right_received_);});
+  disparity_sub_.registerCallback(
+    [this](const DisparityImage::ConstSharedPtr &) {increment(&disp_received_);});
   check_synced_timer_ = this->create_wall_timer(
     std::chrono::seconds(15),
-    std::bind(&StereoViewNode::checkInputsSynchronized, this));
+    [this]() {checkInputsSynchronized();});
 
   // Synchronize input topics. Optionally do approximate synchronization.
   queue_size_ = this->declare_parameter("queue_size", 5);
   bool approx = this->declare_parameter("approximate_sync", false);
 
   if (approx) {
-    approximate_sync_.reset(
-      new ApproximateSync(
-        ApproximatePolicy(queue_size_), left_sub_, right_sub_, disparity_sub_));
+    approximate_sync_ = std::make_shared<ApproximateSync>(
+      ApproximatePolicy(queue_size_), left_sub_, right_sub_, disparity_sub_);
     approximate_sync_->registerCallback(
-      std::bind(&StereoViewNode::imageCb, this, _1, _2, _3));
+      [this](
+        const Image::ConstSharedPtr & left,
+        const Image::ConstSharedPtr & right,
+        const DisparityImage::ConstSharedPtr & disparity_msg) {
+        imageCb(left, right, disparity_msg);
+      });
   } else {
-    exact_sync_.reset(
-      new ExactSync(
-        ExactPolicy(queue_size_),
-        left_sub_, right_sub_, disparity_sub_));
+    exact_sync_ = std::make_shared<ExactSync>(
+      ExactPolicy(queue_size_),
+      left_sub_, right_sub_, disparity_sub_);
     exact_sync_->registerCallback(
-      std::bind(&StereoViewNode::imageCb, this, _1, _2, _3));
+      [this](
+        const Image::ConstSharedPtr & left,
+        const Image::ConstSharedPtr & right,
+        const DisparityImage::ConstSharedPtr & disparity_msg) {
+        imageCb(left, right, disparity_msg);
+      });
   }
 
   for (auto const & x : topics) {
